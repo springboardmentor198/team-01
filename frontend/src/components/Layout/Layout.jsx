@@ -1,7 +1,7 @@
 import Sidebar from "../Sidebar/Sidebar";
 import Navbar from "../Navbar/Navbar";
 
-function Layout({ title, children }) {
+function Layout({ title, showSearch = false, children }) {
   return (
     <div className="page-container">
 
@@ -9,7 +9,7 @@ function Layout({ title, children }) {
 
       <main className="main-content">
 
-        <Navbar title={title} />
+        <Navbar title={title} showSearch={showSearch} />
 
         <div className="page-wrapper">
 
