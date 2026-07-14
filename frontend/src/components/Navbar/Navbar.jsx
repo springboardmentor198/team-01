@@ -1,12 +1,12 @@
 import "./Navbar.css";
 
-import { FiBell } from "react-icons/fi";
+import { FiBell, FiSearch } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
 import { IoChevronBack } from "react-icons/io5";
 
 import { useNavigate, useLocation } from "react-router-dom";
 
-function Navbar({ title }) {
+function Navbar({ title, showSearch = false }) {
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,6 +40,15 @@ function Navbar({ title }) {
       </div>
 
       <div className="navbar-right">
+
+        {showSearch && (
+
+          <div className="navbar-search">
+            <FiSearch />
+            <input type="text" placeholder="Search Property..." />
+          </div>
+
+        )}
 
         <button
           className="nav-btn"
