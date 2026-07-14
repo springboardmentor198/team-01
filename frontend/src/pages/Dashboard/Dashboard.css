@@ -1,0 +1,380 @@
+/* ================= DASHBOARD ================= */
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ================= STATS ================= */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.05);
+  transition: .25s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.08);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #6B7280;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* ================= MAIN GRID ================= */
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 22px;
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 2px 10px rgba(0,0,0,.05);
+  padding: 22px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #1F2937;
+}
+
+/* ================= TABLE ================= */
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.recent-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recent-table thead {
+  background: #F8FAFC;
+}
+
+.recent-table th {
+  text-align: left;
+  padding: 14px;
+  font-size: 13px;
+  color: #6B7280;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.recent-table td {
+  padding: 15px 14px;
+  font-size: 14px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.recent-table tbody tr:hover {
+  background: #F9FAFB;
+}
+
+/* ================= RISK SUMMARY ================= */
+
+.risk-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.risk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.risk-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 14px;
+  color: #374151;
+}
+
+.risk-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* ================= DONUT ================= */
+
+.donut-value {
+  font-size: 28px;
+  font-weight: 700;
+  fill: #111827;
+}
+
+.donut-label {
+  font-size: 12px;
+  fill: #6B7280;
+}
+
+/* ================= NOTIFICATIONS ================= */
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px 0;
+
+  border-bottom: 1px solid #F1F5F9;
+
+  transition: .25s;
+
+  cursor: pointer;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  padding-left: 6px;
+}
+
+.notification-item h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.notification-item p {
+  margin-top: 3px;
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.notification-item svg {
+  color: #9CA3AF;
+}
+
+/* ================= RISK BADGES ================= */
+
+.risk-badge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 12px;
+
+  border-radius: 20px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+.risk-badge.low {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.risk-badge.medium {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.risk-badge.high {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+/* ================= QUICK ACTIONS ================= */
+
+.quick-actions-card {
+  margin-top: 4px;
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  width: 100%;
+
+  padding: 18px;
+
+  background: #F8FAFC;
+
+  border: 1px solid #E5E7EB;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  transition: all .25s ease;
+
+  text-align: left;
+}
+
+.quick-action-btn:hover {
+  background: #EFF6FF;
+  border-color: #2563EB;
+  transform: translateY(-2px);
+}
+
+.quick-action-icon {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 10px;
+
+  background: #DBEAFE;
+
+  color: #2563EB;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  flex-shrink: 0;
+}
+
+.quick-action-content h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.quick-action-content p {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1200px) {
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .risk-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .dashboard-card {
+    padding: 18px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+}
+
+@media (max-width: 500px) {
+
+  .recent-table th,
+  .recent-table td {
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .quick-action-btn {
+    padding: 14px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+}
+
+/* ================= SCROLLBAR ================= */
+
+.table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 20px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}

@@ -1,0 +1,112 @@
+.page-container {
+  display: flex;
+  min-height: 100vh;
+  background: var(--background);
+}
+
+/* ---------- Main Content ---------- */
+
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+
+  background: var(--background);
+}
+
+/* ---------- Page Body ---------- */
+
+.page-wrapper {
+  flex: 1;
+  padding: 28px;
+}
+
+/* ---------- Common Card ---------- */
+
+.card {
+  background: var(--card-bg);
+
+  border-radius: var(--radius);
+
+  box-shadow: var(--shadow);
+
+  border: 1px solid var(--border);
+
+  padding: 20px;
+}
+
+/* ---------- Flex Utilities ---------- */
+
+.flex {
+  display: flex;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ---------- Grid ---------- */
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 992px) {
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .page-wrapper {
+    padding: 20px;
+  }
+
+  .grid-4,
+  .grid-3,
+  .grid-2 {
+
+    grid-template-columns: 1fr;
+
+  }
+
+}

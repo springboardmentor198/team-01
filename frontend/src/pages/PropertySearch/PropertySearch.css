@@ -1,0 +1,574 @@
+.property-search {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ================= HERO ================= */
+
+.hero-card {
+  text-align: center;
+  padding: 26px 30px;
+}
+
+.hero-icon {
+  width: 56px;
+  height: 56px;
+
+  margin: auto;
+  margin-bottom: 14px;
+
+  border-radius: 50%;
+
+  background: #2563EB;
+
+  color: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-icon svg {
+  font-size: 24px;
+}
+
+.hero-card h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1F2937;
+}
+
+.hero-card p {
+  margin-top: 8px;
+
+  font-size: 14px;
+
+  color: #6B7280;
+
+  line-height: 1.6;
+}
+
+/* ================= COMMON ================= */
+
+.card-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+.card-heading svg {
+  font-size: 18px;
+  color: #2563EB;
+}
+
+.card-heading h2 {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* ================= SEARCH ================= */
+
+.search-card {
+  padding: 20px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 12px;
+}
+
+.search-bar input {
+  flex: 1;
+
+  height: 42px;
+
+  border: 1px solid #E5E7EB;
+
+  border-radius: 10px;
+
+  padding: 0 16px;
+
+  font-size: 14px;
+
+  transition: .25s;
+}
+
+.search-bar input:focus {
+  border-color: #2563EB;
+}
+
+.search-bar button {
+  width: 120px;
+
+  height: 42px;
+
+  background: #2563EB;
+
+  color: white;
+
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  transition: .25s;
+}
+
+.search-bar button:hover {
+  background: #1D4ED8;
+}
+
+/* ================= QUICK SEARCH ================= */
+
+.quick-search {
+  margin-top: 16px;
+
+  display: flex;
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+}
+
+.quick-search span {
+  font-size: 13px;
+
+  color: #6B7280;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 6px 12px;
+
+  border-radius: 20px;
+
+  background: #EFF6FF;
+
+  color: #2563EB;
+
+  font-size: 12px;
+
+  border: 1px solid #BFDBFE;
+
+  transition: .25s;
+}
+
+.chip:hover {
+  background: #DBEAFE;
+}
+
+/* ================= OR ================= */
+
+.or-divider{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    margin:-2px 0;
+
+}
+
+.or-divider span{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#6B7280;
+
+    background:#F5F7FB;
+
+    padding:0 16px;
+
+}
+
+/* ================= ADVANCED FILTER ================= */
+
+.advanced-section{
+
+    display:flex;
+
+    justify-content:center;
+
+}
+
+.advanced-btn{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    background:#172544;
+
+    color:white;
+
+    padding:10px 18px;
+
+    border-radius:10px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    transition:.25s;
+
+}
+
+.advanced-btn:hover{
+
+    background:#24375E;
+
+}
+
+.advanced-btn svg{
+
+    font-size:16px;
+
+}
+
+/* ================= QUICK ACTION ================= */
+
+.quick-card{
+
+    padding:20px;
+
+}
+
+.quick-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:16px;
+
+}
+
+.filter-box{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:6px;
+
+}
+
+.filter-box label{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#4B5563;
+
+}
+
+.filter-box select{
+
+    height:42px;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:10px;
+
+    padding:0 14px;
+
+    font-size:13px;
+
+    background:white;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.filter-box select:hover{
+
+    border-color:#2563EB;
+
+}
+
+.filter-box select:focus{
+
+    border-color:#2563EB;
+
+}
+
+/* ================= RECENT SEARCH ================= */
+
+.recent-card{
+
+    padding:20px;
+
+}
+
+.recent-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+.recent-table thead{
+
+    background:#F8FAFC;
+
+}
+
+.recent-table th{
+
+    text-align:left;
+
+    padding:12px;
+
+    font-size:13px;
+
+    color:#4B5563;
+
+    border-bottom:1px solid #E5E7EB;
+
+}
+
+.recent-table td{
+
+    padding:12px;
+
+    font-size:13px;
+
+    border-bottom:1px solid #F1F5F9;
+
+}
+
+.recent-table tr:hover{
+
+    background:#FAFAFA;
+
+}
+
+/* ================= RISK BADGES ================= */
+
+.risk{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:4px 10px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+.risk.low{
+
+    background:#DCFCE7;
+
+    color:#15803D;
+
+}
+
+.risk.medium{
+
+    background:#FEF3C7;
+
+    color:#B45309;
+
+}
+
+.risk.high{
+
+    background:#FEE2E2;
+
+    color:#DC2626;
+
+}
+
+/* ================= SAVED FILTERS ================= */
+
+.saved-card{
+
+    padding:20px;
+
+}
+
+.saved-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:16px;
+
+}
+
+.saved-item{
+
+    padding:16px;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:12px;
+
+    background:#FFFFFF;
+
+    transition:.25s;
+
+    cursor:pointer;
+
+}
+
+.saved-item:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+}
+
+.saved-item h4{
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:#1F2937;
+
+    margin-bottom:6px;
+
+}
+
+.saved-item p{
+
+    font-size:12px;
+
+    color:#6B7280;
+
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width:1100px){
+
+    .quick-grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+    .saved-grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+@media (max-width:768px){
+
+    .hero-card{
+
+        padding:22px;
+
+    }
+
+    .hero-card h1{
+
+        font-size:20px;
+
+    }
+
+    .hero-card p{
+
+        font-size:13px;
+
+    }
+
+    .search-bar{
+
+        flex-direction:column;
+
+    }
+
+    .search-bar button{
+
+        width:100%;
+
+    }
+
+    .quick-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .saved-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .recent-table{
+
+        display:block;
+
+        overflow-x:auto;
+
+        white-space:nowrap;
+
+    }
+
+}
+
+@media (max-height:850px){
+
+    .hero-card{
+
+        padding:18px;
+
+    }
+
+    .property-search{
+
+        gap:14px;
+
+    }
+
+    .search-card,
+    .quick-card,
+    .recent-card,
+    .saved-card{
+
+        padding:18px;
+
+    }
+
+}
