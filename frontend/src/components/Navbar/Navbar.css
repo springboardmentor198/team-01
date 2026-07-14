@@ -1,133 +1,159 @@
-.navbar{
+/* ================= NAVBAR ================= */
 
-    height:72px;
+.navbar {
+  height: 60px;
+  background: #FFFFFF;
 
-    background:#fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-    border-bottom:1px solid var(--border);
+  padding: 0 22px;
 
-    display:flex;
+  border-bottom: 1px solid #E5E7EB;
 
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:0 32px;
-
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.navbar-left{
+/* ================= LEFT ================= */
 
-    display:flex;
-
-    align-items:center;
-
-    gap:14px;
-
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.page-title{
+/* ================= TITLE ================= */
 
-    font-size:30px;
-
-    font-weight:700;
-
-    color:#1F2937;
-
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1F2937;
+  letter-spacing: 0.2px;
+  line-height: 1;
 }
 
-.back-btn{
+/* ================= BACK BUTTON ================= */
 
-    width:40px;
+.back-btn {
+  width: 34px;
+  height: 34px;
 
-    height:40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-    border-radius:50%;
+  border-radius: 50%;
 
-    background:#F3F4F6;
+  background: #F8FAFC;
 
-    display:flex;
+  border: 1px solid #E5E7EB;
 
-    justify-content:center;
+  cursor: pointer;
 
-    align-items:center;
-
-    transition:.25s;
-
+  transition: all .25s ease;
 }
 
-.back-btn:hover{
-
-    background:#E5E7EB;
-
+.back-btn:hover {
+  background: #EEF2F7;
 }
 
-.back-btn svg{
-
-    font-size:20px;
-
+.back-btn svg {
+  font-size: 18px;
+  color: #374151;
 }
 
-.navbar-right{
+/* ================= RIGHT ================= */
 
-    display:flex;
-
-    gap:16px;
-
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.nav-btn{
+/* ================= ICON BUTTONS ================= */
 
-    width:42px;
+.nav-btn {
+  width: 36px;
+  height: 36px;
 
-    height:42px;
+  border-radius: 50%;
 
-    border-radius:50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-    background:white;
+  background: white;
 
-    border:1px solid var(--border);
+  border: 1px solid #E5E7EB;
 
-    display:flex;
+  cursor: pointer;
 
-    justify-content:center;
+  position: relative;
 
-    align-items:center;
-
-    position:relative;
-
-    transition:.25s;
-
+  transition: all .25s ease;
 }
 
-.nav-btn:hover{
-
-    background:#F8FAFC;
-
+.nav-btn:hover {
+  background: #F8FAFC;
+  transform: translateY(-1px);
 }
 
-.nav-btn svg{
-
-    font-size:21px;
-
-    color:#374151;
-
+.nav-btn svg {
+  font-size: 18px;
+  color: #374151;
 }
 
-.notification-badge{
+/* ================= PROFILE ================= */
 
-    width:8px;
+.profile-btn svg {
+  font-size: 20px;
+}
 
-    height:8px;
+/* ================= NOTIFICATION BADGE ================= */
 
-    border-radius:50%;
+.notification-badge {
+  position: absolute;
 
-    background:#EF4444;
+  width: 7px;
+  height: 7px;
 
-    position:absolute;
+  border-radius: 50%;
 
-    top:10px;
+  background: #EF4444;
 
-    right:10px;
+  top: 8px;
+  right: 8px;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width:768px){
+
+  .navbar{
+    padding:0 16px;
+    height:56px;
+  }
+
+  .page-title{
+    font-size:18px;
+  }
+
+  .back-btn,
+  .nav-btn{
+
+    width:32px;
+    height:32px;
+
+  }
+
+  .back-btn svg,
+  .nav-btn svg{
+
+    font-size:16px;
+
+  }
 
 }
