@@ -1,0 +1,82 @@
+import "./Sidebar.css";
+import logo from "../../assets/images/logo.png";
+
+import { NavLink } from "react-router-dom";
+
+import { RiDashboardFill } from "react-icons/ri";
+import { FiSearch, FiLogOut } from "react-icons/fi";
+import { IoNotificationsOutline } from "react-icons/io5";
+import { HiOutlineClipboardDocumentList } from "react-icons/hi2";
+import { CgProfile } from "react-icons/cg";
+
+function Sidebar() {
+  const menuItems = [
+    {
+      name: "Dashboard",
+      path: "/dashboard",
+      icon: <RiDashboardFill />,
+    },
+    {
+      name: "Property Search",
+      path: "/property-search",
+      icon: <FiSearch />,
+    },
+    {
+      name: "Notifications",
+      path: "/notifications",
+      icon: <IoNotificationsOutline />,
+    },
+    {
+      name: "Audit Logs",
+      path: "/audit-logs",
+      icon: <HiOutlineClipboardDocumentList />,
+    },
+    {
+      name: "Profile",
+      path: "/profile",
+      icon: <CgProfile />,
+    },
+  ];
+
+  return (
+    <aside className="sidebar">
+
+      <div>
+
+        <div className="logo-section">
+          <img src={logo} alt="Logo" />
+          <h2>DueDiligence</h2>
+        </div>
+
+        <nav className="menu">
+
+          {menuItems.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.path}
+              className={({ isActive }) =>
+                isActive ? "menu-item active" : "menu-item"
+              }
+            >
+              {item.icon}
+              <span>{item.name}</span>
+            </NavLink>
+          ))}
+
+        </nav>
+
+      </div>
+
+      <button className="logout">
+
+        <FiLogOut />
+
+        <span>Logout</span>
+
+      </button>
+
+    </aside>
+  );
+}
+
+export default Sidebar;

@@ -1,0 +1,19 @@
+@import "../Login/Login.css";
+
+.auth-card-wide {
+  max-width: 560px;
+}
+
+.auth-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 20px;
+}
+
+@media (max-width: 640px) {
+
+  .auth-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
