@@ -1,133 +1,208 @@
-.navbar{
+/* ================= NAVBAR ================= */
 
-    height:72px;
+.navbar {
+  height: 60px;
+  background: #FFFFFF;
 
-    background:#fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-    border-bottom:1px solid var(--border);
+  padding: 0 22px;
 
-    display:flex;
+  border-bottom: 1px solid #E5E7EB;
 
-    justify-content:space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
 
-    align-items:center;
+/* ================= LEFT ================= */
 
-    padding:0 32px;
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ================= TITLE ================= */
+
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1F2937;
+  letter-spacing: 0.2px;
+  line-height: 1;
+}
+
+/* ================= BACK BUTTON ================= */
+
+.back-btn {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 50%;
+
+  background: #F8FAFC;
+
+  border: 1px solid #E5E7EB;
+
+  cursor: pointer;
+
+  transition: all .25s ease;
+}
+
+.back-btn:hover {
+  background: #EEF2F7;
+}
+
+.back-btn svg {
+  font-size: 18px;
+  color: #374151;
+}
+
+/* ================= RIGHT ================= */
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ================= ICON BUTTONS ================= */
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: white;
+
+  border: 1px solid #E5E7EB;
+
+  cursor: pointer;
+
+  position: relative;
+
+  transition: all .25s ease;
+}
+
+.nav-btn:hover {
+  background: #F8FAFC;
+  transform: translateY(-1px);
+}
+
+.nav-btn svg {
+  font-size: 18px;
+  color: #374151;
+}
+
+/* ================= PROFILE ================= */
+
+.profile-btn svg {
+  font-size: 20px;
+}
+
+/* ================= NOTIFICATION BADGE ================= */
+
+.notification-badge {
+  position: absolute;
+
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #EF4444;
+
+  top: 8px;
+  right: 8px;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width:768px){
+
+  .navbar{
+    padding:0 16px;
+    height:56px;
+  }
+
+  .page-title{
+    font-size:18px;
+  }
+
+  .back-btn,
+  .nav-btn{
+
+    width:32px;
+    height:32px;
+
+  }
+
+  .back-btn svg,
+  .nav-btn svg{
+
+    font-size:16px;
+
+  }
 
 }
 
-.navbar-left{
 
-    display:flex;
+.search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 
-    align-items:center;
+    gap: 10px;
 
-    gap:14px;
+    width: 220px;          /* Increased width */
+    height: 35px;
 
+    padding: 0 16px;
+
+    background: #FFFFFF;
+
+    border: 1px solid #E5E7EB;
+
+    border-radius: 18px;   /* Increased radius */
+
+    color: #374151;
+
+    cursor: pointer;
+
+    transition: all .25s ease;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
 }
 
-.page-title{
-
-    font-size:30px;
-
-    font-weight:700;
-
-    color:#1F2937;
-
+.search-btn:hover {
+    background: #F9FAFB;
+    border-color: #9CA3AF;
+    box-shadow: 0 3px 8px rgba(0,0,0,.08);
 }
 
-.back-btn{
-
-    width:40px;
-
-    height:40px;
-
-    border-radius:50%;
-
-    background:#F3F4F6;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    transition:.25s;
-
+.search-btn svg {
+    font-size: 18px;
+    color: #6B7280;
+    flex-shrink: 0;
 }
 
-.back-btn:hover{
-
-    background:#E5E7EB;
-
-}
-
-.back-btn svg{
-
-    font-size:20px;
-
-}
-
-.navbar-right{
-
-    display:flex;
-
-    gap:16px;
-
-}
-
-.nav-btn{
-
-    width:42px;
-
-    height:42px;
-
-    border-radius:50%;
-
-    background:white;
-
-    border:1px solid var(--border);
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    position:relative;
-
-    transition:.25s;
-
-}
-
-.nav-btn:hover{
-
-    background:#F8FAFC;
-
-}
-
-.nav-btn svg{
-
-    font-size:21px;
-
-    color:#374151;
-
-}
-
-.notification-badge{
-
-    width:8px;
-
-    height:8px;
-
-    border-radius:50%;
-
-    background:#EF4444;
-
-    position:absolute;
-
-    top:10px;
-
-    right:10px;
-
+.search-btn span {
+    color: #4B5563;
+    flex: 1;              /* Pushes text to the left */
+    text-align: left;
 }

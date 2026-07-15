@@ -10,12 +10,19 @@ CREATE TABLE property_documents (
 
     file_url TEXT NOT NULL,
 
+    uploaded_by BIGINT,
+
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_document_property
         FOREIGN KEY(property_id)
         REFERENCES properties(property_id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_document_uploader
+        FOREIGN KEY(uploaded_by)
+        REFERENCES users(user_id)
+        ON DELETE SET NULL
 );
 
 CREATE INDEX idx_document_property

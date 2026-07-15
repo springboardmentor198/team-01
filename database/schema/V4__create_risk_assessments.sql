@@ -13,6 +13,8 @@ CREATE TABLE risk_assessments (
         CHECK(risk_level IN
         ('LOW','MEDIUM','HIGH','CRITICAL')),
 
+    assessment_summary TEXT,
+
     remarks TEXT,
 
     assessment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
