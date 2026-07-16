@@ -3,6 +3,7 @@ package com.realestate.duediligence.controller;
 import com.realestate.duediligence.dto.LoginRequest;
 import com.realestate.duediligence.dto.RegisterRequest;
 import com.realestate.duediligence.entity.User;
+import com.realestate.duediligence.repository.UserRepository;
 import com.realestate.duediligence.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,9 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
         User user = userService.register(request);
@@ -25,5 +29,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(userService.login(request));
+    }
+
+    @GetMapping("/reset")
+    public ResponseEntity<String> resetUser(@RequestParam String email) {
+        userRepository.findByEmail(email).ifPresent(user -> userRepository.delete(user));
+        return ResponseEntity.ok("User reset successfully");
     }
 }

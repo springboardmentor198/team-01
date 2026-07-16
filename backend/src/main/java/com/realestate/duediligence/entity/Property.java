@@ -17,7 +17,7 @@ public class Property {
     @Column(name = "property_id")
     private Integer propertyId;
 
-    @Column(name = "property_code", nullable = false, unique = true)
+    @Column(name = "property_title", nullable = false)
     private String propertyCode;
 
     @Column(name = "parcel_id")
@@ -36,7 +36,7 @@ public class Property {
     @Column(name = "land_use")
     private String landUse;
 
-    @Column(name = "lot_size_sqft")
+    @Column(name = "area_sqft")
     private BigDecimal lotSizeSqft;
 
     @Column(name = "year_built")

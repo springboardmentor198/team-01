@@ -1,7 +1,8 @@
+import { useState, useEffect } from "react";
 import Layout from "../../components/Layout/Layout";
 import "./PropertyResults.css";
-
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { api, getPropertyRisk, getPropertyOwnerName } from "../../services/api";
 
 import {
   LuMapPin,
@@ -12,264 +13,247 @@ import {
   LuSearch,
 } from "react-icons/lu";
 
-const properties = [
-  {
-    id: 1,
-    name: "24 Lakeview Street",
-    city: "Delhi",
-    owner: "ABC Developers",
-    type: "Residential",
-    risk: "Low",
-    status: "Verified",
-  },
-  {
-    id: 2,
-    name: "Palm Residency",
-    city: "Noida",
-    owner: "XYZ Infra",
-    type: "Commercial",
-    risk: "High",
-    status: "Under Review",
-  },
-  {
-    id: 3,
-    name: "Green Avenue",
-    city: "Gurugram",
-    owner: "Green Buildcon",
-    type: "Residential",
-    risk: "Medium",
-    status: "Pending",
-  },
-  {
-    id: 4,
-    name: "Skyline Towers",
-    city: "Delhi",
-    owner: "Skyline Group",
-    type: "Commercial",
-    risk: "Low",
-    status: "Verified",
-  },
-];
-
 export default function PropertyResults() {
-
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Parse filters from query parameters
+  const searchParams = new URLSearchParams(location.search);
+  const query = searchParams.get("query") || "";
+  const type = searchParams.get("type") || "";
+  const city = searchParams.get("city") || "";
+  const risk = searchParams.get("risk") || "";
+  const status = searchParams.get("status") || "";
+
+  useEffect(() => {
+    if (!api.isAuthenticated()) {
+      navigate("/login");
+      return;
+    }
+
+    const fetchProperties = async () => {
+      try {
+        const data = await api.getProperties();
+        setProperties(data);
+      } catch (err) {
+        setError(err.message || "Failed to load properties");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <Layout title="Search Results">
+        <div className="loading-container">
+          <p>Fetching properties from database...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout title="Search Results">
+        <div className="error-container">
+          <p className="error-message">Error: {error}</p>
+          <button onClick={() => window.location.reload()} className="retry-btn">
+            Retry
+          </button>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Filter properties client-side based on criteria
+  const filtered = properties.filter((property) => {
+    if (query && !property.address.toLowerCase().includes(query.toLowerCase()) && !property.propertyCode.toLowerCase().includes(query.toLowerCase())) {
+      return false;
+    }
+    if (type && property.propertyType.toLowerCase() !== type.toLowerCase()) {
+      return false;
+    }
+    if (city && property.city.toLowerCase() !== city.toLowerCase()) {
+      return false;
+    }
+    if (risk && getPropertyRisk(property.propertyId).toLowerCase() !== risk.toLowerCase()) {
+      return false;
+    }
+    if (status && property.status.toLowerCase() !== status.toLowerCase()) {
+      return false;
+    }
+    return true;
+  });
+
+  const totalResults = filtered.length;
+  const verifiedCount = filtered.filter((p) => p.status === "AVAILABLE" || p.status === "VERIFIED").length;
+  const pendingCount = filtered.filter((p) => p.status === "UNDER_REVIEW").length;
+  const highRiskCount = filtered.filter((p) => {
+    const r = getPropertyRisk(p.propertyId);
+    return r === "High" || r === "Critical";
+  }).length;
 
   return (
-
     <Layout title="Search Results">
-
       <div className="results-page">
-
         <div className="results-header">
-
           <div>
-
             <h2>Property Search Results</h2>
-
             <p>
-              Showing <strong>4</strong> matching
-              properties for
-              <strong> "24 Lakeview Street"</strong>
+              Showing <strong>{totalResults}</strong> matching properties{" "}
+              {query && (
+                <>
+                  for <strong>"{query}"</strong>
+                </>
+              )}
             </p>
-
           </div>
 
           <button
             className="new-search-btn"
             onClick={() => navigate("/property-search")}
           >
-
             <LuSearch />
-
             New Search
-
           </button>
-
         </div>
 
         <div className="summary-grid">
-
           <div className="summary-card">
-
-            <h3>4</h3>
-
+            <h3>{totalResults}</h3>
             <p>Total Results</p>
-
           </div>
 
           <div className="summary-card">
-
-            <h3>2</h3>
-
+            <h3>{verifiedCount}</h3>
             <p>Verified</p>
-
           </div>
 
           <div className="summary-card">
-
-            <h3>1</h3>
-
+            <h3>{pendingCount}</h3>
             <p>Pending</p>
-
           </div>
 
           <div className="summary-card">
-
-            <h3>1</h3>
-
+            <h3>{highRiskCount}</h3>
             <p>High Risk</p>
-
           </div>
-
         </div>
 
         <div className="properties-grid">
+          {filtered.map((property) => {
+            const riskLvl = getPropertyRisk(property.propertyId);
+            const lotSqft = property.lotSizeSqft || 1500;
+            const estimatedPrice = lotSqft * 5000;
 
-          {properties.map((property) => (
+            return (
+              <div key={property.propertyId} className="property-card">
+                <div className="property-top">
+                  <div>
+                    <h3>{property.propertyCode || "Property Entry"}</h3>
+                    <p>
+                      <LuMapPin />
+                      {property.address}, {property.city}
+                    </p>
+                  </div>
 
-            <div
-              key={property.id}
-              className="property-card"
-            >
+                  <span className={`risk-badge ${riskLvl.toLowerCase()}`}>
+                    {riskLvl} Risk
+                  </span>
+                </div>
 
-            <div className="property-top">
+                <div className="property-info">
+                  <div className="info-box">
+                    <LuBuilding2 />
+                    <div>
+                      <span>Property Type</span>
+                      <h4>{property.propertyType || "Residential"}</h4>
+                    </div>
+                  </div>
 
-              <div>
+                  <div className="info-box">
+                    <LuShieldCheck />
+                    <div>
+                      <span>Owner</span>
+                      <h4>{getPropertyOwnerName(property)}</h4>
+                    </div>
+                  </div>
 
-                <h3>{property.name}</h3>
+                  <div className="info-box">
+                    <LuTriangleAlert />
+                    <div>
+                      <span>Estimated Price</span>
+                      <h4>
+                        ₹
+                        {estimatedPrice.toLocaleString("en-IN")}
+                      </h4>
+                    </div>
+                  </div>
+                </div>
 
-                <p>
+                <div className="property-footer">
+                  <span
+                    className={`status-badge ${property.status
+                      ? property.status.toLowerCase().replace(/\s/g, "-")
+                      : "available"}`}
+                  >
+                    {property.status === "AVAILABLE" || property.status === "VERIFIED" ? "Available" : property.status === "UNDER_REVIEW" ? "Under Review" : property.status || "Available"}
+                  </span>
 
-                  <LuMapPin />
-
-                  {property.city}
-
-                </p>
-
+                  <button
+                    className="view-btn"
+                    onClick={() => navigate(`/property-details/${property.propertyId}`)}
+                  >
+                    <LuEye />
+                    View Details
+                  </button>
+                </div>
               </div>
+            );
+          })}
 
-              <span
-                className={`risk-badge ${property.risk.toLowerCase()}`}
-              >
-                {property.risk} Risk
-              </span>
-
+          {filtered.length === 0 && (
+            <div className="no-results-card" style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px", color: "#666" }}>
+              <LuTriangleAlert size={48} style={{ marginBottom: "15px", color: "#F59E0B" }} />
+              <h3>No Properties Found</h3>
+              <p>Try clearing some filters or searching for another address.</p>
             </div>
-
-            <div className="property-info">
-
-              <div className="info-box">
-
-                <LuBuilding2 />
-
-                <div>
-
-                  <span>Property Type</span>
-
-                  <h4>{property.type}</h4>
-
-                </div>
-
-              </div>
-
-              <div className="info-box">
-
-                <LuShieldCheck />
-
-                <div>
-
-                  <span>Owner</span>
-
-                  <h4>{property.owner}</h4>
-
-                </div>
-
-              </div>
-
-              <div className="info-box">
-
-                <LuTriangleAlert />
-
-                <div>
-
-                  <span>Status</span>
-
-                  <h4>{property.status}</h4>
-
-                </div>
-
-              </div>
-
-            </div>
-
-            <div className="property-footer">
-
-              <span
-                className={`status-badge ${property.status
-                  .toLowerCase()
-                  .replace(/\s/g, "-")}`}
-              >
-                {property.status}
-              </span>
-
-              <button
-                className="view-btn"
-                onClick={() =>
-                  navigate("/property-details")
-                }
-              >
-
-                <LuEye />
-
-                View Details
-
-              </button>
-
-            </div>
-
-          </div>
-
-        ))}
-
-                </div>
+          )}
+        </div>
 
         {/* ================= SEARCH SUMMARY ================= */}
-
         <div className="results-summary">
-
           <h3>Search Summary</h3>
-
           <div className="summary-details">
-
             <div className="summary-item">
               <span>Total Properties</span>
-              <strong>4</strong>
+              <strong>{totalResults}</strong>
             </div>
 
             <div className="summary-item">
               <span>Verified</span>
-              <strong>2</strong>
+              <strong>{verifiedCount}</strong>
             </div>
 
             <div className="summary-item">
               <span>Pending</span>
-              <strong>1</strong>
+              <strong>{pendingCount}</strong>
             </div>
 
             <div className="summary-item">
               <span>High Risk</span>
-              <strong>1</strong>
+              <strong>{highRiskCount}</strong>
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </Layout>
-
   );
-
 }

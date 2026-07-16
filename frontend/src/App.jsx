@@ -22,7 +22,7 @@ function App() {
 
       <Route path="/property-search" element={<PropertySearch />} />
 
-      <Route path="/property-details" element={<PropertyDetails />} />
+      <Route path="/property-details/:id" element={<PropertyDetails />} />
 
       <Route path="/notifications" element={<Notifications />} />
 
