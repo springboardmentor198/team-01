@@ -1,5 +1,6 @@
 import Layout from "../../components/Layout/Layout";
 import "./PropertySearch.css";
+import { useNavigate } from "react-router-dom";
 
 import {
   FiSearch,
@@ -16,6 +17,14 @@ import {
 import { MdOutlineApartment } from "react-icons/md";
 
 function PropertySearch() {
+
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+
+    navigate("/property-results");
+
+  };
 
   const recentSearches = [
     {
@@ -88,12 +97,11 @@ function PropertySearch() {
               defaultValue="24 Lakeview Street, Delhi"
             />
 
-            <button>
-
-              <FiSearch />
-
+            <button
+              className="search-btn"
+              onClick={handleSearch}
+            >
               Search
-
             </button>
 
           </div>
