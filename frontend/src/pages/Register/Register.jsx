@@ -1,36 +1,73 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
+import { api } from "../../services/api";
 import "./Register.css";
 
 function Register() {
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [role, setRole] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: connect to backend register API
-    navigate("/login");
+    setError("");
+    setSuccess("");
+
+    if (!role) {
+      setError("Please select a role");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.register(fullName, email, password, role, phoneNumber);
+      setSuccess("Account created successfully! Redirecting to login...");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+    } catch (err) {
+      setError(err.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <AuthLayout>
       <div className="auth-card auth-card-wide">
-
         <h1 className="auth-title">Create Account</h1>
         <p className="auth-subtitle">
           Register to Access the real estate due diligence platform
         </p>
 
+        {error && <div className="auth-error-msg">{error}</div>}
+        {success && <div className="auth-success-msg">{success}</div>}
+
         <form onSubmit={handleSubmit}>
-
           <div className="auth-grid">
-
             <div className="auth-field">
               <label htmlFor="fullName">Full Name</label>
               <input
                 id="fullName"
                 type="text"
                 className="auth-input"
-                placeholder="Enter Your FullName"
+                placeholder="Enter Your Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 required
               />
             </div>
@@ -42,6 +79,8 @@ function Register() {
                 type="email"
                 className="auth-input"
                 placeholder="Enter Your Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -52,20 +91,31 @@ function Register() {
                 id="phone"
                 type="tel"
                 className="auth-input"
-                placeholder="Enter Your phone Number"
+                placeholder="Enter Your Phone Number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 required
               />
             </div>
 
             <div className="auth-field">
               <label htmlFor="role">Role</label>
-              <input
+              <select
                 id="role"
-                type="text"
                 className="auth-input"
-                placeholder="Enter Your Role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select Role
+                </option>
+                <option value="ADMIN">Admin</option>
+                <option value="BUYER">Buyer</option>
+                <option value="AGENT">Agent</option>
+                <option value="LEGAL_REVIEWER">Legal Reviewer</option>
+                <option value="BANK">Financial Institution (Bank)</option>
+              </select>
             </div>
 
             <div className="auth-field">
@@ -75,6 +125,8 @@ function Register() {
                 type="password"
                 className="auth-input"
                 placeholder="Enter Your Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
@@ -86,16 +138,20 @@ function Register() {
                 type="password"
                 className="auth-input"
                 placeholder="Confirm Your Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
             </div>
-
           </div>
 
-          <button type="submit" className="auth-submit-btn">
-            Create Account
+          <button
+            type="submit"
+            className="auth-submit-btn"
+            disabled={loading}
+          >
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
-
         </form>
 
         <p className="auth-footer">
@@ -104,7 +160,6 @@ function Register() {
             Sign In
           </Link>
         </p>
-
       </div>
     </AuthLayout>
   );

@@ -1,7 +1,8 @@
 import "./Sidebar.css";
 import logo from "../../assets/images/logo.png";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { api } from "../../services/api";
 
 import { RiDashboardFill } from "react-icons/ri";
 import { FiSearch, FiLogOut } from "react-icons/fi";
@@ -10,6 +11,13 @@ import { HiOutlineClipboardDocumentList } from "react-icons/hi2";
 import { CgProfile } from "react-icons/cg";
 
 function Sidebar() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    api.logout();
+    navigate("/login");
+  };
+
   const menuItems = [
     {
       name: "Dashboard",
@@ -67,7 +75,7 @@ function Sidebar() {
 
       </div>
 
-      <button className="logout">
+      <button className="logout" onClick={handleLogout}>
 
         <FiLogOut />
 
