@@ -35,6 +35,7 @@ public class UserServiceImpl implements UserService {
             .passwordHash(passwordEncoder.encode(request.getPassword()))
             .avatarUrl(request.getAvatarUrl())
             .role(request.getRole())
+            .phoneNumber(request.getPhoneNumber())
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
             .build();

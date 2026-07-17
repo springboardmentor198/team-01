@@ -58,6 +58,17 @@ export const api = {
     localStorage.setItem("role", role); // Save selected role in frontend session
     localStorage.setItem("fullName", email.split("@")[0]); // Fallback display name
 
+    try {
+      // Fetch profile to get official full name and user id
+      const profile = await api.getUserProfile();
+      if (profile) {
+        if (profile.name) localStorage.setItem("fullName", profile.name);
+        if (profile.userId) localStorage.setItem("userId", String(profile.userId));
+      }
+    } catch (e) {
+      console.warn("Failed to fetch profile during login", e);
+    }
+
     return { token, email, role };
   },
 
@@ -71,6 +82,7 @@ export const api = {
         email: email,
         password: password,
         role: role,
+        phoneNumber: phoneNumber,
       }),
     });
 
@@ -174,6 +186,36 @@ export const api = {
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(errorText || "Failed to load property details");
+    }
+
+    return await response.json();
+  },
+
+  // Profile APIs
+  getUserProfile: async () => {
+    const response = await fetch(`${BASE_URL}/users/profile`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to load user profile");
+    }
+
+    return await response.json();
+  },
+
+  updateUserProfile: async (profileData) => {
+    const response = await fetch(`${BASE_URL}/users/profile`, {
+      method: "PUT",
+      headers: getHeaders(true),
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to update profile");
     }
 
     return await response.json();
