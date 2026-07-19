@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 import "./Login.css";
 
+import logo from "../../assets/images/logo.png";
+
 const ROLE_OPTIONS = [
   { value: "ADMIN", label: "Admin" },
   { value: "BUYER", label: "Buyer" },
@@ -35,7 +37,7 @@ function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-
+  // ---- custom role dropdown state ----
   const [roleOpen, setRoleOpen] = useState(false);
   const roleRef = useRef(null);
 
@@ -103,11 +105,7 @@ function Login() {
       <aside className="side-panel">
         <div className="side-brand">
           <div className="brand-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 10.5L12 3l9 7.5" />
-              <path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" />
-              <path d="M9 21v-6h6v6" />
-            </svg>
+            <img src={logo} alt="DueDiligence logo" />
           </div>
           <div className="brand-text">
             <div className="brand-name">DueDiligence</div>
@@ -161,11 +159,7 @@ function Login() {
         <div className="auth-card">
           <div className="login-logo">
             <div className="logo-circle">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 10.5L12 3l9 7.5" />
-                <path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" />
-                <path d="M9 21v-6h6v6" />
-              </svg>
+              <img src={logo} alt="DueDiligence logo" />
             </div>
           </div>
 
