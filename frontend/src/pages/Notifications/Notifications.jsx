@@ -1,6 +1,6 @@
+import { useState } from "react";
 import Layout from "../../components/Layout/Layout";
 import "./Notifications.css";
-
 import {
   LuFileText,
   LuTriangleAlert,
@@ -17,6 +17,7 @@ const notifications = [
     icon: LuFileText,
     color: "#2563EB",
     bg: "#DBEAFE",
+    unread: true,
   },
   {
     id: 2,
@@ -26,6 +27,7 @@ const notifications = [
     icon: LuTriangleAlert,
     color: "#DC2626",
     bg: "#FEE2E2",
+    unread: true,
   },
   {
     id: 3,
@@ -35,6 +37,7 @@ const notifications = [
     icon: LuClock,
     color: "#D97706",
     bg: "#FEF3C7",
+    unread: false,
   },
   {
     id: 4,
@@ -44,36 +47,52 @@ const notifications = [
     icon: LuCircleCheck,
     color: "#16A34A",
     bg: "#DCFCE7",
+    unread: false,
   },
 ];
 
 export default function Notifications() {
+  const [tab, setTab] = useState("all");
+
+  const unreadCount = notifications.filter((n) => n.unread).length;
+  const visible =
+    tab === "unread" ? notifications.filter((n) => n.unread) : notifications;
+
   return (
     <Layout title="Notifications">
-
       <div className="notifications-page">
-
         <div className="notifications-header">
+          <div className="header-text">
+            <h2>Notifications</h2>
+            <p>Stay updated on your property reviews</p>
+          </div>
+          <span className="unread-count">{unreadCount} unread</span>
+        </div>
 
-          <h2>Recent Notifications</h2>
-
-          <span>{notifications.length} Notifications</span>
-
+        <div className="notifications-tabs">
+          <button
+            className={tab === "all" ? "active" : ""}
+            onClick={() => setTab("all")}
+          >
+            All ({notifications.length})
+          </button>
+          <button
+            className={tab === "unread" ? "active" : ""}
+            onClick={() => setTab("unread")}
+          >
+            Unread ({unreadCount})
+          </button>
         </div>
 
         <div className="notifications-list">
-
-          {notifications.map((item) => {
-
+          {visible.map((item) => {
             const Icon = item.icon;
-
             return (
-
               <div
                 key={item.id}
-                className="notification-card"
+                className={`notification-card ${item.unread ? "unread" : ""}`}
+                style={{ "--accent-color": item.color }}
               >
-
                 <div
                   className="notification-icon"
                   style={{
@@ -81,35 +100,23 @@ export default function Notifications() {
                     color: item.color,
                   }}
                 >
-
-                  <Icon size={22} />
-
+                  <Icon size={20} />
                 </div>
-
                 <div className="notification-content">
-
                   <div className="notification-top">
-
                     <h3>{item.title}</h3>
-
-                    <span>{item.time}</span>
-
+                    <div className="notification-meta">
+                      <span>{item.time}</span>
+                      {item.unread && <span className="unread-dot" />}
+                    </div>
                   </div>
-
                   <p>{item.message}</p>
-
                 </div>
-
               </div>
-
             );
-
           })}
-
         </div>
-
       </div>
-
     </Layout>
   );
 }

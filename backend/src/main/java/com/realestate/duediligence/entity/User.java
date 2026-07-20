@@ -34,6 +34,12 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(name = "phone_number", unique = true, length = 15)
+    private String phoneNumber;
+
+    @Column(name = "bio", length = 500)
+    private String bio;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "../../components/Layout/Layout";
 import { api } from "../../services/api";
 import "./Profile.css";
@@ -150,29 +150,65 @@ function Profile() {
 
   const [fullName, setFullName] = useState(currentUser.fullName || "User");
   const [email, setEmail] = useState(currentUser.email || "");
-  const [phone, setPhone] = useState("+91 98765 43210");
+  const [phone, setPhone] = useState("");
+  const [bio, setBio] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const [showModal, setShowModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-  const [formName, setFormName] = useState(fullName);
-  const [formEmail, setFormEmail] = useState(email);
-  const [formPhone, setFormPhone] = useState(phone);
+  const [formName, setFormName] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formPhone, setFormPhone] = useState("");
+  const [formBio, setFormBio] = useState("");
+
+  useEffect(() => {
+    if (!api.isAuthenticated()) {
+      navigate("/login");
+      return;
+    }
+    const fetchProfile = async () => {
+      try {
+        const profile = await api.getUserProfile();
+        setFullName(profile.name || "User");
+        setEmail(profile.email || "");
+        setPhone(profile.phoneNumber || "");
+        setBio(profile.bio || "");
+      } catch (err) {
+        console.error("Failed to load user profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [navigate]);
 
   const openModal = () => {
     setFormName(fullName);
     setFormEmail(email);
     setFormPhone(phone);
+    setFormBio(bio);
     setShowModal(true);
   };
 
-  const handleSave = () => {
-    if (formName.trim()) setFullName(formName.trim());
-    if (formEmail.trim()) setEmail(formEmail.trim());
-    if (formPhone.trim()) setPhone(formPhone.trim());
-    setShowModal(false);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2500);
+  const handleSave = async () => {
+    try {
+      const updated = await api.updateUserProfile({
+        name: formName.trim(),
+        phoneNumber: formPhone.trim(),
+        bio: formBio.trim(),
+      });
+      setFullName(updated.name);
+      setPhone(updated.phoneNumber);
+      setBio(updated.bio);
+      localStorage.setItem("fullName", updated.name);
+      setShowModal(false);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2500);
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to update profile");
+    }
   };
 
   const handleLogout = () => {
@@ -181,6 +217,16 @@ function Profile() {
   };
 
   const settingsRows = role.isAdmin ? [...BASE_SETTINGS, ADMIN_SETTINGS_ROW] : BASE_SETTINGS;
+
+  if (loading) {
+    return (
+      <Layout title="Profile">
+        <div style={{ padding: "80px", textAlign: "center", color: "#6B7280", fontFamily: "inherit" }}>
+          Loading profile...
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Profile">
@@ -258,7 +304,7 @@ function Profile() {
                 <LuPhone />
                 <div>
                   <div className="about-label">Phone</div>
-                  <div className="about-value">{phone}</div>
+                  <div className="about-value">{phone || "Not specified"}</div>
                 </div>
               </div>
               <div className="about-item">
@@ -269,6 +315,12 @@ function Profile() {
                 </div>
               </div>
             </div>
+            {bio && (
+              <div className="bio-section" style={{ marginTop: "20px", borderTop: "1px solid #F3F4F6", paddingTop: "16px" }}>
+                <h4 style={{ fontSize: "14px", fontWeight: "600", color: "#374151", marginBottom: "8px" }}>Bio</h4>
+                <p style={{ fontSize: "14px", color: "#4B5563", lineHeight: "1.5" }}>{bio}</p>
+              </div>
+            )}
 
             <h3 className="card-title" style={{ marginTop: "24px" }}>
               Recent Activity
@@ -354,11 +406,14 @@ function Profile() {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Email</label>
+                  <label>
+                    Email <span className="hint">(fixed)</span>
+                  </label>
                   <input
                     type="email"
                     value={formEmail}
-                    onChange={(e) => setFormEmail(e.target.value)}
+                    disabled
+                    readOnly
                   />
                 </div>
                 <div className="form-group">
@@ -372,7 +427,11 @@ function Profile() {
               </div>
               <div className="form-group full">
                 <label>Bio</label>
-                <textarea placeholder="Tell us a little about yourself" />
+                <textarea
+                  placeholder="Tell us a little about yourself"
+                  value={formBio}
+                  onChange={(e) => setFormBio(e.target.value)}
+                />
               </div>
             </div>
             <div className="modal-footer">
