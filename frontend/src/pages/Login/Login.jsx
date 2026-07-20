@@ -66,7 +66,7 @@ function Login() {
     setLoading(true);
     try {
       await api.login(email, password, role);
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       setError(err.message || "Invalid email or password");
     } finally {
@@ -91,7 +91,7 @@ function Login() {
     try {
       // credential would come from the real Google button/callback
       await api.loginWithGoogle(role);
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       setError(err.message || "Google sign-in failed");
     } finally {
