@@ -6,6 +6,15 @@
   gap: 22px;
 }
 
+.demo-data-notice {
+  padding: 12px 16px;
+  border: 1px solid #BFDBFE;
+  border-radius: 10px;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-size: 14px;
+}
+
 /* ================= STATS ================= */
 
 .stats-grid {
