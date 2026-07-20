@@ -1,5 +1,6 @@
 package com.realestate.duediligence.controller;
 
+import com.realestate.duediligence.dto.ForgotPasswordRequest;
 import com.realestate.duediligence.dto.LoginRequest;
 import com.realestate.duediligence.dto.RegisterRequest;
 import com.realestate.duediligence.entity.User;
@@ -35,5 +36,13 @@ public class AuthController {
     public ResponseEntity<String> resetUser(@RequestParam String email) {
         userRepository.findByEmail(email).ifPresent(user -> userRepository.delete(user));
         return ResponseEntity.ok("User reset successfully");
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+
+        String response = userService.forgotPassword(request);
+
+        return ResponseEntity.ok(response);
     }
 }

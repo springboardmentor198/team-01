@@ -13,7 +13,6 @@ const getHeaders = (includeAuth = true) => {
   return headers;
 };
 
-// Helper risk/owner maps to align database properties with UI features
 export const getPropertyRisk = (id) => {
   const risks = {
     1: "Medium",
@@ -72,6 +71,43 @@ export const api = {
     return { token, email, role };
   },
 
+  // Google OAuth login — Login.jsx uses useGoogleLogin({ flow: "auth-code" }),
+  // so tokenResponse contains an authorization `code`, not an access_token.
+  // NOTE: backend needs a POST /api/auth/google endpoint that accepts
+  // { code, role } and returns a raw JWT string (same shape as /auth/login).
+  // Confirm the exact route/DTO with your backend teammate and adjust below.
+  loginWithGoogle: async (tokenResponse, role) => {
+    const response = await fetch(`${BASE_URL}/auth/google`, {
+      method: "POST",
+      headers: getHeaders(false),
+      body: JSON.stringify({ code: tokenResponse.code, role }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Google login failed");
+    }
+
+    // Assuming backend returns raw JWT text, same as /auth/login
+    const token = await response.text();
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
+    localStorage.setItem("fullName", "Google User"); // Fallback until profile fetch
+
+    try {
+      const profile = await api.getUserProfile();
+      if (profile) {
+        if (profile.name) localStorage.setItem("fullName", profile.name);
+        if (profile.email) localStorage.setItem("email", profile.email);
+        if (profile.userId) localStorage.setItem("userId", String(profile.userId));
+      }
+    } catch (e) {
+      console.warn("Failed to fetch profile during Google login", e);
+    }
+
+    return { token, role };
+  },
+
   register: async (fullName, email, password, role, phoneNumber) => {
     // Mithun's RegisterRequest takes name, email, password, role (Enum)
     const response = await fetch(`${BASE_URL}/auth/register`, {
@@ -117,7 +153,7 @@ export const api = {
 
   // Dashboard API
   getDashboardSummary: async () => {
-    // Since Mithun's backend does not have a dashboard controller, 
+    // Since Mithun's backend does not have a dashboard controller,
     // we fetch properties from the database and compute stats dynamically
     const properties = await api.getProperties();
 
