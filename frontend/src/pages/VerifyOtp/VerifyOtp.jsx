@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import react, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import "./VerifyOtp.css";
