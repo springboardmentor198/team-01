@@ -218,7 +218,7 @@ function Login() {
                 >
                   {selectedRoleLabel || "Select Role"}
                 </button>
-                <svg className="custom-select-chevron" width="14" height="9" viewBox="0 0 14 9" fill="none">
+                <svg className={`custom-select-chevron${roleOpen ? " open" : ""}`} width="14" height="9" viewBox="0 0 14 9" fill="none">
                   <path d="M1 1l6 6 6-6" stroke="currentColor" strokeWidth="1.8" />
                 </svg>
 
