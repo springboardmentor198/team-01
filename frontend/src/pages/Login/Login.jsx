@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
+import { useGoogleLogin } from "@react-oauth/google";
 import "./Login.css";
 
 import logo from "../../assets/images/logo.png";
@@ -59,22 +60,26 @@ function Login() {
     }
   };
 
-  const handleGoogleClick = async () => {
-    setError("");
-    if (!api.loginWithGoogle) {
-      setError("Google sign-in isn't wired up yet — see comment in Login.jsx");
-      return;
-    }
-    setGoogleLoading(true);
-    try {
-      await api.loginWithGoogle(role);
-      navigate("/dashboard", { replace: true });
-    } catch (err) {
-      setError(err.message || "Google sign-in failed");
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
+  const googleLogin = useGoogleLogin({
+    flow: "auth-code", // Use "implicit" if your backend expects an access token
+    onSuccess: async (tokenResponse) => {
+      setError("");
+      setGoogleLoading(true);
+
+      try {
+        await api.loginWithGoogle(tokenResponse, role);
+        navigate("/dashboard", { replace: true });
+      } catch (err) {
+        setError(err.message || "Google sign-in failed");
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: () => {
+      setError("Google sign-in failed");
+    },
+  });
+
 
   return (
     <div className="page-wrap">
@@ -264,7 +269,7 @@ function Login() {
             <button
               className="google-btn"
               type="button"
-              onClick={handleGoogleClick}
+              onClick={() => googleLogin()}
               disabled={googleLoading}
             >
               <svg viewBox="0 0 48 48">
