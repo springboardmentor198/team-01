@@ -9,6 +9,8 @@ import com.realestate.duediligence.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.realestate.duediligence.dto.GoogleLoginRequest;
+import com.realestate.duediligence.dto.GoogleLoginResponse;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -45,4 +47,11 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/google")
+public ResponseEntity<String> googleLogin(
+        @RequestBody GoogleLoginRequest request) {
+
+    return ResponseEntity.ok(userService.googleLogin(request));
+}
 }
