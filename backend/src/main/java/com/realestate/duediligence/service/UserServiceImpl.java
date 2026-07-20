@@ -11,6 +11,8 @@ import com.realestate.duediligence.util.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.realestate.duediligence.dto.GoogleLoginRequest;
+import com.realestate.duediligence.dto.GoogleLoginResponse;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -92,4 +94,27 @@ public class UserServiceImpl implements UserService {
 
         return "Password reset link generated successfully.";
     }
+
+   @Override
+public String googleLogin(GoogleLoginRequest request) {
+
+    User user = userRepository.findByEmail("googleuser@gmail.com")
+            .orElse(null);
+
+    if (user == null) {
+
+        user = User.builder()
+                .name("Google User")
+                .email("googleuser@gmail.com")
+                .passwordHash(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .role(com.realestate.duediligence.enums.Role.valueOf(request.getRole()))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        userRepository.save(user);
+    }
+
+    return jwtService.generateToken(user.getEmail());
+}
 }
