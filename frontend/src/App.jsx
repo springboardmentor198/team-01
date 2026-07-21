@@ -6,6 +6,7 @@ import PropertyDetails from "./pages/PropertyDetails/PropertyDetails";
 
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 
 import Notifications from "./pages/Notifications/Notifications";
 import AuditLogs from "./pages/AuditLogs/AuditLogs";
@@ -33,6 +34,8 @@ function App() {
       <Route path="/login" element={<Login />} />
 
       <Route path="/register" element={<Register />} />
+
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
       <Route path="/property-results" element={<PropertyResults />} />
 

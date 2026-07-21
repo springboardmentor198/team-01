@@ -2,12 +2,16 @@ package com.realestate.duediligence.controller;
 
 import com.realestate.duediligence.dto.LoginRequest;
 import com.realestate.duediligence.dto.RegisterRequest;
+import com.realestate.duediligence.dto.ForgotPasswordRequest;
+import com.realestate.duediligence.dto.ForgotPasswordResponse;
+import com.realestate.duediligence.dto.ResetPasswordRequest;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.repository.UserRepository;
 import com.realestate.duediligence.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -29,6 +33,17 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(userService.login(request));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ForgotPasswordResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(userService.requestPasswordReset(request.getEmail()));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        userService.resetPassword(request);
+        return ResponseEntity.ok("Password reset successfully. You can now sign in with your new password.");
     }
 
     @GetMapping("/reset")
