@@ -4,6 +4,18 @@ import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { api } from "../../services/api";
 import "./Register.css";
 
+function getPasswordStrength(pwd) {
+  if (!pwd) return 0;
+  let score = 0;
+  if (pwd.length >= 8) score++;
+  if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score++;
+  if (/\d/.test(pwd)) score++;
+  if (/[^A-Za-z0-9]/.test(pwd)) score++;
+  return score; // 0-4
+}
+
+const STRENGTH_LABELS = ["Very weak", "Weak", "Fair", "Good", "Strong"];
+
 function Register() {
   const navigate = useNavigate();
 
@@ -16,6 +28,8 @@ function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const passwordStrength = getPasswordStrength(password);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -129,6 +143,22 @@ function Register() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+
+              {password && (
+                <div className="password-strength">
+                  <div className="password-strength-bars">
+                    {[0, 1, 2, 3].map((i) => (
+                      <span
+                        key={i}
+                        className={`strength-bar${i < passwordStrength ? ` strength-${passwordStrength}` : ""}`}
+                      />
+                    ))}
+                  </div>
+                  <span className={`password-strength-label strength-text-${passwordStrength}`}>
+                    {STRENGTH_LABELS[passwordStrength]}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="auth-field">

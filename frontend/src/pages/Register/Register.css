@@ -3,17 +3,56 @@
 .auth-card-wide {
   max-width: 560px;
 }
-
 .auth-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4px 20px;
 }
-
 @media (max-width: 640px) {
-
   .auth-grid {
     grid-template-columns: 1fr;
   }
+}
 
+.password-strength{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+}
+
+.password-strength-bars{
+    display:flex;
+    gap:4px;
+    flex:1;
+}
+
+.strength-bar{
+    height:4px;
+    flex:1;
+    border-radius:4px;
+    background:#E5E7EB;
+    transition:background .2s ease;
+}
+.strength-bar.strength-1{ background:#EF4444; }
+.strength-bar.strength-2{ background:#F59E0B; }
+.strength-bar.strength-3{ background:#EAB308; }
+.strength-bar.strength-4{ background:#22C55E; }
+
+.password-strength-label{
+    font-size:12px;
+    font-weight:600;
+    white-space:nowrap;
+    min-width:70px;
+    text-align:right;
+}
+.strength-text-0, .strength-text-1{ color:#EF4444; }
+.strength-text-2{ color:#F59E0B; }
+.strength-text-3{ color:#CA8A04; }
+.strength-text-4{ color:#22C55E; }
+
+@media (max-width:480px){
+    .password-strength{ flex-direction:column; align-items:flex-start; gap:6px; }
+    .password-strength-bars{ width:100%; }
+    .password-strength-label{ text-align:left; }
 }

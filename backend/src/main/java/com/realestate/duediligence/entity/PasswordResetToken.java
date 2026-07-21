@@ -16,6 +16,7 @@ public class PasswordResetToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+<<<<<<< HEAD
     @Column(name = "reset_token_id")
     private Long id;
 
@@ -32,3 +33,20 @@ public class PasswordResetToken {
     @Column(name = "used_at")
     private LocalDateTime usedAt;
 }
+=======
+    private Integer id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false, unique = true)
+    private String token;
+
+    @Column(name = "expiry_time", nullable = false)
+    private LocalDateTime expiryTime;
+
+    @Column(nullable = false)
+    private boolean used;
+}
+>>>>>>> upstream/develop

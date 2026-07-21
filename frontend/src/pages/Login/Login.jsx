@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
+import { useGoogleLogin } from "@react-oauth/google";
 import "./Login.css";
 
 import logo from "../../assets/images/logo.png";
@@ -13,19 +14,6 @@ const ROLE_OPTIONS = [
   { value: "BANK", label: "Financial Institution (Bank)" },
 ];
 
-
-function getPasswordStrength(pwd) {
-  if (!pwd) return 0;
-  let score = 0;
-  if (pwd.length >= 8) score++;
-  if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score++;
-  if (/\d/.test(pwd)) score++;
-  if (/[^A-Za-z0-9]/.test(pwd)) score++;
-  return score; // 0-4
-}
-
-const STRENGTH_LABELS = ["Very weak", "Weak", "Fair", "Good", "Strong"];
-
 function Login() {
   const navigate = useNavigate();
 
@@ -37,7 +25,6 @@ function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // ---- custom role dropdown state ----
   const [roleOpen, setRoleOpen] = useState(false);
   const roleRef = useRef(null);
 
@@ -52,7 +39,6 @@ function Login() {
   }, []);
 
   const selectedRoleLabel = ROLE_OPTIONS.find((r) => r.value === role)?.label;
-  const passwordStrength = getPasswordStrength(password);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,34 +60,29 @@ function Login() {
     }
   };
 
-  // ---- Google login handler ----
-  // Requires: npm install @react-oauth/google, wrapping the app root in
-  // <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">, and a
-  // api.loginWithGoogle(credential, role) method that POSTs the credential
-  // to your backend, which verifies it with Google and returns your app's
-  // session token the same way api.login does. This button is currently a
-  // styled placeholder until those pieces are wired up.
-  const handleGoogleClick = async () => {
-    setError("");
-    if (!api.loginWithGoogle) {
-      setError("Google sign-in isn't wired up yet — see comment in Login.jsx");
-      return;
-    }
-    setGoogleLoading(true);
-    try {
-      // credential would come from the real Google button/callback
-      await api.loginWithGoogle(role);
-      navigate("/dashboard", { replace: true });
-    } catch (err) {
-      setError(err.message || "Google sign-in failed");
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
+  const googleLogin = useGoogleLogin({
+    flow: "auth-code", // Use "implicit" if your backend expects an access token
+    onSuccess: async (tokenResponse) => {
+      setError("");
+      setGoogleLoading(true);
+
+      try {
+        await api.loginWithGoogle(tokenResponse, role);
+        navigate("/dashboard", { replace: true });
+      } catch (err) {
+        setError(err.message || "Google sign-in failed");
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: () => {
+      setError("Google sign-in failed");
+    },
+  });
+
 
   return (
     <div className="page-wrap">
-      {/* ================= SIDEBAR ================= */}
       <aside className="side-panel">
         <div className="side-brand">
           <div className="brand-icon">
@@ -154,7 +135,6 @@ function Login() {
         </div>
       </aside>
 
-      {/* ================= FORM SIDE ================= */}
       <div className="form-side">
         <div className="auth-card">
           <div className="login-logo">
@@ -169,7 +149,6 @@ function Login() {
           {error && <div className="auth-error-msg">{error}</div>}
 
           <form onSubmit={handleSubmit}>
-            {/* ================= EMAIL ================= */}
             <div className="auth-field">
               <label htmlFor="email">Email</label>
               <div className="input-group">
@@ -189,7 +168,6 @@ function Login() {
               </div>
             </div>
 
-            {/* ================= PASSWORD ================= */}
             <div className="auth-field">
               <label htmlFor="password">Password</label>
               <div className="input-group">
@@ -226,28 +204,8 @@ function Login() {
                   )}
                 </button>
               </div>
-
-              {/* Password strength meter. More typical on Register/Reset
-                  forms than Login — remove this block if Login.jsx is
-                  purely for existing users signing in. */}
-              {password && (
-                <div className="password-strength">
-                  <div className="password-strength-bars">
-                    {[0, 1, 2, 3].map((i) => (
-                      <span
-                        key={i}
-                        className={`strength-bar${i < passwordStrength ? ` strength-${passwordStrength}` : ""}`}
-                      />
-                    ))}
-                  </div>
-                  <span className={`password-strength-label strength-text-${passwordStrength}`}>
-                    {STRENGTH_LABELS[passwordStrength]}
-                  </span>
-                </div>
-              )}
             </div>
 
-            {/* ================= ROLE (custom dropdown) ================= */}
             <div className="auth-field">
               <label htmlFor="roleTrigger">Role</label>
               <div className="input-group custom-select" ref={roleRef}>
@@ -265,7 +223,7 @@ function Login() {
                 >
                   {selectedRoleLabel || "Select Role"}
                 </button>
-                <svg className="custom-select-chevron" width="14" height="9" viewBox="0 0 14 9" fill="none">
+                <svg className={`custom-select-chevron${roleOpen ? " open" : ""}`} width="14" height="9" viewBox="0 0 14 9" fill="none">
                   <path d="M1 1l6 6 6-6" stroke="currentColor" strokeWidth="1.8" />
                 </svg>
 
@@ -307,12 +265,11 @@ function Login() {
             <span>OR</span>
           </div>
 
-          {/* ================= GOOGLE LOGIN ================= */}
           <div className="google-login-wrapper">
             <button
               className="google-btn"
               type="button"
-              onClick={handleGoogleClick}
+              onClick={() => googleLogin()}
               disabled={googleLoading}
             >
               <svg viewBox="0 0 48 48">
@@ -338,3 +295,4 @@ function Login() {
 }
 
 export default Login;
+ 
