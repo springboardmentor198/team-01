@@ -1,16 +1,20 @@
 package com.realestate.duediligence.controller;
 
-import com.realestate.duediligence.dto.ForgotPasswordRequest;
 import com.realestate.duediligence.dto.LoginRequest;
 import com.realestate.duediligence.dto.RegisterRequest;
+import com.realestate.duediligence.dto.ForgotPasswordRequest;
+import com.realestate.duediligence.dto.ForgotPasswordResponse;
+import com.realestate.duediligence.dto.ResetPasswordRequest;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.repository.UserRepository;
 import com.realestate.duediligence.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+
 import com.realestate.duediligence.dto.GoogleLoginRequest;
-import com.realestate.duediligence.dto.GoogleLoginResponse;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -34,24 +38,25 @@ public class AuthController {
         return ResponseEntity.ok(userService.login(request));
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ForgotPasswordResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(userService.requestPasswordReset(request.getEmail()));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        userService.resetPassword(request);
+        return ResponseEntity.ok("Password reset successfully. You can now sign in with your new password.");
+    }
+
     @GetMapping("/reset")
     public ResponseEntity<String> resetUser(@RequestParam String email) {
         userRepository.findByEmail(email).ifPresent(user -> userRepository.delete(user));
         return ResponseEntity.ok("User reset successfully");
     }
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
-
-        String response = userService.forgotPassword(request);
-
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping("/google")
-public ResponseEntity<String> googleLogin(
-        @RequestBody GoogleLoginRequest request) {
-
-    return ResponseEntity.ok(userService.googleLogin(request));
-}
+    public ResponseEntity<String> googleLogin(@RequestBody GoogleLoginRequest request) {
+        return ResponseEntity.ok(userService.googleLogin(request));
+    }
 }

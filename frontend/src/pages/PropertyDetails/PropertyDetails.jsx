@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Layout from "../../components/Layout/Layout";
 import "./PropertyDetails.css";
 import { useNavigate, useParams } from "react-router-dom";
-import { api, getPropertyRisk, getPropertyOwnerName } from "../../services/api";
+import { api, getPropertyRisk } from "../../services/api";
 
 import {
   LuArrowLeft,
@@ -43,28 +43,44 @@ export default function PropertyDetails() {
   const { id } = useParams();
 
   const [property, setProperty] = useState(null);
+  const [ownership, setOwnership] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!api.isAuthenticated()) {
-      navigate("/login");
-      return;
-    }
+ useEffect(() => {
+  if (!api.isAuthenticated()) {
+    navigate("/login");
+    return;
+  }
 
-    const fetchPropertyDetail = async () => {
-      try {
-        const data = await api.getPropertyById(id);
-        setProperty(data);
-      } catch (err) {
-        setError(err.message || "Failed to load property details");
-      } finally {
-        setLoading(false);
+  const fetchPropertyDetail = async () => {
+    try {
+      // Fetch Property Details
+      const propertyData = await api.getPropertyById(id);
+      setProperty(propertyData);
+
+      // Fetch Ownership Details
+      const ownershipResponse = await fetch(
+        `http://localhost:8081/api/ownership/${id}`
+      );
+
+      if (ownershipResponse.ok) {
+        const ownershipData = await ownershipResponse.json();
+
+        if (ownershipData.length > 0) {
+          setOwnership(ownershipData[0]);
+        }
       }
-    };
+    } catch (err) {
+      setError(err.message || "Failed to load property details");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchPropertyDetail();
-  }, [id, navigate]);
+  fetchPropertyDetail();
+}, [id, navigate]);
+
 
   if (loading) {
     return (
@@ -136,7 +152,7 @@ export default function PropertyDetails() {
           </span>
         </div>
 
-        <div className="info-grid">
+        <ditev className="info-grid">
           {/* ================= PROPERTY INFORMATION ================= */}
           <div className="details-card">
             <h3>Property Information</h3>
@@ -172,35 +188,59 @@ export default function PropertyDetails() {
           </div>
 
           {/* ================= OWNER DETAILS ================= */}
-          <div className="details-card">
+            <div className="details-card">
             <h3>Owner Details</h3>
+
             <div className="details-list">
+
               <div className="detail-item">
                 <LuUser />
                 <div>
                   <span>Registered Owner</span>
-                  <strong>{getPropertyOwnerName(property)}</strong>
+                  <strong>
+                    {ownership ? ownership.ownerName : "Loading..."}
+                  </strong>
                 </div>
               </div>
-
               <div className="detail-item">
-                <LuFileText />
+                <LuUser />
                 <div>
-                  <span>Report ID</span>
-                  <strong>{reportId}</strong>
+                  <span>Owner Type</span>
+                  <strong>
+                    {ownership ? ownership.ownerType : "-"}
+                  </strong>
                 </div>
               </div>
+                  <div className="detail-item">
+              <LuShieldCheck />
+                  <div>
+                    <span>Ownership Verified</span>
+                    <strong>
+                      {ownership?.verified ? "Yes" : "No"}
+                    </strong>
+                  </div>
+        </div>
 
-              <div className="detail-item">
-                <LuCalendarDays />
+        <div className="detail-item">
+          <LuFileText />
+          <div>
+            <span>Registration Number</span>
+            <strong>
+              {ownership ? ownership.registrationNumber : "-"}
+            </strong>
+          </div>
+        </div>
+          <div className="detail-item">
+                  <LuCalendarDays />
                 <div>
                   <span>Search Date</span>
                   <strong>{searchDate}</strong>
                 </div>
               </div>
+
             </div>
           </div>
-        </div>
+          </ditev>
 
         {/* ================= RISK SUMMARY ================= */}
         <div className={`risk-card border-${riskDetails.class}`}>

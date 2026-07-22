@@ -24,6 +24,9 @@ import {
 } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 
+// NOTE: stats + activity were removed from here — they used to be hardcoded
+// dummy numbers/text. Once the backend exposes real endpoints for these,
+// wire them up in fetchProfile() below (see TODO markers).
 const ROLE_CONFIG = {
   BUYER: {
     label: "Buyer",
@@ -31,17 +34,6 @@ const ROLE_CONFIG = {
     department: "Retail Client",
     badgeColor: "#DBEAFE",
     badgeText: "#2563EB",
-    stats: [
-      { icon: LuBuilding, label: "Properties Viewed", value: "18", color: "#2563EB" },
-      { icon: LuIdCard, label: "Reports Requested", value: "6", color: "#22C55E" },
-      { icon: LuCalendar, label: "Pending Reviews", value: "2", color: "#F59E0B" },
-      { icon: LuMapPin, label: "Saved Listings", value: "11", color: "#EF4444" },
-    ],
-    activity: [
-      { title: "Viewed property report", desc: "12 Lakeview Residency — Legal review complete", time: "2h ago" },
-      { title: "Saved a listing", desc: "Greenfield Apartments, Block C", time: "1d ago" },
-      { title: "Requested due diligence", desc: "Silver Oak Villa", time: "3d ago" },
-    ],
   },
   AGENT: {
     label: "Agent",
@@ -49,17 +41,6 @@ const ROLE_CONFIG = {
     department: "Sales & Listings",
     badgeColor: "#DCFCE7",
     badgeText: "#16A34A",
-    stats: [
-      { icon: LuBuilding, label: "Properties Listed", value: "34", color: "#2563EB" },
-      { icon: LuIdCard, label: "Deals Closed", value: "9", color: "#22C55E" },
-      { icon: LuCalendar, label: "Listings Pending", value: "5", color: "#F59E0B" },
-      { icon: LuMapPin, label: "Client Rating", value: "4.8", color: "#EF4444" },
-    ],
-    activity: [
-      { title: "Listed new property", desc: "42 Palm Grove Estate", time: "4h ago" },
-      { title: "Closed a deal", desc: "Riverside Apartments, Unit 5B", time: "2d ago" },
-      { title: "Updated listing photos", desc: "Sunset Heights Villa", time: "4d ago" },
-    ],
   },
   LEGAL_REVIEWER: {
     label: "Legal Reviewer",
@@ -67,17 +48,6 @@ const ROLE_CONFIG = {
     department: "Legal & Compliance",
     badgeColor: "#EDE9FE",
     badgeText: "#7C3AED",
-    stats: [
-      { icon: LuBuilding, label: "Cases Reviewed", value: "27", color: "#2563EB" },
-      { icon: LuIdCard, label: "Approved", value: "21", color: "#22C55E" },
-      { icon: LuCalendar, label: "Flagged Risks", value: "4", color: "#F59E0B" },
-      { icon: LuMapPin, label: "Pending Signatures", value: "2", color: "#EF4444" },
-    ],
-    activity: [
-      { title: "Approved title deed", desc: "12 Lakeview Residency", time: "1h ago" },
-      { title: "Flagged encumbrance risk", desc: "Silver Oak Villa", time: "1d ago" },
-      { title: "Reviewed sale agreement", desc: "Greenfield Apartments, Block C", time: "2d ago" },
-    ],
   },
   BANK: {
     label: "Bank",
@@ -85,17 +55,6 @@ const ROLE_CONFIG = {
     department: "Loan & Valuation",
     badgeColor: "#FEF3C7",
     badgeText: "#B45309",
-    stats: [
-      { icon: LuBuilding, label: "Properties Assessed", value: "15", color: "#2563EB" },
-      { icon: LuIdCard, label: "Loans Approved", value: "8", color: "#22C55E" },
-      { icon: LuCalendar, label: "Under Valuation", value: "3", color: "#F59E0B" },
-      { icon: LuMapPin, label: "Loans Rejected", value: "1", color: "#EF4444" },
-    ],
-    activity: [
-      { title: "Completed valuation", desc: "42 Palm Grove Estate", time: "3h ago" },
-      { title: "Approved loan application", desc: "Riverside Apartments, Unit 5B", time: "2d ago" },
-      { title: "Requested additional documents", desc: "Sunset Heights Villa", time: "5d ago" },
-    ],
   },
   ADMIN: {
     label: "Admin",
@@ -103,31 +62,21 @@ const ROLE_CONFIG = {
     department: "Platform Operations",
     badgeColor: "#FEE2E2",
     badgeText: "#DC2626",
-    stats: [
-      { icon: LuUsersRound, label: "Total Users", value: "312", color: "#2563EB" },
-      { icon: LuBuilding, label: "Total Properties", value: "128", color: "#22C55E" },
-      { icon: LuCalendar, label: "Active Sessions", value: "47", color: "#F59E0B" },
-      { icon: LuMapPin, label: "Flagged Accounts", value: "2", color: "#EF4444" },
-    ],
-    activity: [
-      { title: "Added new user", desc: "Legal Reviewer — Priya S.", time: "30m ago" },
-      { title: "Resolved support ticket", desc: "Login issue — Agent account", time: "5h ago" },
-      { title: "Updated platform settings", desc: "Notification thresholds", time: "1d ago" },
-    ],
     isAdmin: true,
   },
 };
 
 const BASE_SETTINGS = [
-  { icon: LuUserCog, title: "Account", desc: "Update your personal details" },
-  { icon: LuBell, title: "Notifications", desc: "Manage alerts and email preferences" },
-  { icon: LuLock, title: "Security", desc: "Password and two-factor authentication" },
+  { icon: LuUserCog, title: "Account", desc: "Update your personal details", action: "modal" },
+  { icon: LuBell, title: "Notifications", desc: "Manage alerts and email preferences", path: "/notifications" },
+  { icon: LuLock, title: "Security", desc: "Password and two-factor authentication", comingSoon: true },
 ];
 
 const ADMIN_SETTINGS_ROW = {
   icon: LuUsersRound,
   title: "User Management",
   desc: "Manage roles, permissions and access",
+  comingSoon: true,
 };
 
 function getInitials(name) {
@@ -141,6 +90,17 @@ function getInitials(name) {
     .toUpperCase();
 }
 
+function formatJoinDate(dateStr) {
+  if (!dateStr) return "—";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  } catch {
+    return "—";
+  }
+}
+
 function Profile() {
   const navigate = useNavigate();
   const currentUser = api.getCurrentUser();
@@ -152,7 +112,18 @@ function Profile() {
   const [email, setEmail] = useState(currentUser.email || "");
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
+  const [joinDate, setJoinDate] = useState(null);
+  const [location, setLocation] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Real stats/activity — empty until backend endpoints are confirmed.
+  // TODO: once a real endpoint exists, change these back to:
+  // const [stats, setStats] = useState([]);
+  // const [activity, setActivity] = useState([]);
+  // and call setStats(...) / setActivity(...) inside fetchProfile() below.
+  const [stats] = useState([]);
+  const [activity] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -174,6 +145,15 @@ function Profile() {
         setEmail(profile.email || "");
         setPhone(profile.phoneNumber || "");
         setBio(profile.bio || "");
+        setJoinDate(profile.joinDate || null);
+        setLocation(profile.location || "");
+        setAvatarUrl(profile.avatarUrl || "");
+
+        // TODO: replace with real calls once endpoints are confirmed, e.g:
+        // const statsData = await api.getUserStats();
+        // setStats(statsData);
+        // const activityData = await api.getUserActivity();
+        // setActivity(activityData);
       } catch (err) {
         console.error("Failed to load user profile:", err);
       } finally {
@@ -234,7 +214,13 @@ function Profile() {
         {/* HERO */}
         <section className="profile-hero">
           <div className="profile-hero-left">
-            <div className="profile-avatar">{getInitials(fullName)}</div>
+            <div className="profile-avatar">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={fullName} className="avatar-img" />
+              ) : (
+                getInitials(fullName)
+              )}
+            </div>
             <div className="profile-hero-info">
               <h2>{fullName}</h2>
               <div className="profile-role">
@@ -255,7 +241,7 @@ function Profile() {
                   <LuBuilding /> {role.department}
                 </span>
                 <span>
-                  <LuCalendar /> Joined Mar 2025
+                  <LuCalendar /> Joined {formatJoinDate(joinDate)}
                 </span>
               </div>
             </div>
@@ -269,23 +255,29 @@ function Profile() {
 
         {/* STATS */}
         <section className="stats-grid">
-          {role.stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div className="stat-card" key={stat.label}>
-                <div
-                  className="stat-icon"
-                  style={{ background: `${stat.color}22`, color: stat.color }}
-                >
-                  <Icon />
+          {stats.length > 0 ? (
+            stats.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div className="stat-card" key={stat.label}>
+                  <div
+                    className="stat-icon"
+                    style={{ background: `${stat.color}22`, color: stat.color }}
+                  >
+                    <Icon />
+                  </div>
+                  <div>
+                    <div className="stat-label">{stat.label}</div>
+                    <div className="stat-value">{stat.value}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="stat-label">{stat.label}</div>
-                  <div className="stat-value">{stat.value}</div>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          ) : (
+            <div className="stat-card" style={{ gridColumn: "1 / -1", textAlign: "center", color: "#9CA3AF" }}>
+              No stats available yet
+            </div>
+          )}
         </section>
 
         {/* CONTENT GRID */}
@@ -311,7 +303,7 @@ function Profile() {
                 <LuMapPin />
                 <div>
                   <div className="about-label">Location</div>
-                  <div className="about-value">Madurai, TN</div>
+                  <div className="about-value">{location || "Not specified"}</div>
                 </div>
               </div>
             </div>
@@ -326,18 +318,24 @@ function Profile() {
               Recent Activity
             </h3>
             <div className="activity-list">
-              {role.activity.map((item) => (
-                <div className="activity-item" key={item.title + item.time}>
-                  <div className="activity-dot" />
-                  <div className="activity-content">
-                    <div className="activity-top">
-                      <h4>{item.title}</h4>
-                      <span>{item.time}</span>
+              {activity.length > 0 ? (
+                activity.map((item) => (
+                  <div className="activity-item" key={item.title + item.time}>
+                    <div className="activity-dot" />
+                    <div className="activity-content">
+                      <div className="activity-top">
+                        <h4>{item.title}</h4>
+                        <span>{item.time}</span>
+                      </div>
+                      <p>{item.desc}</p>
                     </div>
-                    <p>{item.desc}</p>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p style={{ fontSize: "14px", color: "#9CA3AF", padding: "12px 0" }}>
+                  No recent activity yet
+                </p>
+              )}
             </div>
           </div>
 
@@ -346,13 +344,32 @@ function Profile() {
             <div className="settings-list">
               {settingsRows.map((item) => {
                 const Icon = item.icon;
+                const handleClick = () => {
+                  if (item.action === "modal") {
+                    openModal();
+                  } else if (item.path) {
+                    navigate(item.path);
+                  }
+                  // comingSoon items intentionally do nothing yet
+                };
                 return (
-                  <button className="settings-item" key={item.title}>
+                  <button
+                    className="settings-item"
+                    key={item.title}
+                    onClick={handleClick}
+                  >
                     <div className="settings-icon">
                       <Icon />
                     </div>
                     <div className="settings-text">
-                      <h4>{item.title}</h4>
+                      <h4>
+                        {item.title}
+                        {item.comingSoon && (
+                          <span style={{ fontSize: "10px", fontWeight: 600, color: "#9CA3AF", marginLeft: "8px" }}>
+                            COMING SOON
+                          </span>
+                        )}
+                      </h4>
                       <p>{item.desc}</p>
                     </div>
                     <LuChevronRight className="chevron" />
@@ -382,7 +399,13 @@ function Profile() {
             </div>
             <div className="modal-body">
               <div className="avatar-edit-row">
-                <div className="profile-avatar">{getInitials(formName)}</div>
+                <div className="profile-avatar">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={formName} className="avatar-img" />
+                  ) : (
+                    getInitials(formName)
+                  )}
+                </div>
                 <div>
                   <button className="btn-secondary">Change photo</button>
                   <p>JPG or PNG, max 2MB</p>

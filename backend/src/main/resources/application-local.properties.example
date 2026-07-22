@@ -1,0 +1,7 @@
+# Copy this file to application-local.properties
+# Replace the values below with your own credentials.
+
+spring.mail.username=your-email@gmail.com
+spring.mail.password=your-16-character-google-app-password
+
+app.mail.from=your-email@gmail.com

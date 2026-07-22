@@ -151,6 +151,36 @@ export const api = {
     };
   },
 
+  forgotPassword: async (email) => {
+    const response = await fetch(`${BASE_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: getHeaders(false),
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || "Unable to create a reset token");
+    }
+
+    return response.json();
+  },
+
+  resetPassword: async (token, newPassword) => {
+    const response = await fetch(`${BASE_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: getHeaders(false),
+      body: JSON.stringify({ token, newPassword }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || "Unable to reset password");
+    }
+
+    return response.text();
+  },
+
   // Dashboard API
   getDashboardSummary: async () => {
     // Since Mithun's backend does not have a dashboard controller,
