@@ -316,6 +316,15 @@
 
 }
 
+/* ================= EMPTY STATE ================= */
+
+.empty-state{
+  color: #888;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px 0;
+}
+
 /* ================= RECENT SEARCH ================= */
 
 .recent-card{
