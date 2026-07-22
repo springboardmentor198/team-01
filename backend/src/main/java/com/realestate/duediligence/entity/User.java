@@ -40,6 +40,9 @@ public class User {
     @Column(name = "bio", length = 500)
     private String bio;
 
+    @Column(name = "location", length = 255)
+    private String location;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

@@ -18,6 +18,16 @@
   font-size:28px; font-weight:700; color:#fff;
   background: linear-gradient(135deg, #2563EB, #1E40AF);
   box-shadow: 0 6px 16px rgba(37,99,235,.35);
+  overflow: hidden;
+}
+
+/* Real profile photo (from avatarUrl) rendered inside the avatar circle */
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .profile-hero-info h2 { font-size:22px; color:#1F2937; margin-bottom:4px; }
