@@ -37,23 +37,9 @@ function PropertySearch() {
     navigate(`/property-results?${params.toString()}`);
   };
 
-  const recentSearches = [
-    {
-      address: "24 Lakeview Street",
-      type: "Residential",
-      risk: "Medium",
-    },
-    {
-      address: "18 Green Avenue",
-      type: "Commercial",
-      risk: "Low",
-    },
-    {
-      address: "Palm Residency",
-      type: "Residential",
-      risk: "High",
-    },
-  ];
+  // TODO: replace with real data from api.getRecentSearches() once backend
+  // endpoint exists. Left empty (not fake data) until then.
+  const recentSearches = [];
 
   const quickLocations = [
     "Delhi",
@@ -198,32 +184,36 @@ function PropertySearch() {
             <FiClock />
             <h2>Recent Searches</h2>
           </div>
-          <table className="recent-table">
-            <thead>
-              <tr>
-                <th>Property</th>
-                <th>Type</th>
-                <th>Risk</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentSearches.map((item, index) => (
-                <tr
-                  key={index}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate(`/property-results?query=${encodeURIComponent(item.address)}`)}
-                >
-                  <td>{item.address}</td>
-                  <td>{item.type}</td>
-                  <td>
-                    <span className={`risk ${item.risk.toLowerCase()}`}>
-                      {item.risk}
-                    </span>
-                  </td>
+          {recentSearches.length === 0 ? (
+            <p className="empty-state">No recent searches yet.</p>
+          ) : (
+            <table className="recent-table">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Type</th>
+                  <th>Risk</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentSearches.map((item, index) => (
+                  <tr
+                    key={index}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/property-results?query=${encodeURIComponent(item.address)}`)}
+                  >
+                    <td>{item.address}</td>
+                    <td>{item.type}</td>
+                    <td>
+                      <span className={`risk ${item.risk.toLowerCase()}`}>
+                        {item.risk}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </section>
 
         {/* ================= SAVED FILTERS ================= */}
@@ -232,34 +222,9 @@ function PropertySearch() {
             <FiHome />
             <h2>Saved Filters</h2>
           </div>
-          <div className="saved-grid">
-            <div
-              className="saved-item"
-              style={{ cursor: "pointer" }}
-              onClick={() => navigate("/property-results?type=Residential&city=Delhi")}
-            >
-              <h4>Residential • Delhi</h4>
-              <p>Last used 2 hours ago</p>
-            </div>
-
-            <div
-              className="saved-item"
-              style={{ cursor: "pointer" }}
-              onClick={() => navigate("/property-results?type=Commercial&city=Noida")}
-            >
-              <h4>Commercial • Noida</h4>
-              <p>Last used Yesterday</p>
-            </div>
-
-            <div
-              className="saved-item"
-              style={{ cursor: "pointer" }}
-              onClick={() => navigate("/property-results?risk=High")}
-            >
-              <h4>High Risk Properties</h4>
-              <p>Last used 3 days ago</p>
-            </div>
-          </div>
+          {/* TODO: replace with real data from api.getSavedFilters() once
+              backend endpoint exists. */}
+          <p className="empty-state">No saved filters yet.</p>
         </section>
       </div>
     </Layout>
