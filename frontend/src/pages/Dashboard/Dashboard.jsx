@@ -127,18 +127,39 @@ export default function Dashboard() {
       return;
     }
 
-    const fetchDashboardData = async () => {
-      try {
-        const summary = await api.getDashboardSummary();
-        if (summary?.totalProperties > 0) {
-          setData(summary);
-          setIsDemoData(false);
-        }
-      } catch {
-        // The demo dashboard is an offline fallback when the backend is unavailable.
-        setIsDemoData(true);
-      }
-    };
+  const fetchDashboardData = async () => {
+  try {
+    const response = await fetch("http://localhost:8081/api/dashboard/stats");
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch dashboard stats");
+    }
+
+    const summary = await response.json();
+
+    setData({
+      totalProperties: summary.totalProperties,
+      totalReports: summary.totalReports,
+      highRiskCount: summary.highRiskProperties,
+      pendingReviews: 0,
+      recentSearches: [],
+      riskBreakdown: [
+        {
+          label: "High Risk",
+          count: summary.highRiskProperties,
+          color: "#EF4444",
+        },
+      ],
+      notifications: [],
+    });
+
+    setIsDemoData(false);
+
+  } catch (error) {
+    console.error(error);
+    setIsDemoData(true);
+  }
+};
 
     fetchDashboardData();
   }, [navigate]);
