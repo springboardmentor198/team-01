@@ -6,6 +6,7 @@ import com.realestate.duediligence.repository.OwnershipRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,5 +45,43 @@ public class OwnershipServiceImpl implements OwnershipService {
         }
 
         return responseList;
+    }
+
+    @Override
+    public OwnershipRecord createOwnership(OwnershipRecord ownershipRecord) {
+
+        ownershipRecord.setCreatedAt(LocalDateTime.now());
+
+        return ownershipRecordRepository.save(ownershipRecord);
+    }
+
+    @Override
+    public OwnershipRecord updateOwnership(Integer ownershipId,
+                                           OwnershipRecord ownershipRecord) {
+
+        OwnershipRecord existing = ownershipRecordRepository.findById(ownershipId)
+                .orElseThrow(() -> new RuntimeException("Ownership record not found"));
+
+        existing.setOwnerName(ownershipRecord.getOwnerName());
+        existing.setOwnerType(ownershipRecord.getOwnerType());
+        existing.setRegistrationNumber(ownershipRecord.getRegistrationNumber());
+        existing.setVerified(ownershipRecord.getVerified());
+        existing.setOwnershipStartDate(ownershipRecord.getOwnershipStartDate());
+        existing.setOwnershipEndDate(ownershipRecord.getOwnershipEndDate());
+
+        if (ownershipRecord.getProperty() != null) {
+            existing.setProperty(ownershipRecord.getProperty());
+        }
+
+        return ownershipRecordRepository.save(existing);
+    }
+
+    @Override
+    public void deleteOwnership(Integer ownershipId) {
+
+        OwnershipRecord existing = ownershipRecordRepository.findById(ownershipId)
+                .orElseThrow(() -> new RuntimeException("Ownership record not found"));
+
+        ownershipRecordRepository.delete(existing);
     }
 }
