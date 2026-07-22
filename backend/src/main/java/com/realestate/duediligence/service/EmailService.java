@@ -49,10 +49,19 @@ public class EmailService {
     }
 
     private void send(SimpleMailMessage message) {
+    try {
         if (fromAddress != null && !fromAddress.isBlank()) {
             message.setFrom(fromAddress);
         }
+
         mailSender.send(message);
+        System.out.println("✅ Email sent successfully to: " + message.getTo()[0]);
+
+    } catch (Exception e) {
+        System.err.println("❌ Email sending failed");
+        e.printStackTrace();
+        throw e;
     }
+}
 
 }

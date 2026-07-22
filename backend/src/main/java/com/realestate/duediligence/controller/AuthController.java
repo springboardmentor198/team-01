@@ -1,6 +1,5 @@
 package com.realestate.duediligence.controller;
 
-import com.realestate.duediligence.dto.ForgotPasswordRequest;
 import com.realestate.duediligence.dto.LoginRequest;
 import com.realestate.duediligence.dto.RegisterRequest;
 import com.realestate.duediligence.dto.ForgotPasswordRequest;
@@ -12,12 +11,10 @@ import com.realestate.duediligence.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-<<<<<<< HEAD
 import jakarta.validation.Valid;
-=======
+
 import com.realestate.duediligence.dto.GoogleLoginRequest;
-import com.realestate.duediligence.dto.GoogleLoginResponse;
->>>>>>> upstream/develop
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -58,18 +55,8 @@ public class AuthController {
         return ResponseEntity.ok("User reset successfully");
     }
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
-
-        String response = userService.forgotPassword(request);
-
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping("/google")
-public ResponseEntity<String> googleLogin(
-        @RequestBody GoogleLoginRequest request) {
-
-    return ResponseEntity.ok(userService.googleLogin(request));
-}
+    public ResponseEntity<String> googleLogin(@RequestBody GoogleLoginRequest request) {
+        return ResponseEntity.ok(userService.googleLogin(request));
+    }
 }

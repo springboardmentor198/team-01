@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import AuthLayout from "../../components/Authlayout/AuthLayout";
@@ -22,7 +21,10 @@ export default function ForgotPassword() {
 
     try {
       const response = await api.forgotPassword(email);
-      setMessage(response.message || "If an account exists, an OTP has been sent to your email.");
+      setMessage(
+        response.message ||
+          "If an account exists, an OTP has been sent to your email.",
+      );
     } catch (requestError) {
       setError(requestError.message || "Unable to request a password reset.");
     } finally {
@@ -43,7 +45,9 @@ export default function ForgotPassword() {
     setLoading(true);
     try {
       await api.resetPassword(token, newPassword);
-      setMessage("Password reset successfully. You can now sign in with your new password.");
+      setMessage(
+        "Password reset successfully. You can now sign in with your new password.",
+      );
       setNewPassword("");
       setConfirmPassword("");
     } catch (requestError) {
@@ -57,7 +61,9 @@ export default function ForgotPassword() {
     <AuthLayout>
       <div className="reset-card">
         <h1>Reset your password</h1>
-        <p className="reset-intro">Enter your registered email to receive a password reset token.</p>
+        <p className="reset-intro">
+          Enter your registered email to receive a password reset token.
+        </p>
 
         {error && <div className="reset-message error">{error}</div>}
         {message && <div className="reset-message success">{message}</div>}
@@ -77,7 +83,9 @@ export default function ForgotPassword() {
           </button>
         </form>
 
-        <div className="reset-divider"><span>Enter the OTP and reset password</span></div>
+        <div className="reset-divider">
+          <span>Enter the OTP and reset password</span>
+        </div>
 
         <form onSubmit={resetPassword} className="reset-form">
           <label htmlFor="reset-token">Email OTP</label>
@@ -114,91 +122,10 @@ export default function ForgotPassword() {
           </button>
         </form>
 
-        <p className="reset-login-link"><Link to="/login">Back to login</Link></p>
+        <p className="reset-login-link">
+          <Link to="/login">Back to login</Link>
+        </p>
       </div>
     </AuthLayout>
   );
 }
-=======
-import react, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiLock } from "react-icons/fi";
-import "./ForgotPassword.css";
-
-const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
-
-  const navigate = useNavigate();
-
-  const handleSendOtp = (e) => {
-    e.preventDefault();
-
-    // Backend API call will be added later
-    navigate("/verify-otp");
-  };
-
-  return (
-    <div className="forgot-container">
-      <div className="forgot-card">
-
-        {/* Lock Icon */}
-        <div className="forgot-logo">
-          <FiLock />
-        </div>
-
-        {/* Heading */}
-        <div className="forgot-header">
-            <h2>Forgot Password?</h2>
-            <div className="title-line"></div>
-
-            <p>
-                Enter your registered email address and we'll send you a
-                One-Time Password (OTP) to reset your password.
-            </p>
-        </div>
-
-        <form onSubmit={handleSendOtp}>
-
-          <div className="input-group">
-
-            <label>Email Address</label>
-
-            <div className="input-box">
-
-
-              <input
-                type="email"
-                placeholder="Enter your registered email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-
-            </div>
-
-          </div>
-
-          <button
-            type="submit"
-            className="send-btn"
-          >
-            Send OTP
-          </button>
-
-        </form>
-
-        <Link
-          to="/login"
-          className="back-login"
-        >
-          <FiArrowLeft />
-          Back to Login
-        </Link>
-
-      </div>
-    </div>
-  );
-};
-
-export default ForgotPassword;
->>>>>>> upstream/develop
