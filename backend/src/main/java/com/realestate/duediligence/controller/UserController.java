@@ -1,16 +1,23 @@
 package com.realestate.duediligence.controller;
 
+import java.time.LocalDateTime;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.realestate.duediligence.dto.UserProfileRequest;
 import com.realestate.duediligence.dto.UserProfileResponse;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.repository.UserRepository;
 import com.realestate.duediligence.util.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/users")
@@ -43,6 +50,8 @@ public class UserController {
                     .bio(user.getBio())
                     .avatarUrl(user.getAvatarUrl())
                     .role(user.getRole())
+                    .location(user.getLocation())
+                    .joinDate(user.getCreatedAt())
                     .build();
 
             return ResponseEntity.ok(response);
@@ -90,6 +99,8 @@ public class UserController {
                     .bio(updatedUser.getBio())
                     .avatarUrl(updatedUser.getAvatarUrl())
                     .role(updatedUser.getRole())
+                    .location(updatedUser.getLocation())
+                    .joinDate(updatedUser.getCreatedAt())
                     .build();
 
             return ResponseEntity.ok(response);

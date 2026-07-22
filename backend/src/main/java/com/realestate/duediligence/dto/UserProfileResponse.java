@@ -1,6 +1,9 @@
 package com.realestate.duediligence.dto;
 
+import java.time.LocalDateTime;
+
 import com.realestate.duediligence.enums.Role;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,4 +21,6 @@ public class UserProfileResponse {
     private String bio;
     private String avatarUrl;
     private Role role;
+    private String location;
+    private LocalDateTime joinDate;
 }
