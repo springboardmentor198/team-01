@@ -257,6 +257,20 @@ export const api = {
     return await response.json();
   },
 
+  getPropertyTaxHistory: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/properties/${propertyId}/tax-history`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to load property tax history");
+    }
+
+    return await response.json();
+  },
+
   // Profile APIs
   getUserProfile: async () => {
     const response = await fetch(`${BASE_URL}/users/profile`, {

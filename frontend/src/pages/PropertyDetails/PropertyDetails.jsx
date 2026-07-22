@@ -53,6 +53,7 @@ export default function PropertyDetails() {
 
   const [property, setProperty] = useState(null);
   const [ownership, setOwnership] = useState(null);
+  const [taxHistory, setTaxHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -77,6 +78,41 @@ export default function PropertyDetails() {
           if (ownershipData.length > 0) {
             setOwnership(ownershipData[0]);
           }
+        }
+
+        try {
+          const taxData = await api.getPropertyTaxHistory(id);
+          const formattedTaxHistory = taxData.map((item) => {
+            const formattedAmount = item.taxAmount !== undefined && item.taxAmount !== null
+              ? new Intl.NumberFormat("en-IN", {
+                  style: "currency",
+                  currency: "INR",
+                  maximumFractionDigits: 0,
+                }).format(item.taxAmount)
+              : "₹0";
+
+            let formattedDate = "";
+            if (item.dueDate) {
+              const date = new Date(item.dueDate);
+              formattedDate = date.toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              });
+            }
+
+            return {
+              year: item.taxYear,
+              amount: formattedAmount,
+              status: item.paymentStatus
+                ? item.paymentStatus.charAt(0).toUpperCase() + item.paymentStatus.slice(1).toLowerCase()
+                : "",
+              dueDate: formattedDate,
+            };
+          });
+          setTaxHistory(formattedTaxHistory);
+        } catch (taxErr) {
+          console.warn("Failed to fetch tax history from backend", taxErr);
         }
       } catch (err) {
         setError(err.message || "Failed to load property details");
@@ -122,26 +158,7 @@ export default function PropertyDetails() {
 
   const searchDate = "16 July 2026";
 
-  const taxHistory = [
-    {
-      year: 2025,
-      amount: "₹48,500",
-      status: "Paid",
-      dueDate: "15 Jan 2025",
-    },
-    {
-      year: 2024,
-      amount: "₹45,000",
-      status: "Paid",
-      dueDate: "15 Jan 2024",
-    },
-    {
-      year: 2023,
-      amount: "₹42,000",
-      status: "Pending",
-      dueDate: "15 Jan 2023",
-    },
-  ];
+
 
   const zoning = {
     zoneType: "Residential",
