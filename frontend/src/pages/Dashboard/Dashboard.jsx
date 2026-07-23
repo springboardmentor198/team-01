@@ -26,19 +26,19 @@ const quickActions = [
     label: "Generate Report",
     subtitle: "Create due diligence report",
     icon: LuFileText,
-    path: "#",
+    path: "/reports",
   },
   {
     label: "Compare Properties",
-    subtitle: "Compare properties",
+    subtitle: "Compare two properties",
     icon: LuChartBar,
-    path: "#",
+    path: "/compare-properties",
   },
   {
     label: "Upload Documents",
-    subtitle: "Add documents",
+    subtitle: "Upload property documents",
     icon: LuUpload,
-    path: "#",
+    path: "/upload-documents",
   },
 ];
 
@@ -275,26 +275,27 @@ export default function Dashboard() {
         {/* ================= QUICK ACTIONS ================= */}
         <div className="dashboard-card quick-actions-card">
           <h3 className="card-title">Quick Actions</h3>
+
           <div className="quick-actions-grid">
             {quickActions.map((action) => {
               const Icon = action.icon;
+
               return (
                 <button
                   key={action.label}
                   className="quick-action-btn"
-                  onClick={() => {
-                    if (action.path !== "#") {
-                      navigate(action.path);
-                    }
-                  }}
+                  onClick={() => navigate(action.path)}
                 >
                   <div className="quick-action-icon">
                     <Icon size={20} />
                   </div>
+
                   <div className="quick-action-content">
                     <h4>{action.label}</h4>
                     <p>{action.subtitle}</p>
                   </div>
+
+                  <LuChevronRight className="quick-action-arrow" size={18} />
                 </button>
               );
             })}
