@@ -1,26 +1,12 @@
+import { useEffect, useState } from "react";
 import { LuShieldCheck } from "react-icons/lu";
+import { api } from "../../../services/api";
 
-export default function RiskSummary({ riskLvl, riskDetails }) {
-  return (
-    <div className={`risk-card border-${riskDetails.class}`}>
-
-      <div className="risk-left">
-
-        <LuShieldCheck
-          className={`risk-icon text-${riskDetails.class}`}
-        />
-
-        <div>
-          <h3>Risk Summary</h3>
-          <p>{riskDetails.summary}</p>
-        </div>
-
-      </div>
-
-      <span className={`risk-level ${riskDetails.class}`}>
-        {riskLvl} Risk
-      </span>
-
-    </div>
-  );
+export default function RiskSummary({ propertyId }) {
+  const [risk, setRisk] = useState(null); const [error, setError] = useState("");
+  useEffect(() => { api.getRiskSummary(propertyId).then(setRisk).catch((e) => setError(e.message)); }, [propertyId]);
+  if (error) return <div className="details-card"><h3>Risk Summary</h3><p className="no-data">{error}</p></div>;
+  if (!risk) return <div className="details-card"><h3>Risk Summary</h3><p className="no-data">Loading risk assessment…</p></div>;
+  const level = (risk.overallRisk || "medium").toLowerCase();
+  return <><div className={`risk-card border-${level}`}><div className="risk-left"><LuShieldCheck className={`risk-icon text-${level}`} /><div><h3>Risk Summary</h3><p>{risk.remarks || "No assessment remarks have been recorded."}</p></div></div><span className={`risk-level ${level}`}>{risk.overallRisk || "Unrated"} · Score {risk.riskScore ?? "—"}</span></div><div className="risk-factors"><div><span>Flood Risk</span><strong>{risk.floodRisk || "—"}</strong></div><div><span>Legal Risk</span><strong>{risk.legalRisk || "—"}</strong></div><div><span>Environmental Risk</span><strong>{risk.environmentalRisk || "—"}</strong></div></div></>;
 }

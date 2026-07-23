@@ -13,22 +13,6 @@ const getHeaders = (includeAuth = true) => {
   return headers;
 };
 
-export const getPropertyRisk = (id) => {
-  const risks = {
-    1: "Medium",
-    2: "Low",
-    3: "High",
-    4: "Low",
-    5: "Low",
-    6: "Medium",
-    7: "Low",
-    8: "High",
-    9: "Medium",
-    10: "Low",
-  };
-  return risks[id] || "Low";
-};
-
 export const getPropertyOwnerName = (property) => {
   if (property.ownerName) return property.ownerName;
   if (property.owner && property.owner.name) return property.owner.name;
@@ -183,49 +167,9 @@ export const api = {
 
   // Dashboard API
   getDashboardSummary: async () => {
-    // Since Mithun's backend does not have a dashboard controller,
-    // we fetch properties from the database and compute stats dynamically
-    const properties = await api.getProperties();
-
-    const totalProperties = properties.length;
-    const pendingReviews = properties.filter((p) => p.status === "UNDER_REVIEW").length;
-
-    const lowCount = properties.filter((p) => getPropertyRisk(p.propertyId) === "Low").length;
-    const mediumCount = properties.filter((p) => getPropertyRisk(p.propertyId) === "Medium").length;
-    const highCount = properties.filter((p) => getPropertyRisk(p.propertyId) === "High").length;
-    const criticalCount = properties.filter((p) => getPropertyRisk(p.propertyId) === "Critical").length;
-    const highRiskCount = highCount + criticalCount;
-
-    const totalReports = properties.filter((p) => p.status === "AVAILABLE" || p.status === "VERIFIED").length;
-
-    const recentSearches = properties.slice(0, 5).map((p) => ({
-      property: p.address || p.propertyCode,
-      type: p.propertyType || "Residential",
-      risk: getPropertyRisk(p.propertyId),
-      status: p.status === "AVAILABLE" || p.status === "VERIFIED" ? "Completed" : p.status === "UNDER_REVIEW" ? "Reviewing" : "Pending",
-    }));
-
-    const riskBreakdown = [
-      { label: "Low Risk", count: lowCount, color: "#22C55E" },
-      { label: "Medium Risk", count: mediumCount, color: "#F59E0B" },
-      { label: "High Risk", count: highCount, color: "#EF4444" },
-      { label: "Critical", count: criticalCount, color: "#991B1B" },
-    ];
-
-    const notifications = [
-      { title: "Database Sync", subtitle: "Latest property records updated" },
-      { title: "Status Update", subtitle: "Property review process completed" },
-    ];
-
-    return {
-      totalProperties,
-      totalReports,
-      highRiskCount,
-      pendingReviews,
-      recentSearches,
-      riskBreakdown,
-      notifications,
-    };
+    const response = await fetch(`${BASE_URL}/dashboard/stats`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error(await response.text() || "Failed to load dashboard statistics");
+    return response.json();
   },
 
   // Property APIs
@@ -269,6 +213,50 @@ export const api = {
     }
 
     return await response.json();
+  },
+
+  getOwnership: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/ownership/${propertyId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error(await response.text() || "Failed to load ownership records");
+    return response.json();
+  },
+  getRiskSummary: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/risk-summary/${propertyId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error(await response.text() || "Failed to load risk summary");
+    return response.json();
+  },
+  getDocuments: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/documents/${propertyId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error(await response.text() || "Failed to load documents");
+    return response.json();
+  },
+  createDocument: async (payload) => {
+    const response = await fetch(`${BASE_URL}/documents`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(payload) });
+    if (!response.ok) throw new Error(await response.text() || "Failed to add document");
+    return response.json();
+  },
+  deleteDocument: async (id) => {
+    const response = await fetch(`${BASE_URL}/documents/${id}`, { method: "DELETE", headers: getHeaders(true) });
+    if (!response.ok) throw new Error(await response.text() || "Failed to delete document");
+  },
+  getPermits: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/permits/${propertyId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error(await response.text() || "Failed to load permits");
+    return response.json();
+  },
+  createPermit: async (payload) => {
+    const response = await fetch(`${BASE_URL}/permits`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(payload) });
+    if (!response.ok) throw new Error(await response.text() || "Failed to add permit");
+    return response.json();
+  },
+  updatePermit: async (id, payload) => {
+    const response = await fetch(`${BASE_URL}/permits/${id}`, { method: "PUT", headers: getHeaders(true), body: JSON.stringify(payload) });
+    if (!response.ok) throw new Error(await response.text() || "Failed to update permit");
+    return response.json();
+  },
+  deletePermit: async (id) => {
+    const response = await fetch(`${BASE_URL}/permits/${id}`, { method: "DELETE", headers: getHeaders(true) });
+    if (!response.ok) throw new Error(await response.text() || "Failed to delete permit");
   },
 
   // Profile APIs

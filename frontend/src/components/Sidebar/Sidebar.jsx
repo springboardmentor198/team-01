@@ -25,8 +25,8 @@ function Sidebar() {
       icon: <RiDashboardFill />,
     },
     {
-      name: "Property Search",
-      path: "/property-search",
+      name: "Properties",
+      path: "/properties",
       icon: <FiSearch />,
     },
     {
@@ -35,8 +35,8 @@ function Sidebar() {
       icon: <IoNotificationsOutline />,
     },
     {
-      name: "Audit Logs",
-      path: "/audit-logs",
+      name: "Reports",
+      path: "/reports",
       icon: <HiOutlineClipboardDocumentList />,
     },
     {
@@ -45,6 +45,7 @@ function Sidebar() {
       icon: <CgProfile />,
     },
   ];
+  if (api.getCurrentUser().role === "ADMIN") menuItems.push({ name: "Admin", path: "/admin", icon: <HiOutlineClipboardDocumentList /> });
 
   return (
     <aside className="sidebar">

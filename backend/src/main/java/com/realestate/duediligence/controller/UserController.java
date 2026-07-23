@@ -2,7 +2,6 @@ package com.realestate.duediligence.controller;
 
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,11 +23,14 @@ import com.realestate.duediligence.util.JwtService;
 @CrossOrigin(origins = "*")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
+
+    public UserController(UserRepository userRepository, JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.jwtService = jwtService;
+    }
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@RequestHeader(value = "Authorization", required = false) String authHeader) {
@@ -42,19 +44,7 @@ public class UserController {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found: " + email));
 
-            UserProfileResponse response = UserProfileResponse.builder()
-                    .userId(user.getUserId())
-                    .name(user.getName())
-                    .email(user.getEmail())
-                    .phoneNumber(user.getPhoneNumber())
-                    .bio(user.getBio())
-                    .avatarUrl(user.getAvatarUrl())
-                    .role(user.getRole())
-                    .location(user.getLocation())
-                    .joinDate(user.getCreatedAt())
-                    .build();
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(toProfileResponse(user));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token verification failed: " + e.getMessage());
         }
@@ -91,21 +81,23 @@ public class UserController {
 
             User updatedUser = userRepository.save(user);
 
-            UserProfileResponse response = UserProfileResponse.builder()
-                    .userId(updatedUser.getUserId())
-                    .name(updatedUser.getName())
-                    .email(updatedUser.getEmail())
-                    .phoneNumber(updatedUser.getPhoneNumber())
-                    .bio(updatedUser.getBio())
-                    .avatarUrl(updatedUser.getAvatarUrl())
-                    .role(updatedUser.getRole())
-                    .location(updatedUser.getLocation())
-                    .joinDate(updatedUser.getCreatedAt())
-                    .build();
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(toProfileResponse(updatedUser));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update profile failed: " + e.getMessage());
         }
+    }
+
+    private UserProfileResponse toProfileResponse(User user) {
+        UserProfileResponse response = new UserProfileResponse();
+        response.setUserId(user.getUserId());
+        response.setName(user.getName());
+        response.setEmail(user.getEmail());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setBio(user.getBio());
+        response.setAvatarUrl(user.getAvatarUrl());
+        response.setRole(user.getRole());
+        response.setLocation(user.getLocation());
+        response.setJoinDate(user.getCreatedAt());
+        return response;
     }
 }

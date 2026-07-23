@@ -7,6 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.realestate.duediligence.dto.*;
+import com.realestate.duediligence.service.RiskSummaryService;
+import com.realestate.duediligence.service.DocumentService;
+import com.realestate.duediligence.service.PermitService;
 
 @RestController
 @RequestMapping("/api/properties")
@@ -15,6 +19,9 @@ public class PropertyController {
 
     @Autowired
     private PropertyService propertyService;
+    @Autowired private RiskSummaryService riskSummaryService;
+    @Autowired private DocumentService documentService;
+    @Autowired private PermitService permitService;
 
     @PostMapping
     public ResponseEntity<Property> createProperty(@RequestBody Property property) {
@@ -30,6 +37,10 @@ public class PropertyController {
     public ResponseEntity<Property> getPropertyById(@PathVariable Integer id) {
         return ResponseEntity.ok(propertyService.getById(id));
     }
+    @GetMapping("/{id}/overview") public ResponseEntity<Property> getOverview(@PathVariable Integer id) { return ResponseEntity.ok(propertyService.getById(id)); }
+    @GetMapping("/{id}/risk") public ResponseEntity<RiskSummaryResponse> getRisk(@PathVariable Integer id) { return ResponseEntity.ok(riskSummaryService.getRiskSummary(id)); }
+    @GetMapping("/{id}/documents") public ResponseEntity<List<DocumentResponse>> getDocuments(@PathVariable Integer id) { return ResponseEntity.ok(documentService.getDocuments(id)); }
+    @GetMapping("/{id}/permits") public ResponseEntity<List<PermitResponse>> getPermits(@PathVariable Integer id) { return ResponseEntity.ok(permitService.getPermits(id)); }
 
     @PutMapping("/{id}")
     public ResponseEntity<Property> updateProperty(

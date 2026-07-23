@@ -12,6 +12,7 @@ import Notifications from "./pages/Notifications/Notifications";
 import AuditLogs from "./pages/AuditLogs/AuditLogs";
 import Profile from "./pages/Profile/Profile";
 import PropertyResults from "./pages/PropertyResults/PropertyResults";
+import Report from "./pages/Report/Report";
 
 import VerifyOtp from "./pages/VerifyOtp/VerifyOtp";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
@@ -32,6 +33,10 @@ function App() {
       <Route path="/property-search" element={<PropertySearch />} />
       <Route path="/property-results" element={<PropertyResults />} />
       <Route path="/property-details/:id" element={<PropertyDetails />} />
+      <Route path="/properties" element={<PropertyResults />} />
+      <Route path="/property/:id" element={<PropertyDetails />} />
+      <Route path="/report/:propertyId" element={<Report />} />
+      <Route path="/reports" element={<Report />} />
 
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/audit-logs" element={<AuditLogs />} />

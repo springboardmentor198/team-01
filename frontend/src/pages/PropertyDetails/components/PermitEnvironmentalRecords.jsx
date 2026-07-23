@@ -1,59 +1,12 @@
-import {
-  LuFileText,
-  LuShieldCheck,
-  LuBuilding2,
-  LuCircleAlert,
-  LuCalendarDays,
-} from "react-icons/lu";
-
-export default function PermitEnvironmentalRecords({ permitRecords }) {
-  return (
-    <div className="details-card">
-      <h3>Permit &amp; Environmental Records</h3>
-
-      <div className="details-list">
-
-        <div className="detail-item">
-          <LuFileText />
-          <div>
-            <span>Building Permit Status</span>
-            <strong>{permitRecords?.buildingPermitStatus || "Approved"}</strong>
-          </div>
-        </div>
-
-        <div className="detail-item">
-          <LuShieldCheck />
-          <div>
-            <span>Environmental Clearance</span>
-            <strong>{permitRecords?.environmentalClearance || "Obtained"}</strong>
-          </div>
-        </div>
-
-        <div className="detail-item">
-          <LuBuilding2 />
-          <div>
-            <span>Occupancy Certificate</span>
-            <strong>{permitRecords?.occupancyCertificate || "Issued"}</strong>
-          </div>
-        </div>
-
-        <div className="detail-item">
-          <LuCircleAlert />
-          <div>
-            <span>Pollution Control Compliance</span>
-            <strong>{permitRecords?.pollutionCompliance || "Compliant"}</strong>
-          </div>
-        </div>
-
-        <div className="detail-item">
-          <LuCalendarDays />
-          <div>
-            <span>Last Inspection Date</span>
-            <strong>{permitRecords?.lastInspectionDate || "12 Jun 2026"}</strong>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
+import { useEffect, useState } from "react";
+import { LuPencil, LuPlus, LuTrash2 } from "react-icons/lu";
+import { api } from "../../../services/api";
+const empty = { permitType: "", issuingAuthority: "", issueDate: "", expiryDate: "", status: "", remarks: "" };
+export default function PermitEnvironmentalRecords({ propertyId }) {
+ const [permits,setPermits]=useState([]),[editing,setEditing]=useState(null),[form,setForm]=useState(empty),[error,setError]=useState("");
+ const load=()=>api.getPermits(propertyId).then(setPermits).catch(e=>setError(e.message)); useEffect(()=>{load()},[propertyId]);
+ const save=async e=>{e.preventDefault();try{editing?await api.updatePermit(editing.id,{...form,propertyId:Number(propertyId)}):await api.createPermit({...form,propertyId:Number(propertyId)});setEditing(null);setForm(empty);load()}catch(err){setError(err.message)}};
+ const edit=p=>{setEditing(p);setForm({permitType:p.permitType||"",issuingAuthority:p.issuingAuthority||"",issueDate:p.issueDate||"",expiryDate:p.expiryDate||"",status:p.status||"",remarks:p.remarks||""})};
+ const remove=async p=>{if(!window.confirm(`Delete ${p.permitType}?`))return;try{await api.deletePermit(p.id);load()}catch(err){setError(err.message)}};
+ return <div className="details-card"><div className="card-actions"><h3>Permits</h3><button className="small-primary" onClick={()=>{setEditing({});setForm(empty)}}><LuPlus />Add Permit</button></div>{editing&&<form className="inline-form" onSubmit={save}><input required placeholder="Permit type" value={form.permitType} onChange={e=>setForm({...form,permitType:e.target.value})}/><input placeholder="Issuing authority" value={form.issuingAuthority} onChange={e=>setForm({...form,issuingAuthority:e.target.value})}/><input type="date" value={form.issueDate} onChange={e=>setForm({...form,issueDate:e.target.value})}/><input type="date" value={form.expiryDate} onChange={e=>setForm({...form,expiryDate:e.target.value})}/><input placeholder="Status" value={form.status} onChange={e=>setForm({...form,status:e.target.value})}/><input placeholder="Remarks" value={form.remarks} onChange={e=>setForm({...form,remarks:e.target.value})}/><button className="small-primary">Save</button></form>}{error&&<p className="error-message">{error}</p>}<div className="permit-table-wrapper"><table className="tax-table"><thead><tr><th>Permit</th><th>Authority</th><th>Status</th><th>Expiry</th><th>Actions</th></tr></thead><tbody>{permits.map(p=><tr key={p.id}><td>{p.permitType}</td><td>{p.issuingAuthority||"—"}</td><td>{p.status||"—"}</td><td>{p.expiryDate||"—"}</td><td><button className="icon-button" onClick={()=>edit(p)}><LuPencil /></button><button className="icon-danger" onClick={()=>remove(p)}><LuTrash2 /></button></td></tr>)}</tbody></table></div>{!error&&!permits.length&&<p className="no-data">No permits have been added to this property.</p>}</div>
 }

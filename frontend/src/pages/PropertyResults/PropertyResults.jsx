@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Layout from "../../components/Layout/Layout";
 import "./PropertyResults.css";
 import { useNavigate, useLocation } from "react-router-dom";
-import { api, getPropertyRisk, getPropertyOwnerName } from "../../services/api";
+import { api, getPropertyOwnerName } from "../../services/api";
 
 import {
   LuMapPin,
@@ -20,6 +20,7 @@ export default function PropertyResults() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [risks, setRisks] = useState({});
 
   // Parse filters from query parameters
   const searchParams = new URLSearchParams(location.search);
@@ -39,6 +40,8 @@ export default function PropertyResults() {
       try {
         const data = await api.getProperties();
         setProperties(data);
+        const summaries = await Promise.all(data.map((p) => api.getRiskSummary(p.propertyId).catch(() => null)));
+        setRisks(Object.fromEntries(data.map((p, index) => [p.propertyId, summaries[index]?.overallRisk || "Unrated"])));
       } catch (err) {
         setError(err.message || "Failed to load properties");
       } finally {
@@ -83,7 +86,7 @@ export default function PropertyResults() {
     if (city && property.city.toLowerCase() !== city.toLowerCase()) {
       return false;
     }
-    if (risk && getPropertyRisk(property.propertyId).toLowerCase() !== risk.toLowerCase()) {
+    if (risk && (risks[property.propertyId] || "").toLowerCase() !== risk.toLowerCase()) {
       return false;
     }
     if (status && property.status.toLowerCase() !== status.toLowerCase()) {
@@ -96,7 +99,7 @@ export default function PropertyResults() {
   const verifiedCount = filtered.filter((p) => p.status === "AVAILABLE" || p.status === "VERIFIED").length;
   const pendingCount = filtered.filter((p) => p.status === "UNDER_REVIEW").length;
   const highRiskCount = filtered.filter((p) => {
-    const r = getPropertyRisk(p.propertyId);
+    const r = risks[p.propertyId];
     return r === "High" || r === "Critical";
   }).length;
 
@@ -149,7 +152,7 @@ export default function PropertyResults() {
 
         <div className="properties-grid">
           {filtered.map((property) => {
-            const riskLvl = getPropertyRisk(property.propertyId);
+            const riskLvl = risks[property.propertyId] || "Unrated";
             const lotSqft = property.lotSizeSqft || 1500;
             const estimatedPrice = lotSqft * 5000;
 
@@ -209,7 +212,7 @@ export default function PropertyResults() {
 
                   <button
                     className="view-btn"
-                    onClick={() => navigate(`/property-details/${property.propertyId}`)}
+                    onClick={() => navigate(`/property/${property.propertyId}`)}
                   >
                     <LuEye />
                     View Details

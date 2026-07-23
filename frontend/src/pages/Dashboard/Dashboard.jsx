@@ -42,30 +42,7 @@ const quickActions = [
   },
 ];
 
-const demoDashboardData = {
-  totalProperties: 24,
-  totalReports: 18,
-  highRiskCount: 4,
-  pendingReviews: 6,
-  recentSearches: [
-    { property: "12 Lake View Road, Bengaluru", type: "Residential", risk: "Low", status: "Completed" },
-    { property: "Orion Business Park, Hyderabad", type: "Commercial", risk: "Medium", status: "Reviewing" },
-    { property: "48 MG Road, Pune", type: "Commercial", risk: "High", status: "Pending" },
-    { property: "Green Meadows, Chennai", type: "Residential", risk: "Low", status: "Completed" },
-    { property: "Riverside Plot 18, Kochi", type: "Land", risk: "Medium", status: "Reviewing" },
-  ],
-  riskBreakdown: [
-    { label: "Low Risk", count: 12, color: "#22C55E" },
-    { label: "Medium Risk", count: 8, color: "#F59E0B" },
-    { label: "High Risk", count: 3, color: "#EF4444" },
-    { label: "Critical", count: 1, color: "#991B1B" },
-  ],
-  notifications: [
-    { title: "Document review due", subtitle: "Orion Business Park requires a document review." },
-    { title: "High-risk property identified", subtitle: "48 MG Road needs an additional compliance check." },
-    { title: "Report ready", subtitle: "The Lake View Road due-diligence report is ready." },
-  ],
-};
+const emptyDashboardData = { totalProperties: 0, totalReports: 0, highRiskCount: 0, pendingReviews: 0, recentSearches: [], riskBreakdown: [], notifications: [] };
 
 function RiskDonut({ data, total }) {
   const size = 170;
@@ -118,8 +95,8 @@ function RiskDonut({ data, total }) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [data, setData] = useState(demoDashboardData);
-  const [isDemoData, setIsDemoData] = useState(true);
+  const [data, setData] = useState(emptyDashboardData);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!api.isAuthenticated()) {
@@ -127,15 +104,8 @@ export default function Dashboard() {
       return;
     }
 
-  const fetchDashboardData = async () => {
-  try {
-    const response = await fetch("http://localhost:8081/api/dashboard/stats");
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch dashboard stats");
-    }
-
-    const summary = await response.json();
+    const fetchDashboardData = async () => { try {
+    const summary = await api.getDashboardSummary();
 
     setData({
       totalProperties: summary.totalProperties,
@@ -153,13 +123,7 @@ export default function Dashboard() {
       notifications: [],
     });
 
-    setIsDemoData(false);
-
-  } catch (error) {
-    console.error(error);
-    setIsDemoData(true);
-  }
-};
+    } catch (err) { setError(err.message || "Unable to load dashboard statistics"); } };
 
     fetchDashboardData();
   }, [navigate]);
@@ -203,11 +167,7 @@ export default function Dashboard() {
   return (
     <Layout title="Dashboard" showSearch={true}>
       <div className="dashboard-page">
-        {isDemoData && (
-          <div className="demo-data-notice" role="status">
-            Showing sample dashboard data. Live property data will appear automatically when the backend is available.
-          </div>
-        )}
+        {error && <div className="demo-data-notice" role="alert">{error}</div>}
         <div className="stats-grid">
           {stats.map((item) => {
             const Icon = item.icon;
