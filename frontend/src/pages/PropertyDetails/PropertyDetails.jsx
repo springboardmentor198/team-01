@@ -8,12 +8,15 @@ import PropertyInformation from "./components/PropertyInformation";
 import OwnerDetails from "./components/OwnerDetails";
 import PropertyTaxHistory from "./components/PropertyTaxHistory";
 import ZoningInformation from "./components/ZoningInformation";
+import FloodZoneVerification from "./components/FloodZoneVerification";
+import PermitEnvironmentalRecords from "./components/PermitEnvironmentalRecords";
+import RiskSummary from "./components/RiskSummary";
+import Documents from "./components/Documents";
 
 import {
   LuArrowLeft,
   LuMapPin,
   LuShieldCheck,
-  LuFileText,
   LuDownload,
 } from "react-icons/lu";
 
@@ -176,6 +179,22 @@ export default function PropertyDetails() {
     "Encumbrance Certificate",
   ];
 
+  const floodZone = {
+    zone: "Zone X (Minimal Risk)",
+    riskLevel: "Low",
+    elevation: "42 m above sea level",
+    femaClassification: "Not in Special Flood Hazard Area",
+    insuranceRequired: false,
+  };
+
+  const permitRecords = {
+    buildingPermitStatus: "Approved",
+    environmentalClearance: "Obtained",
+    occupancyCertificate: "Issued",
+    pollutionCompliance: "Compliant",
+    lastInspectionDate: "12 Jun 2026",
+  };
+
   return (
   <Layout title="Property Details">
     <div className="details-page">
@@ -256,64 +275,28 @@ export default function PropertyDetails() {
           zoning={zoning}
         />
 
-      </div>
+        <FloodZoneVerification
+          floodZone={floodZone}
+        />
 
-            {/* ================= RISK SUMMARY ================= */}
-
-      <div className={`risk-card border-${riskDetails.class}`}>
-
-        <div className="risk-left">
-
-          <LuShieldCheck
-            className={`risk-icon text-${riskDetails.class}`}
-          />
-
-          <div>
-
-            <h3>Risk Summary</h3>
-
-            <p>{riskDetails.summary}</p>
-
-          </div>
-
-        </div>
-
-        <span className={`risk-level ${riskDetails.class}`}>
-          {riskLvl} Risk
-        </span>
+        <PermitEnvironmentalRecords
+          permitRecords={permitRecords}
+        />
 
       </div>
+
+      {/* ================= RISK SUMMARY ================= */}
+
+      <RiskSummary
+        riskLvl={riskLvl}
+        riskDetails={riskDetails}
+      />
 
       {/* ================= DOCUMENTS ================= */}
 
-      <div className="details-card">
-
-        <h3>Documents</h3>
-
-        <div className="documents-grid">
-
-          {documents.map((doc, index) => (
-
-            <div
-              key={index}
-              className="document-item"
-            >
-
-              <LuFileText />
-
-              <span>{doc}</span>
-
-              <span className="doc-status">
-                Available
-              </span>
-
-            </div>
-
-          ))}
-
-        </div>
-
-      </div>
+      <Documents
+        documents={documents}
+      />
 
       {/* ================= TIMELINE ================= */}
 
