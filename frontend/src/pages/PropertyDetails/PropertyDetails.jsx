@@ -198,9 +198,6 @@ export default function PropertyDetails() {
   return (
   <Layout title="Property Details">
     <div className="details-page">
-
-      {/* ================= HEADER ================= */}
-
       <div className="details-header">
 
         <button
@@ -220,8 +217,6 @@ export default function PropertyDetails() {
         </button>
 
       </div>
-
-      {/* ================= OVERVIEW ================= */}
 
       <div className="overview-card">
 
@@ -254,8 +249,6 @@ export default function PropertyDetails() {
 
       </div>
 
-      {/* ================= PROPERTY DETAILS ================= */}
-
       <div className="info-grid">
 
         <PropertyInformation
@@ -284,21 +277,13 @@ export default function PropertyDetails() {
         />
 
       </div>
-
-      {/* ================= RISK SUMMARY ================= */}
-
       <RiskSummary
         riskLvl={riskLvl}
         riskDetails={riskDetails}
       />
-
-      {/* ================= DOCUMENTS ================= */}
-
       <Documents
         documents={documents}
       />
-
-      {/* ================= TIMELINE ================= */}
 
       <div className="details-card">
 
@@ -365,8 +350,6 @@ export default function PropertyDetails() {
         </div>
 
       </div>
-
-      {/* ================= FINAL RECOMMENDATION ================= */}
 
       <div className="recommendation-card">
 
