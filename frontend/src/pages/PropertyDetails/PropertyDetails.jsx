@@ -8,6 +8,7 @@ import "./PropertyDetails.css";
 import PropertyInformation from "./components/PropertyInformation";
 import OwnerDetails from "./components/OwnerDetails";
 import PropertyTaxHistory from "./components/PropertyTaxHistory";
+import ZoningInformation from "./components/ZoningInformation";
 import RiskSummary from "./components/RiskSummary";
 import Documents from "./components/Documents";
 import PermitEnvironmentalRecords from "./components/PermitEnvironmentalRecords";
@@ -104,6 +105,8 @@ export default function PropertyDetails() {
             <OwnerDetails ownership={ownership} searchDate="—" />
 
             <PropertyTaxHistory taxHistory={taxHistory} />
+
+            <ZoningInformation property={property} />
           </div>
         );
 
