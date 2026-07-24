@@ -1,7 +1,6 @@
 import {
   LuMap,
   LuBuilding2,
-  LuShieldCheck,
   LuLandmark,
   LuCircleAlert,
 } from "react-icons/lu";
@@ -38,20 +37,11 @@ export default function ZoningInformation({ zoning }) {
         </div>
 
         <div className="detail-item">
-          <LuShieldCheck />
-          <div>
-            <span>Building Height</span>
-            <strong>{zoning?.buildingHeight || "15 m"}</strong>
-          </div>
-        </div>
-
-        <div className="detail-item">
           <LuCircleAlert />
           <div>
             <span>Restrictions</span>
             <strong>
-              {zoning?.restrictions ||
-                "No Commercial Activities Allowed"}
+              {zoning?.restrictions || "No Commercial Activities Allowed"}
             </strong>
           </div>
         </div>
