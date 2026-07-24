@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { LuArrowLeft, LuDownload, LuMapPin } from "react-icons/lu";
+import { LuDownload, LuMapPin } from "react-icons/lu";
 import Layout from "../../components/Layout/Layout";
 import { api } from "../../services/api";
 import "./PropertyDetails.css";
@@ -27,7 +27,7 @@ export default function PropertyDetails() {
 
   const [property, setProperty] = useState(null);
   const [ownership, setOwnership] = useState(null);
-  const [taxHistory, setTaxHistory] = useState([]);
+  const [taxSummary, setTaxSummary] = useState(null);
   const [activeTab, setActiveTab] = useState("Overview");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -41,29 +41,12 @@ export default function PropertyDetails() {
     Promise.all([
       api.getPropertyById(id),
       api.getOwnership(id).catch(() => []),
-      api.getPropertyTaxHistory(id).catch(() => []),
+      api.getPropertyTaxSummary(id).catch(() => null),
     ])
-      .then(([details, owners, taxes]) => {
+      .then(([details, owners, summary]) => {
         setProperty(details);
         setOwnership(owners[0] || null);
-
-        setTaxHistory(
-          taxes.map((item) => ({
-            year: item.taxYear,
-            amount:
-              item.taxAmount == null
-                ? "—"
-                : new Intl.NumberFormat("en-IN", {
-                    style: "currency",
-                    currency: "INR",
-                    maximumFractionDigits: 0,
-                  }).format(item.taxAmount),
-            status: item.paymentStatus || "—",
-            dueDate: item.dueDate
-              ? new Date(item.dueDate).toLocaleDateString("en-IN")
-              : "—",
-          })),
-        );
+        setTaxSummary(summary);
       })
       .catch((err) =>
         setError(err.message || "Failed to load property details"),
@@ -104,6 +87,7 @@ export default function PropertyDetails() {
 
             <OwnerDetails ownership={ownership} searchDate="—" />
 
+            <PropertyTaxHistory taxSummary={taxSummary} />
             <PropertyTaxHistory taxHistory={taxHistory} />
 
             <ZoningInformation property={property} />
@@ -138,11 +122,6 @@ export default function PropertyDetails() {
     <Layout title="Property Details">
       <div className="details-page">
         <div className="details-header">
-          <button className="back-results-btn" onClick={() => navigate(-1)}>
-            <LuArrowLeft />
-            Back
-          </button>
-
           <button
             className="download-btn"
             onClick={() => navigate(`/report/${id}`)}

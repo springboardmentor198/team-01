@@ -215,6 +215,20 @@ export const api = {
     return await response.json();
   },
 
+  getPropertyTaxSummary: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/properties/${propertyId}/tax-summary`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to load property tax summary");
+    }
+
+    return await response.json();
+  },
+
   getOwnership: async (propertyId) => {
     const response = await fetch(`${BASE_URL}/ownership/${propertyId}`, { headers: getHeaders(true) });
     if (!response.ok) throw new Error(await response.text() || "Failed to load ownership records");

@@ -1,60 +1,73 @@
-import { LuReceipt, LuBadgeCheck, LuClock3 } from "react-icons/lu";
+import {
+  LuReceipt,
+  LuShieldAlert,
+  LuCoins,
+  LuHourglass,
+} from "react-icons/lu";
 
-export default function PropertyTaxHistory({ taxHistory = [] }) {
+export default function PropertyTaxHistory({ taxSummary }) {
+  const formatCurrency = (amount) => {
+    if (amount == null) return "Not Available";
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   return (
     <div className="details-card">
-      <h3>Property Tax History</h3>
+      <h3>Property Tax Summary</h3>
 
-      {taxHistory.length === 0 ? (
-        <p className="no-data">No tax records available.</p>
-      ) : (
-        <div className="tax-table-wrapper">
-          <table className="tax-table">
-            <thead>
-              <tr>
-                <th>Year</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Due Date</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {taxHistory.map((tax, index) => (
-                <tr key={index}>
-                  <td>{tax.year}</td>
-
-                  <td>
-                    <div className="table-cell">
-                      <LuReceipt />
-                      {tax.amount}
-                    </div>
-                  </td>
-
-                  <td>
-                    <span
-                      className={`status-badge ${
-                        tax.status?.toLowerCase() === "paid"
-                          ? "paid"
-                          : "pending"
-                      }`}
-                    >
-                      {tax.status?.toLowerCase() === "paid" ? (
-                        <LuBadgeCheck />
-                      ) : (
-                        <LuClock3 />
-                      )}
-                      {tax.status}
-                    </span>
-                  </td>
-
-                  <td>{tax.dueDate}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="details-list">
+        <div className="detail-item">
+          <LuReceipt />
+          <div>
+            <span>Tax Status</span>
+            <strong>
+              {taxSummary?.taxStatus 
+                ? taxSummary.taxStatus.toUpperCase() 
+                : "Not Available"}
+            </strong>
+          </div>
         </div>
-      )}
+
+        <div className="detail-item">
+          <LuShieldAlert />
+          <div>
+            <span>Tax Risk</span>
+            <strong>
+              {taxSummary?.taxRisk 
+                ? taxSummary.taxRisk.toUpperCase() 
+                : "Not Available"}
+            </strong>
+          </div>
+        </div>
+
+        <div className="detail-item">
+          <LuCoins />
+          <div>
+            <span>Total Paid Amount</span>
+            <strong>
+              {taxSummary?.totalPaidAmount != null
+                ? formatCurrency(taxSummary.totalPaidAmount)
+                : "Not Available"}
+            </strong>
+          </div>
+        </div>
+
+        <div className="detail-item">
+          <LuHourglass />
+          <div>
+            <span>Total Unpaid Amount</span>
+            <strong>
+              {taxSummary?.totalUnpaidAmount != null
+                ? formatCurrency(taxSummary.totalUnpaidAmount)
+                : "Not Available"}
+            </strong>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
