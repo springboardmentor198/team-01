@@ -88,7 +88,6 @@ export default function PropertyDetails() {
             <OwnerDetails ownership={ownership} searchDate="—" />
 
             <PropertyTaxHistory taxSummary={taxSummary} />
-            <PropertyTaxHistory taxHistory={taxHistory} />
 
             <ZoningInformation property={property} />
           </div>
