@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { LuArrowLeft, LuDownload, LuMapPin } from "react-icons/lu";
+import { LuDownload, LuMapPin } from "react-icons/lu";
 import Layout from "../../components/Layout/Layout";
 import { api } from "../../services/api";
 import "./PropertyDetails.css";
@@ -135,11 +135,6 @@ export default function PropertyDetails() {
     <Layout title="Property Details">
       <div className="details-page">
         <div className="details-header">
-          <button className="back-results-btn" onClick={() => navigate(-1)}>
-            <LuArrowLeft />
-            Back
-          </button>
-
           <button
             className="download-btn"
             onClick={() => navigate(`/report/${id}`)}

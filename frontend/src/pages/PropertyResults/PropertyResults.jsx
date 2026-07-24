@@ -211,12 +211,12 @@ export default function PropertyResults() {
                   </span>
 
                   <button
-                    className="view-btn"
-                    onClick={() => navigate(`/property/${property.propertyId}`)}
-                  >
-                    <LuEye />
-                    View Details
-                  </button>
+                      className="view-btn"
+                      onClick={() => navigate(`/property/${property.propertyId}`)}
+                      >
+                      <LuEye />
+                       Detail View
+                </button>
                 </div>
               </div>
             );
