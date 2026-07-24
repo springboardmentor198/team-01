@@ -16,7 +16,7 @@ export default function PropertyInformation({ property }) {
           <LuBuilding2 />
           <div>
             <span>Property Type</span>
-            <strong>{property?.propertyType || "Residential"}</strong>
+            <strong>{property?.propertyType || "Not Available"}</strong>
           </div>
         </div>
 
@@ -25,7 +25,9 @@ export default function PropertyInformation({ property }) {
           <div>
             <span>Address</span>
             <strong>
-              {property?.address}, {property?.city}
+              {property?.address && property?.city
+                ? `${property.address}, ${property.city}`
+                : property?.address || "Not Available"}
             </strong>
           </div>
         </div>
@@ -34,7 +36,7 @@ export default function PropertyInformation({ property }) {
           <LuCalendarDays />
           <div>
             <span>Year Built</span>
-            <strong>{property?.yearBuilt || "2019"}</strong>
+            <strong>{property?.yearBuilt || "Not Available"}</strong>
           </div>
         </div>
 
@@ -45,7 +47,7 @@ export default function PropertyInformation({ property }) {
             <strong>
               {property?.lotSizeSqft
                 ? `${property.lotSizeSqft.toLocaleString()} sq.ft`
-                : "N/A"}
+                : "Not Available"}
             </strong>
           </div>
         </div>
@@ -54,7 +56,7 @@ export default function PropertyInformation({ property }) {
           <LuBadgeIndianRupee />
           <div>
             <span>Estimated Value</span>
-            <strong>{property?.estimatedValue || "₹1.25 Cr"}</strong>
+            <strong>{property?.estimatedValue || "Not Available"}</strong>
           </div>
         </div>
       </div>

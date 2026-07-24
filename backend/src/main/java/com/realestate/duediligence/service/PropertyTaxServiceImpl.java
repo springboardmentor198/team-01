@@ -3,16 +3,14 @@ package com.realestate.duediligence.service;
 import com.realestate.duediligence.dto.PropertyTaxHistoryResponse;
 import com.realestate.duediligence.dto.PropertyTaxSummaryResponse;
 import com.realestate.duediligence.entity.Property;
+import com.realestate.duediligence.entity.PropertyTaxHistory;
+import com.realestate.duediligence.repository.PropertyTaxRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Service
 public class PropertyTaxServiceImpl implements PropertyTaxService {
@@ -20,52 +18,20 @@ public class PropertyTaxServiceImpl implements PropertyTaxService {
     @Autowired
     private PropertyService propertyService;
 
-    // Thread-safe in-memory store for tax history
-    private final Map<Integer, List<PropertyTaxHistoryResponse>> taxStore = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1000);
+    @Autowired
+    private PropertyTaxRepository propertyTaxRepository;
 
-    private void ensureInitialized(Integer propertyId) {
-        if (!taxStore.containsKey(propertyId)) {
-            List<PropertyTaxHistoryResponse> defaultRecords = new ArrayList<>();
-            
-            // 2025 Tax Record
-            defaultRecords.add(PropertyTaxHistoryResponse.builder()
-                    .taxHistoryId(idGenerator.incrementAndGet())
-                    .propertyId(propertyId)
-                    .taxYear(2025)
-                    .assessedValue(BigDecimal.valueOf(250000.00))
-                    .taxAmount(BigDecimal.valueOf(3125.00))
-                    .paymentStatus("PENDING")
-                    .dueDate(LocalDate.of(2025, 12, 31))
-                    .paymentDate(null)
-                    .build());
-
-            // 2024 Tax Record
-            defaultRecords.add(PropertyTaxHistoryResponse.builder()
-                    .taxHistoryId(idGenerator.incrementAndGet())
-                    .propertyId(propertyId)
-                    .taxYear(2024)
-                    .assessedValue(BigDecimal.valueOf(245000.00))
-                    .taxAmount(BigDecimal.valueOf(3062.50))
-                    .paymentStatus("PAID")
-                    .dueDate(LocalDate.of(2024, 12, 31))
-                    .paymentDate(LocalDate.of(2024, 12, 15))
-                    .build());
-
-            // 2023 Tax Record
-            defaultRecords.add(PropertyTaxHistoryResponse.builder()
-                    .taxHistoryId(idGenerator.incrementAndGet())
-                    .propertyId(propertyId)
-                    .taxYear(2023)
-                    .assessedValue(BigDecimal.valueOf(238000.00))
-                    .taxAmount(BigDecimal.valueOf(2975.00))
-                    .paymentStatus("PAID")
-                    .dueDate(LocalDate.of(2023, 12, 31))
-                    .paymentDate(LocalDate.of(2023, 12, 20))
-                    .build());
-
-            taxStore.put(propertyId, defaultRecords);
-        }
+    private PropertyTaxHistoryResponse mapToResponse(PropertyTaxHistory entity) {
+        return PropertyTaxHistoryResponse.builder()
+                .taxHistoryId(entity.getTaxHistoryId())
+                .propertyId(entity.getProperty().getPropertyId())
+                .taxYear(entity.getTaxYear())
+                .assessedValue(entity.getAssessedValue())
+                .taxAmount(entity.getTaxAmount())
+                .paymentStatus(entity.getPaymentStatus())
+                .dueDate(entity.getDueDate())
+                .paymentDate(entity.getPaymentDate())
+                .build();
     }
 
     @Override
@@ -73,10 +39,10 @@ public class PropertyTaxServiceImpl implements PropertyTaxService {
         // Verify property exists
         propertyService.getById(propertyId);
 
-        // Prepopulate defaults if first time
-        ensureInitialized(propertyId);
-
-        return taxStore.get(propertyId);
+        return propertyTaxRepository.findByProperty_PropertyIdOrderByTaxYearDesc(propertyId)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -84,10 +50,17 @@ public class PropertyTaxServiceImpl implements PropertyTaxService {
         // Verify property exists
         propertyService.getById(propertyId);
 
-        // Prepopulate defaults if first time
-        ensureInitialized(propertyId);
+        List<PropertyTaxHistory> records = propertyTaxRepository.findByProperty_PropertyId(propertyId);
 
-        List<PropertyTaxHistoryResponse> records = taxStore.get(propertyId);
+        if (records.isEmpty()) {
+            return PropertyTaxSummaryResponse.builder()
+                    .propertyId(propertyId)
+                    .taxStatus(null)
+                    .taxRisk(null)
+                    .totalPaidAmount(null)
+                    .totalUnpaidAmount(null)
+                    .build();
+        }
 
         String overallStatus = "PAID";
         String overallRisk = "LOW";
@@ -97,7 +70,7 @@ public class PropertyTaxServiceImpl implements PropertyTaxService {
         boolean hasDelinquent = false;
         boolean hasPending = false;
 
-        for (PropertyTaxHistoryResponse r : records) {
+        for (PropertyTaxHistory r : records) {
             BigDecimal amt = r.getTaxAmount() != null ? r.getTaxAmount() : BigDecimal.ZERO;
 
             if ("DELINQUENT".equalsIgnoreCase(r.getPaymentStatus())) {
@@ -131,50 +104,42 @@ public class PropertyTaxServiceImpl implements PropertyTaxService {
     @Override
     public PropertyTaxHistoryResponse addTaxRecord(Integer propertyId, PropertyTaxHistoryResponse record) {
         // Verify property exists
-        propertyService.getById(propertyId);
+        Property property = propertyService.getById(propertyId);
 
-        // Prepopulate defaults if first time
-        ensureInitialized(propertyId);
+        PropertyTaxHistory entity = PropertyTaxHistory.builder()
+                .property(property)
+                .taxYear(record.getTaxYear())
+                .assessedValue(record.getAssessedValue())
+                .taxAmount(record.getTaxAmount())
+                .paymentStatus(record.getPaymentStatus())
+                .dueDate(record.getDueDate())
+                .paymentDate(record.getPaymentDate())
+                .build();
 
-        record.setTaxHistoryId(idGenerator.incrementAndGet());
-        record.setPropertyId(propertyId);
-
-        taxStore.get(propertyId).add(record);
-        return record;
+        PropertyTaxHistory saved = propertyTaxRepository.save(entity);
+        return mapToResponse(saved);
     }
 
     @Override
     public PropertyTaxHistoryResponse updateTaxRecord(Long taxHistoryId, PropertyTaxHistoryResponse record) {
-        for (Map.Entry<Integer, List<PropertyTaxHistoryResponse>> entry : taxStore.entrySet()) {
-            List<PropertyTaxHistoryResponse> list = entry.getValue();
-            for (int i = 0; i < list.size(); i++) {
-                PropertyTaxHistoryResponse r = list.get(i);
-                if (r.getTaxHistoryId().equals(taxHistoryId)) {
-                    // Update fields
-                    r.setTaxYear(record.getTaxYear());
-                    r.setAssessedValue(record.getAssessedValue());
-                    r.setTaxAmount(record.getTaxAmount());
-                    r.setPaymentStatus(record.getPaymentStatus());
-                    r.setDueDate(record.getDueDate());
-                    r.setPaymentDate(record.getPaymentDate());
-                    return r;
-                }
-            }
-        }
-        throw new RuntimeException("Tax record not found with ID: " + taxHistoryId);
+        PropertyTaxHistory existing = propertyTaxRepository.findById(taxHistoryId)
+                .orElseThrow(() -> new RuntimeException("Tax record not found with ID: " + taxHistoryId));
+
+        existing.setTaxYear(record.getTaxYear());
+        existing.setAssessedValue(record.getAssessedValue());
+        existing.setTaxAmount(record.getTaxAmount());
+        existing.setPaymentStatus(record.getPaymentStatus());
+        existing.setDueDate(record.getDueDate());
+        existing.setPaymentDate(record.getPaymentDate());
+
+        PropertyTaxHistory saved = propertyTaxRepository.save(existing);
+        return mapToResponse(saved);
     }
 
     @Override
     public void deleteTaxRecord(Long taxHistoryId) {
-        for (Map.Entry<Integer, List<PropertyTaxHistoryResponse>> entry : taxStore.entrySet()) {
-            List<PropertyTaxHistoryResponse> list = entry.getValue();
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getTaxHistoryId().equals(taxHistoryId)) {
-                    list.remove(i);
-                    return;
-                }
-            }
-        }
-        throw new RuntimeException("Tax record not found with ID: " + taxHistoryId);
+        PropertyTaxHistory existing = propertyTaxRepository.findById(taxHistoryId)
+                .orElseThrow(() -> new RuntimeException("Tax record not found with ID: " + taxHistoryId));
+        propertyTaxRepository.delete(existing);
     }
 }
