@@ -2,8 +2,10 @@ package com.realestate.duediligence.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,28 +34,49 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger log =
+            LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ErrorResponse> handleApiException(ApiException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleApiException(
+            ApiException ex,
+            HttpServletRequest request) {
+
         HttpStatus status = ex.getStatus();
+
         String traceId = logAndGetTraceId(status, ex, request);
-        return build(status, status.name(), ex.getMessage(), request, null, traceId);
+
+        return build(
+                status,
+                status.name(),
+                ex.getMessage(),
+                request,
+                null,
+                traceId
+        );
     }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex, HttpHeaders headers,
-            HttpStatusCode status, WebRequest request) {
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
-        Map<String, String> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+        Map<String, String> fieldErrors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
                 .collect(Collectors.toMap(
                         fe -> fe.getField(),
-                        fe -> fe.getDefaultMessage() == null ? "Invalid value" : fe.getDefaultMessage(),
-                        (existing, replacement) -> existing));
+                        fe -> fe.getDefaultMessage() == null
+                                ? "Invalid value"
+                                : fe.getDefaultMessage(),
+                        (existing, replacement) -> existing
+                ));
 
         String path = extractPath(request);
         String traceId = shortTraceId();
+
         log.warn("[{}] Validation failed on {}: {}", traceId, path, fieldErrors);
 
         ErrorResponse body = ErrorResponse.builder()
@@ -71,24 +94,36 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(
-            ConstraintViolationException ex, HttpServletRequest request) {
+            ConstraintViolationException ex,
+            HttpServletRequest request) {
 
         Map<String, String> violations = new HashMap<>();
+
         ex.getConstraintViolations().forEach(v ->
                 violations.put(v.getPropertyPath().toString(), v.getMessage()));
 
         String traceId = logAndGetTraceId(HttpStatus.BAD_REQUEST, ex, request);
-        return build(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED",
-                "One or more parameters are invalid", request, violations, traceId);
+
+        return build(
+                HttpStatus.BAD_REQUEST,
+                "VALIDATION_FAILED",
+                "One or more parameters are invalid",
+                request,
+                violations,
+                traceId
+        );
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
-            HttpMessageNotReadableException ex, HttpHeaders headers,
-            HttpStatusCode status, WebRequest request) {
+            HttpMessageNotReadableException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
         String path = extractPath(request);
         String traceId = shortTraceId();
+
         log.warn("[{}] Malformed request body on {}: {}", traceId, path, ex.getMessage());
 
         ErrorResponse body = ErrorResponse.builder()
@@ -103,84 +138,189 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponse> handleMissingParam(
-            MissingServletRequestParameterException ex, HttpServletRequest request) {
+        @Override
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(
+            MissingServletRequestParameterException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
-        String traceId = logAndGetTraceId(HttpStatus.BAD_REQUEST, ex, request);
-        return build(HttpStatus.BAD_REQUEST, "MISSING_PARAMETER",
-                "Required parameter '" + ex.getParameterName() + "' is missing", request, null, traceId);
+        String path = extractPath(request);
+        String traceId = shortTraceId();
+
+        log.warn("[{}] Missing request parameter: {}", traceId, ex.getParameterName());
+
+        ErrorResponse body = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("MISSING_PARAMETER")
+                .message("Required parameter '" + ex.getParameterName() + "' is missing")
+                .path(path)
+                .traceId(traceId)
+                .build();
+
+        return ResponseEntity.badRequest().body(body);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(
-            MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+            MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request) {
 
-        String message = "Parameter '" + ex.getName() + "' should be of type "
-                + (ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "a different type");
+        String message = "Parameter '" + ex.getName()
+                + "' should be of type "
+                + (ex.getRequiredType() != null
+                ? ex.getRequiredType().getSimpleName()
+                : "a different type");
+
         String traceId = logAndGetTraceId(HttpStatus.BAD_REQUEST, ex, request);
-        return build(HttpStatus.BAD_REQUEST, "TYPE_MISMATCH", message, request, null, traceId);
+
+        return build(
+                HttpStatus.BAD_REQUEST,
+                "TYPE_MISMATCH",
+                message,
+                request,
+                null,
+                traceId
+        );
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleMethodNotSupported(
-            HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
-        String traceId = logAndGetTraceId(HttpStatus.METHOD_NOT_ALLOWED, ex, request);
-        return build(HttpStatus.METHOD_NOT_ALLOWED, "METHOD_NOT_ALLOWED", ex.getMessage(), request, null, traceId);
+        String path = extractPath(request);
+        String traceId = shortTraceId();
+
+        log.warn("[{}] Method not supported: {}", traceId, ex.getMessage());
+
+        ErrorResponse body = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.METHOD_NOT_ALLOWED.value())
+                .error("METHOD_NOT_ALLOWED")
+                .message(ex.getMessage())
+                .path(path)
+                .traceId(traceId)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(body);
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNoHandlerFound(
-            NoHandlerFoundException ex, HttpServletRequest request) {
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(
+            NoHandlerFoundException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
-        String traceId = logAndGetTraceId(HttpStatus.NOT_FOUND, ex, request);
-        return build(HttpStatus.NOT_FOUND, "ROUTE_NOT_FOUND",
-                "No endpoint " + ex.getHttpMethod() + " " + ex.getRequestURL(), request, null, traceId);
+        String path = extractPath(request);
+        String traceId = shortTraceId();
+
+        log.warn("[{}] No handler found for {} {}", traceId,
+                ex.getHttpMethod(),
+                ex.getRequestURL());
+
+        ErrorResponse body = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("ROUTE_NOT_FOUND")
+                .message("No endpoint " + ex.getHttpMethod()
+                        + " " + ex.getRequestURL())
+                .path(path)
+                .traceId(traceId)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
+        @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(
-            AccessDeniedException ex, HttpServletRequest request) {
+            AccessDeniedException ex,
+            HttpServletRequest request) {
 
         String traceId = logAndGetTraceId(HttpStatus.FORBIDDEN, ex, request);
-        return build(HttpStatus.FORBIDDEN, "ACCESS_DENIED",
-                "You do not have permission to perform this action", request, null, traceId);
+
+        return build(
+                HttpStatus.FORBIDDEN,
+                "ACCESS_DENIED",
+                "You do not have permission to perform this action",
+                request,
+                null,
+                traceId
+        );
     }
 
     @ExceptionHandler({AuthenticationException.class, BadCredentialsException.class})
     public ResponseEntity<ErrorResponse> handleAuthenticationException(
-            Exception ex, HttpServletRequest request) {
+            Exception ex,
+            HttpServletRequest request) {
 
         String traceId = logAndGetTraceId(HttpStatus.UNAUTHORIZED, ex, request);
-        return build(HttpStatus.UNAUTHORIZED, "AUTHENTICATION_FAILED",
-                "Invalid credentials or session", request, null, traceId);
+
+        return build(
+                HttpStatus.UNAUTHORIZED,
+                "AUTHENTICATION_FAILED",
+                "Invalid credentials or session",
+                request,
+                null,
+                traceId
+        );
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
-            DataIntegrityViolationException ex, HttpServletRequest request) {
+            DataIntegrityViolationException ex,
+            HttpServletRequest request) {
 
         String traceId = logAndGetTraceId(HttpStatus.CONFLICT, ex, request);
-        return build(HttpStatus.CONFLICT, "DATA_CONFLICT",
-                "This record conflicts with an existing one", request, null, traceId);
+
+        return build(
+                HttpStatus.CONFLICT,
+                "DATA_CONFLICT",
+                "This record conflicts with an existing one",
+                request,
+                null,
+                traceId
+        );
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex, HttpServletRequest request) {
-        String traceId = shortTraceId();
-        log.error("[{}] Unhandled exception on {} {}", traceId, request.getMethod(), request.getRequestURI(), ex);
+    public ResponseEntity<ErrorResponse> handleUnexpected(
+            Exception ex,
+            HttpServletRequest request) {
 
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR",
-                "Something went wrong on our end. If this keeps happening, share reference " + traceId
-                        + " with support.",
-                request, null, traceId);
+        String traceId = shortTraceId();
+
+        log.error(
+                "[{}] Unhandled exception on {} {}",
+                traceId,
+                request.getMethod(),
+                request.getRequestURI(),
+                ex
+        );
+
+        return build(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "INTERNAL_SERVER_ERROR",
+                "Something went wrong on our end. If this keeps happening, share reference "
+                        + traceId + " with support.",
+                request,
+                null,
+                traceId
+        );
     }
 
-    private ResponseEntity<ErrorResponse> build(HttpStatus status, String error, String message,
-                                                 HttpServletRequest request,
-                                                 Map<String, String> validationErrors,
-                                                 String traceId) {
+    private ResponseEntity<ErrorResponse> build(
+            HttpStatus status,
+            String error,
+            String message,
+            HttpServletRequest request,
+            Map<String, String> validationErrors,
+            String traceId) {
+
         ErrorResponse body = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(status.value())
@@ -190,18 +330,38 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .validationErrors(validationErrors)
                 .traceId(traceId)
                 .build();
+
         return ResponseEntity.status(status).body(body);
     }
 
-    private String logAndGetTraceId(HttpStatus status, Exception ex, HttpServletRequest request) {
+    private String logAndGetTraceId(
+            HttpStatus status,
+            Exception ex,
+            HttpServletRequest request) {
+
         String traceId = shortTraceId();
+
         if (status.is5xxServerError()) {
-            log.error("[{}] {} {} -> {}: {}", traceId, request.getMethod(), request.getRequestURI(),
-                    status.value(), ex.getMessage(), ex);
+            log.error(
+                    "[{}] {} {} -> {}: {}",
+                    traceId,
+                    request.getMethod(),
+                    request.getRequestURI(),
+                    status.value(),
+                    ex.getMessage(),
+                    ex
+            );
         } else {
-            log.warn("[{}] {} {} -> {}: {}", traceId, request.getMethod(), request.getRequestURI(),
-                    status.value(), ex.getMessage());
+            log.warn(
+                    "[{}] {} {} -> {}: {}",
+                    traceId,
+                    request.getMethod(),
+                    request.getRequestURI(),
+                    status.value(),
+                    ex.getMessage()
+            );
         }
+
         return traceId;
     }
 
@@ -211,6 +371,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private String extractPath(WebRequest request) {
         String description = request.getDescription(false);
-        return description.startsWith("uri=") ? description.substring(4) : description;
+        return description.startsWith("uri=")
+                ? description.substring(4)
+                : description;
     }
 }
