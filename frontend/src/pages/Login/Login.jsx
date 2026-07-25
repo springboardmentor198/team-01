@@ -136,17 +136,31 @@ function Login() {
       </aside>
 
       <div className="form-side">
-        <div className="auth-card">
-          <div className="login-logo">
-            <div className="logo-circle">
-              <img src={logo} alt="DueDiligence logo" />
-            </div>
-          </div>
+  <div className="auth-card">
 
-          <h1 className="auth-title">Welcome Back</h1>
-          <p className="auth-subtitle">Sign in to continue to the Property Due Diligence System</p>
+    <div className="auth-header">
 
-          {error && <div className="auth-error-msg">{error}</div>}
+      <div className="auth-header-top">
+
+        <div className="logo-circle">
+          <img src={logo} alt="DueDiligence logo" />
+        </div>
+
+        <h1 className="auth-title">
+          Welcome Back
+        </h1>
+
+      </div>
+
+      <p className="auth-subtitle">
+        Sign in to continue to the Property Due Diligence System
+      </p>
+
+    </div>
+
+    {error && <div className="auth-error-msg">{error}</div>}
+
+      {error && <div className="auth-error-msg">{error}</div>}
 
           <form onSubmit={handleSubmit}>
             <div className="auth-field">
