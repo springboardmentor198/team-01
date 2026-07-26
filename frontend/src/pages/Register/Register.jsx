@@ -4,7 +4,7 @@ import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { api } from "../../services/api";
 import logo from "../../assets/images/logo.png";
 import "./Register.css";
-import Select from "react-select";
+import { useGoogleLogin } from "@react-oauth/google";
 
 function getPasswordStrength(pwd) {
   if (!pwd) return 0;
@@ -26,13 +26,6 @@ const STRENGTH_LABELS = [
   "Good",
   "Strong",
 ];
-const roleOptions = [
-  { value: "ADMIN", label: "Admin" },
-  { value: "BUYER", label: "Buyer" },
-  { value: "AGENT", label: "Agent" },
-  { value: "LEGAL_REVIEWER", label: "Legal Reviewer" },
-  { value: "BANK", label: "Financial Institution (Bank)" },
-];
 
 function Register() {
   const navigate = useNavigate();
@@ -42,7 +35,8 @@ function Register() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -55,6 +49,8 @@ function Register() {
 
   const passwordsDifferent =
     confirmPassword.length > 0 && password !== confirmPassword;
+
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,6 +77,56 @@ function Register() {
       setLoading(false);
     }
   };
+  
+  const getPostLoginPath = ({ profileCompleted, role }) => {
+    if (role === "ADMIN") {
+      return "/admin/dashboard";
+    }
+
+    if (profileCompleted === false) {
+      return "/onboarding";
+    }
+
+    if (profileCompleted === true) {
+      const dashboardPaths = {
+        BUYER: "/buyer/dashboard",
+        AGENT: "/agent/dashboard",
+        LEGAL_REVIEWER: "/legal/dashboard",
+        BANK: "/bank/dashboard",
+      };
+
+      return dashboardPaths[role] || "/dashboard";
+    }
+
+    return "/dashboard";
+  };
+
+    const googleLogin = useGoogleLogin({
+      flow: "auth-code",
+  
+      onSuccess: async (tokenResponse) => {
+        setError("");
+        setGoogleLoading(true);
+  
+        try {
+          const authentication =
+            await api.loginWithGoogle(tokenResponse);
+  
+          navigate(getPostLoginPath(authentication), {
+            replace: true,
+          });
+        } catch (err) {
+          setError(err.message || "Google sign-in failed");
+        } finally {
+          setGoogleLoading(false);
+        }
+      },
+  
+      onError: () => {
+        setError("Google sign-in failed");
+      },
+    });
+
 
   return (
     <AuthLayout>
@@ -156,36 +202,64 @@ function Register() {
             </div>
 
             <div className="auth-field">
-              <label>Role</label>
-
-              <Select
-                className="react-select-container"
-                classNamePrefix="react-select"
-                options={roleOptions}
-                placeholder="Select Role"
-                value={roleOptions.find(option => option.value === role) || null}
-                onChange={(selectedOption) =>
-                  setRole(selectedOption?.value || "")
-                }
-                isSearchable={false}
-                isClearable
-                menuPlacement="auto"
-                menuPosition="fixed"
-              />
-            </div>
-
-            <div className="auth-field">
               <label htmlFor="password">Password</label>
 
-              <input
-                id="password"
-                type="password"
-                className="auth-input"
-                placeholder="Create a strong password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="input-group">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  className="auth-input has-trailing-icon"
+                  placeholder="Create a strong password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+
+                <button
+                  type="button"
+                  className="input-trailing-icon"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={
+                    showPassword ? "Hide password" : "Show password"
+                  }
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line
+                        x1="1"
+                        y1="1"
+                        x2="23"
+                        y2="23"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="3"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
 
               {password && (
                 <div className="password-strength">
@@ -216,15 +290,72 @@ function Register() {
                 Confirm Password
               </label>
 
-              <input
-                id="confirmPassword"
-                type="password"
-                className="auth-input"
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
+              <div className="input-group">
+                <input
+                  id="confirmPassword"
+                  type={
+                    showConfirmPassword
+                      ? "text"
+                      : "password"
+                  }
+                  className="auth-input has-trailing-icon"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) =>
+                    setConfirmPassword(e.target.value)
+                  }
+                  required
+                />
+
+                <button
+                  type="button"
+                  className="input-trailing-icon"
+                  onClick={() =>
+                    setShowConfirmPassword((prev) => !prev)
+                  }
+                  aria-label={
+                    showConfirmPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line
+                        x1="1"
+                        y1="1"
+                        x2="23"
+                        y2="23"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="3"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
 
               {passwordsMatch && (
                 <div className="password-match success">
@@ -255,6 +386,50 @@ function Register() {
           </button>
 
         </form>
+
+        <div className="auth-divider">
+          <span>OR</span>
+        </div>
+
+                <div className="google-login-wrapper">
+
+          <button
+            className="google-btn"
+            type="button"
+            onClick={() => googleLogin()}
+            disabled={googleLoading}
+          >
+
+            <svg viewBox="0 0 48 48">
+              <path
+                fill="#FFC107"
+                d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.5 29.6 4.5 24 4.5 12.7 4.5 3.5 13.7 3.5 25S12.7 45.5 24 45.5 44.5 36.3 44.5 25c0-1.5-.2-2.9-.4-4.5z"
+              />
+
+              <path
+                fill="#FF3D00"
+                d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 7 29.6 5 24 5c-7.6 0-14.1 4.3-17.4 10.6z"
+              />
+
+              <path
+                fill="#4CAF50"
+                d="M24 45.5c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 36.5 27 37.5 24 37.5c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.8 41.1 16.4 45.5 24 45.5z"
+              />
+
+              <path
+                fill="#1976D2"
+                d="M43.6 20.5H42V20H24v8h11.3c-.9 2.5-2.5 4.6-4.6 6l6.6 5.4C40.9 36.3 44.5 31.1 44.5 25c0-1.5-.2-2.9-.4-4.5z"
+              />
+            </svg>
+
+            {googleLoading
+              ? "Signing in..."
+              : "Continue with Google"}
+
+          </button>
+
+        </div>
+
 
         <p className="auth-footer">
           Already have an account?{" "}

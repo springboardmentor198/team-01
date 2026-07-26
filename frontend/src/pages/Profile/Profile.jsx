@@ -18,7 +18,6 @@ import {
   LuChevronRight,
   LuX,
   LuCheck,
-  LuLogOut,
   LuCircleCheck,
 } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
@@ -182,11 +181,6 @@ function Profile() {
       console.error(err);
       alert(err.message || "Failed to update profile");
     }
-  };
-
-  const handleLogout = () => {
-    api.logout();
-    navigate("/login");
   };
 
   const settingsRows = BASE_SETTINGS;
@@ -370,9 +364,6 @@ function Profile() {
                 );
               })}
             </div>
-            <button className="logout-btn" onClick={handleLogout}>
-              <LuLogOut /> Log out
-            </button>
           </div>
         </section>
       </div>

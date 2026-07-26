@@ -21,27 +21,5 @@ VALUES
     NOW(),
     NOW(),
     4
-),
-(
-    'LOW',
-    'LOW',
-    'MEDIUM',
-    'MEDIUM',
-    'Minor documentation verification pending.',
-    40,
-    NOW(),
-    NOW(),
-    5
-),
-(
-    'HIGH',
-    'MEDIUM',
-    'HIGH',
-    'HIGH',
-    'Large commercial property requires compliance audit.',
-    90,
-    NOW(),
-    NOW(),
-    8
 )
 ON CONFLICT (property_id) DO NOTHING;
