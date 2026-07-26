@@ -22,7 +22,6 @@ function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [role, setRole] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -36,11 +35,6 @@ function Register() {
     setError("");
     setSuccess("");
 
-    if (!role) {
-      setError("Please select a role");
-      return;
-    }
-
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -48,7 +42,7 @@ function Register() {
 
     setLoading(true);
     try {
-      await api.register(fullName, email, password, role, phoneNumber);
+      await api.register(fullName, email, password, phoneNumber);
       setSuccess("Account created successfully! Redirecting to login...");
       setTimeout(() => {
         navigate("/login");
@@ -110,26 +104,6 @@ function Register() {
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 required
               />
-            </div>
-
-            <div className="auth-field">
-              <label htmlFor="role">Role</label>
-              <select
-                id="role"
-                className="auth-input"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                required
-              >
-                <option value="" disabled>
-                  Select Role
-                </option>
-                <option value="ADMIN">Admin</option>
-                <option value="BUYER">Buyer</option>
-                <option value="AGENT">Agent</option>
-                <option value="LEGAL_REVIEWER">Legal Reviewer</option>
-                <option value="BANK">Financial Institution (Bank)</option>
-              </select>
             </div>
 
             <div className="auth-field">

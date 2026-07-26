@@ -45,7 +45,7 @@ function Sidebar() {
       icon: <CgProfile />,
     },
   ];
-  if (api.getCurrentUser().role === "ADMIN") menuItems.push({ name: "Admin", path: "/admin", icon: <HiOutlineClipboardDocumentList /> });
+  if (api.getCurrentUser().role === "ADMIN") menuItems.push({ name: "Admin", path: "/admin/dashboard", icon: <HiOutlineClipboardDocumentList /> });
 
   return (
     <aside className="sidebar">

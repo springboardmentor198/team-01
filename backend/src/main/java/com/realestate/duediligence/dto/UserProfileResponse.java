@@ -2,6 +2,7 @@ package com.realestate.duediligence.dto;
 
 import java.time.LocalDateTime;
 
+import com.realestate.duediligence.enums.AccountStatus;
 import com.realestate.duediligence.enums.Role;
 
 public class UserProfileResponse {
@@ -13,6 +14,8 @@ public class UserProfileResponse {
     private String bio;
     private String avatarUrl;
     private Role role;
+    private AccountStatus status;
+    private Boolean profileCompleted;
     private String location;
     private LocalDateTime joinDate;
 
@@ -72,6 +75,22 @@ public class UserProfileResponse {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AccountStatus status) {
+        this.status = status;
+    }
+
+    public Boolean getProfileCompleted() {
+        return profileCompleted;
+    }
+
+    public void setProfileCompleted(Boolean profileCompleted) {
+        this.profileCompleted = profileCompleted;
     }
 
     public String getLocation() {

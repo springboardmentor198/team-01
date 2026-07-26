@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 import { useGoogleLogin } from "@react-oauth/google";
@@ -6,53 +6,47 @@ import "./Login.css";
 
 import logo from "../../assets/images/logo.png";
 
-const ROLE_OPTIONS = [
-  { value: "ADMIN", label: "Admin" },
-  { value: "BUYER", label: "Buyer" },
-  { value: "AGENT", label: "Agent" },
-  { value: "LEGAL_REVIEWER", label: "Legal Reviewer" },
-  { value: "BANK", label: "Financial Institution (Bank)" },
-];
+const getPostLoginPath = ({ profileCompleted, role }) => {
+  if (role === "ADMIN") {
+    return "/admin/dashboard";
+  }
+
+  if (profileCompleted === false) {
+    return "/onboarding";
+  }
+
+  if (profileCompleted === true) {
+    const dashboardPaths = {
+      BUYER: "/buyer/dashboard",
+      AGENT: "/agent/dashboard",
+      LEGAL_REVIEWER: "/legal/dashboard",
+      BANK: "/bank/dashboard",
+    };
+
+    return dashboardPaths[role] || "/dashboard";
+  }
+
+  return "/dashboard";
+};
 
 function Login() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const [roleOpen, setRoleOpen] = useState(false);
-  const roleRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (roleRef.current && !roleRef.current.contains(e.target)) {
-        setRoleOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const selectedRoleLabel = ROLE_OPTIONS.find((r) => r.value === role)?.label;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!role) {
-      setError("Please select a role");
-      return;
-    }
-
     setLoading(true);
     try {
-      await api.login(email, password, role);
-      navigate("/dashboard", { replace: true });
+      const authentication = await api.login(email, password);
+      navigate(getPostLoginPath(authentication), { replace: true });
     } catch (err) {
       setError(err.message || "Invalid email or password");
     } finally {
@@ -67,8 +61,8 @@ function Login() {
       setGoogleLoading(true);
 
       try {
-        await api.loginWithGoogle(tokenResponse, role);
-        navigate("/dashboard", { replace: true });
+        const authentication = await api.loginWithGoogle(tokenResponse);
+        navigate(getPostLoginPath(authentication), { replace: true });
       } catch (err) {
         setError(err.message || "Google sign-in failed");
       } finally {
@@ -136,17 +130,31 @@ function Login() {
       </aside>
 
       <div className="form-side">
-        <div className="auth-card">
-          <div className="login-logo">
-            <div className="logo-circle">
-              <img src={logo} alt="DueDiligence logo" />
-            </div>
-          </div>
+  <div className="auth-card">
 
-          <h1 className="auth-title">Welcome Back</h1>
-          <p className="auth-subtitle">Sign in to continue to the Property Due Diligence System</p>
+    <div className="auth-header">
 
-          {error && <div className="auth-error-msg">{error}</div>}
+      <div className="auth-header-top">
+
+        <div className="logo-circle">
+          <img src={logo} alt="DueDiligence logo" />
+        </div>
+
+        <h1 className="auth-title">
+          Welcome Back
+        </h1>
+
+      </div>
+
+      <p className="auth-subtitle">
+        Sign in to continue to the Property Due Diligence System
+      </p>
+
+    </div>
+
+    {error && <div className="auth-error-msg">{error}</div>}
+
+      {error && <div className="auth-error-msg">{error}</div>}
 
           <form onSubmit={handleSubmit}>
             <div className="auth-field">
@@ -203,46 +211,6 @@ function Login() {
                     </svg>
                   )}
                 </button>
-              </div>
-            </div>
-
-            <div className="auth-field">
-              <label htmlFor="roleTrigger">Role</label>
-              <div className="input-group custom-select" ref={roleRef}>
-                <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4 21v-1a8 8 0 0 1 16 0v1" />
-                </svg>
-                <button
-                  type="button"
-                  id="roleTrigger"
-                  className={`custom-select-trigger${role ? " has-value" : ""}${roleOpen ? " open" : ""}`}
-                  onClick={() => setRoleOpen((prev) => !prev)}
-                  aria-haspopup="listbox"
-                  aria-expanded={roleOpen}
-                >
-                  {selectedRoleLabel || "Select Role"}
-                </button>
-                <svg className={`custom-select-chevron${roleOpen ? " open" : ""}`} width="14" height="9" viewBox="0 0 14 9" fill="none">
-                  <path d="M1 1l6 6 6-6" stroke="currentColor" strokeWidth="1.8" />
-                </svg>
-
-                <ul className={`custom-select-options${roleOpen ? " open" : ""}`} role="listbox">
-                  {ROLE_OPTIONS.map((opt) => (
-                    <li
-                      key={opt.value}
-                      role="option"
-                      aria-selected={role === opt.value}
-                      className={`custom-select-option${role === opt.value ? " selected" : ""}`}
-                      onClick={() => {
-                        setRole(opt.value);
-                        setRoleOpen(false);
-                      }}
-                    >
-                      {opt.label}
-                    </li>
-                  ))}
-                </ul>
               </div>
             </div>
 

@@ -11,6 +11,4 @@ public class GoogleLoginRequest {
 
     private String code;
 
-    private String role;
-
 }
