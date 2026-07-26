@@ -19,6 +19,10 @@ export const getPropertyOwnerName = (property) => {
   return "Property Owner";
 };
 
+export const isAdmin = () => {
+  return localStorage.getItem("role") === "ADMIN";
+};
+
 export const api = {
   // Authentication APIs
   login: async (email, password, role) => {
@@ -199,6 +203,50 @@ export const api = {
     }
 
     return await response.json();
+  },
+
+  createProperty: async (payload) => {
+    const response = await fetch(`${BASE_URL}/properties`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to create property");
+    }
+
+    return await response.json();
+  },
+
+  updateProperty: async (id, payload) => {
+    const response = await fetch(`${BASE_URL}/properties/${id}`, {
+      method: "PUT",
+      headers: getHeaders(true),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to update property");
+    }
+
+    return await response.json();
+  },
+
+  deleteProperty: async (id) => {
+    const response = await fetch(`${BASE_URL}/properties/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to delete property");
+    }
+
+    return await response.text();
   },
 
   getPropertyTaxHistory: async (propertyId) => {

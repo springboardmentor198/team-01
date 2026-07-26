@@ -1,4 +1,4 @@
-.property-search {
+property-search {
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -20,7 +20,7 @@
 
   border-radius: 50%;
 
-  background: #2563EB;
+  background: #1E2B4D;
 
   color: white;
 
@@ -61,7 +61,7 @@
 
 .card-heading svg {
   font-size: 18px;
-  color: #2563EB;
+  color: #1E2B4D;
 }
 
 .card-heading h2 {
@@ -97,7 +97,7 @@
 }
 
 .search-bar input:focus {
-  border-color: #2563EB;
+  border-color: #1E2B4D;
 }
 
 .search-bar button {
@@ -105,7 +105,7 @@
 
   height: 42px;
 
-  background: #2563EB;
+  background: #1E2B4D;
 
   color: white;
 
@@ -125,7 +125,7 @@
 }
 
 .search-bar button:hover {
-  background: #1D4ED8;
+  background: #24375E;
 }
 
 /* ================= QUICK SEARCH ================= */
@@ -159,7 +159,7 @@
 
   background: #EFF6FF;
 
-  color: #2563EB;
+  color: #1E2B4D;
 
   font-size: 12px;
 
@@ -306,13 +306,13 @@
 
 .filter-box select:hover{
 
-    border-color:#2563EB;
+    border-color:#1E2B4D;
 
 }
 
 .filter-box select:focus{
 
-    border-color:#2563EB;
+    border-color:#1E2B4D;
 
 }
 

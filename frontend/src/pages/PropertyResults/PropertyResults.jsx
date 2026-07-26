@@ -11,6 +11,10 @@ import {
   LuTriangleAlert,
   LuEye,
   LuSearch,
+  LuWallet,
+  LuLayers,
+  LuMap,
+  LuCircleCheck,
 } from "react-icons/lu";
 
 export default function PropertyResults() {
@@ -95,13 +99,44 @@ export default function PropertyResults() {
     return true;
   });
 
-  const totalResults = filtered.length;
-  const verifiedCount = filtered.filter((p) => p.status === "AVAILABLE" || p.status === "VERIFIED").length;
-  const pendingCount = filtered.filter((p) => p.status === "UNDER_REVIEW").length;
-  const highRiskCount = filtered.filter((p) => {
-    const r = risks[p.propertyId];
-    return r === "High" || r === "Critical";
-  }).length;
+  // Enrich once so price/type/city stats and the card list use the same values
+  const enriched = filtered.map((property) => {
+    const lotSqft = property.lotSizeSqft || 1500;
+    return {
+      ...property,
+      riskLvl: risks[property.propertyId] || "Unrated",
+      estimatedPrice: lotSqft * 5000,
+    };
+  });
+
+  const totalResults = enriched.length;
+  const verifiedCount = enriched.filter((p) => p.status === "AVAILABLE" || p.status === "VERIFIED").length;
+  const pendingCount = enriched.filter((p) => p.status === "UNDER_REVIEW").length;
+  const highRiskCount = enriched.filter((p) => p.riskLvl === "High" || p.riskLvl === "Critical").length;
+
+  // ---- Additional summary stats (distinct from the top summary-grid) ----
+  const prices = enriched.map((p) => p.estimatedPrice);
+  const avgPrice = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0;
+  const minPrice = prices.length ? Math.min(...prices) : 0;
+  const maxPrice = prices.length ? Math.max(...prices) : 0;
+
+  const typeBreakdown = enriched.reduce((acc, p) => {
+    const t = p.propertyType || "Residential";
+    acc[t] = (acc[t] || 0) + 1;
+    return acc;
+  }, {});
+  const topType = Object.entries(typeBreakdown).sort((a, b) => b[1] - a[1])[0];
+
+  const cityBreakdown = enriched.reduce((acc, p) => {
+    const c = p.city || "Unknown";
+    acc[c] = (acc[c] || 0) + 1;
+    return acc;
+  }, {});
+  const citiesCovered = Object.keys(cityBreakdown).length;
+
+  const verificationRate = totalResults ? Math.round((verifiedCount / totalResults) * 100) : 0;
+
+  const formatINR = (n) => `₹${n.toLocaleString("en-IN")}`;
 
   return (
     <Layout title="Search Results">
@@ -151,11 +186,7 @@ export default function PropertyResults() {
         </div>
 
         <div className="properties-grid">
-          {filtered.map((property) => {
-            const riskLvl = risks[property.propertyId] || "Unrated";
-            const lotSqft = property.lotSizeSqft || 1500;
-            const estimatedPrice = lotSqft * 5000;
-
+          {enriched.map((property) => {
             return (
               <div key={property.propertyId} className="property-card">
                 <div className="property-top">
@@ -167,8 +198,8 @@ export default function PropertyResults() {
                     </p>
                   </div>
 
-                  <span className={`risk-badge ${riskLvl.toLowerCase()}`}>
-                    {riskLvl} Risk
+                  <span className={`risk-badge ${property.riskLvl.toLowerCase()}`}>
+                    {property.riskLvl} Risk
                   </span>
                 </div>
 
@@ -193,10 +224,7 @@ export default function PropertyResults() {
                     <LuTriangleAlert />
                     <div>
                       <span>Estimated Price</span>
-                      <h4>
-                        ₹
-                        {estimatedPrice.toLocaleString("en-IN")}
-                      </h4>
+                      <h4>{formatINR(property.estimatedPrice)}</h4>
                     </div>
                   </div>
                 </div>
@@ -222,7 +250,7 @@ export default function PropertyResults() {
             );
           })}
 
-          {filtered.length === 0 && (
+          {enriched.length === 0 && (
             <div className="no-results-card" style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px", color: "#666" }}>
               <LuTriangleAlert size={48} style={{ marginBottom: "15px", color: "#F59E0B" }} />
               <h3>No Properties Found</h3>
@@ -231,31 +259,46 @@ export default function PropertyResults() {
           )}
         </div>
 
-        {/* ================= SEARCH SUMMARY ================= */}
-        <div className="results-summary">
-          <h3>Search Summary</h3>
-          <div className="summary-details">
-            <div className="summary-item">
-              <span>Total Properties</span>
-              <strong>{totalResults}</strong>
-            </div>
+        {/* ================= SEARCH SUMMARY (now distinct from top stats) ================= */}
+        {totalResults > 0 && (
+          <div className="results-summary">
+            <h3>Search Summary</h3>
+            <div className="summary-details">
+              <div className="summary-item">
+                <LuWallet className="summary-item-icon" />
+                <span>Average Estimated Price</span>
+                <strong>{formatINR(avgPrice)}</strong>
+                <small>{formatINR(minPrice)} - {formatINR(maxPrice)} range</small>
+              </div>
 
-            <div className="summary-item">
-              <span>Verified</span>
-              <strong>{verifiedCount}</strong>
-            </div>
+              <div className="summary-item">
+                <LuLayers className="summary-item-icon" />
+                <span>Most Common Type</span>
+                <strong>{topType ? topType[0] : "-"}</strong>
+                <small>{topType ? `${topType[1]} of ${totalResults} properties` : ""}</small>
+              </div>
 
-            <div className="summary-item">
-              <span>Pending</span>
-              <strong>{pendingCount}</strong>
-            </div>
+              <div className="summary-item">
+                <LuMap className="summary-item-icon" />
+                <span>Cities Covered</span>
+                <strong>{citiesCovered}</strong>
+                <small>{Object.keys(cityBreakdown).join(", ")}</small>
+              </div>
 
-            <div className="summary-item">
-              <span>High Risk</span>
-              <strong>{highRiskCount}</strong>
+              <div className="summary-item">
+                <LuCircleCheck className="summary-item-icon" />
+                <span>Verification Rate</span>
+                <strong>{verificationRate}%</strong>
+                <div className="verification-bar">
+                  <div
+                    className="verification-bar-fill"
+                    style={{ width: `${verificationRate}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </Layout>
   );

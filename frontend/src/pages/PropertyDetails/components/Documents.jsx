@@ -5,6 +5,7 @@ import { api } from "../../../services/api";
 export default function Documents({ propertyId }) {
   const [documents, setDocuments] = useState([]); const [error, setError] = useState(""); const [adding, setAdding] = useState(false); const [form, setForm] = useState({ documentName: "", documentType: "", fileUrl: "" });
   const load = () => api.getDocuments(propertyId).then(setDocuments).catch((e) => setError(e.message));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [propertyId]);
   const add = async (e) => { e.preventDefault(); try { await api.createDocument({ ...form, propertyId: Number(propertyId) }); setForm({ documentName: "", documentType: "", fileUrl: "" }); setAdding(false); load(); } catch (err) { setError(err.message); } };
   const remove = async (doc) => { if (!window.confirm(`Delete ${doc.documentName}?`)) return; try { await api.deleteDocument(doc.id); load(); } catch (err) { setError(err.message); } };

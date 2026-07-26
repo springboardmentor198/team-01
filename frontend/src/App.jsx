@@ -15,7 +15,7 @@ import PropertyResults from "./pages/PropertyResults/PropertyResults";
 import Report from "./pages/Report/Report";
 import CompareProperties from "./pages/CompareProperties/CompareProperties";
 import UploadDocuments from "./pages/UploadDocuments/UploadDocuments";
-
+import Admin from "./pages/Admin/Admin";
 import VerifyOtp from "./pages/VerifyOtp/VerifyOtp";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 
@@ -45,6 +45,7 @@ function App() {
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/audit-logs" element={<AuditLogs />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/admin" element={<Admin />} />
     </Routes>
   );
 }
