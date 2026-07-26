@@ -1,12 +1,17 @@
 package com.realestate.duediligence.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class VerifyOtpRequest {
 
+    @Email
+    @NotBlank
     private String email;
 
-    private String otp;
+    @NotBlank
+    private String token;
 
 }

@@ -87,6 +87,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public void verifyResetOtp(String email, String token) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        PasswordResetToken resetToken =
+                passwordResetTokenRepository
+                        .findByTokenHashAndUsedAtIsNull(hashToken(token))
+                        .orElseThrow(() ->
+                                new RuntimeException("Invalid OTP"));
+
+        if (!resetToken.getUser().getUserId().equals(user.getUserId())) {
+
+            throw new RuntimeException("Invalid OTP");
+
+        }
+
+        if (resetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+
+            throw new RuntimeException("OTP has expired.");
+
+        }
+
+    }
+
+    @Override
+    @Transactional
     public void resetPassword(ResetPasswordRequest request) {
         PasswordResetToken resetToken = passwordResetTokenRepository
                 .findByTokenHashAndUsedAtIsNull(hashToken(request.getToken()))

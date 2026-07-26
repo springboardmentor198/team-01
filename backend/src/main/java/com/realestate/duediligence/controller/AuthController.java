@@ -5,6 +5,7 @@ import com.realestate.duediligence.dto.RegisterRequest;
 import com.realestate.duediligence.dto.ForgotPasswordRequest;
 import com.realestate.duediligence.dto.ForgotPasswordResponse;
 import com.realestate.duediligence.dto.ResetPasswordRequest;
+import com.realestate.duediligence.dto.VerifyOtpRequest;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.repository.UserRepository;
 import com.realestate.duediligence.service.UserService;
@@ -38,6 +39,20 @@ public class AuthController {
         return ResponseEntity.ok(userService.login(request));
     }
 
+    @PostMapping("/verify-otp")
+    public ResponseEntity<String> verifyOtp(
+            @RequestBody VerifyOtpRequest request
+    ) {
+
+        userService.verifyResetOtp(
+                request.getEmail(),
+                request.getToken()
+        );
+
+        return ResponseEntity.ok("OTP verified successfully.");
+
+    }
+    
     @PostMapping("/forgot-password")
     public ResponseEntity<ForgotPasswordResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         return ResponseEntity.ok(userService.requestPasswordReset(request.getEmail()));
@@ -59,4 +74,5 @@ public class AuthController {
     public ResponseEntity<String> googleLogin(@RequestBody GoogleLoginRequest request) {
         return ResponseEntity.ok(userService.googleLogin(request));
     }
+    
 }

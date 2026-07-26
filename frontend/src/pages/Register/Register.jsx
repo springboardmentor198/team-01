@@ -2,19 +2,37 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { api } from "../../services/api";
+import logo from "../../assets/images/logo.png";
 import "./Register.css";
+import Select from "react-select";
 
 function getPasswordStrength(pwd) {
   if (!pwd) return 0;
+
   let score = 0;
+
   if (pwd.length >= 8) score++;
   if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score++;
   if (/\d/.test(pwd)) score++;
   if (/[^A-Za-z0-9]/.test(pwd)) score++;
-  return score; // 0-4
+
+  return score;
 }
 
-const STRENGTH_LABELS = ["Very weak", "Weak", "Fair", "Good", "Strong"];
+const STRENGTH_LABELS = [
+  "Very Weak",
+  "Weak",
+  "Fair",
+  "Good",
+  "Strong",
+];
+const roleOptions = [
+  { value: "ADMIN", label: "Admin" },
+  { value: "BUYER", label: "Buyer" },
+  { value: "AGENT", label: "Agent" },
+  { value: "LEGAL_REVIEWER", label: "Legal Reviewer" },
+  { value: "BANK", label: "Financial Institution (Bank)" },
+];
 
 function Register() {
   const navigate = useNavigate();
@@ -25,14 +43,22 @@ function Register() {
   const [role, setRole] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const passwordStrength = getPasswordStrength(password);
 
+  const passwordsMatch =
+    confirmPassword.length > 0 && password === confirmPassword;
+
+  const passwordsDifferent =
+    confirmPassword.length > 0 && password !== confirmPassword;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setError("");
     setSuccess("");
 
@@ -47,9 +73,20 @@ function Register() {
     }
 
     setLoading(true);
+
     try {
-      await api.register(fullName, email, password, role, phoneNumber);
-      setSuccess("Account created successfully! Redirecting to login...");
+      await api.register(
+        fullName,
+        email,
+        password,
+        role,
+        phoneNumber
+      );
+
+      setSuccess(
+        "Account created successfully! Redirecting to login..."
+      );
+
       setTimeout(() => {
         navigate("/login");
       }, 1500);
@@ -63,23 +100,42 @@ function Register() {
   return (
     <AuthLayout>
       <div className="auth-card auth-card-wide">
-        <h1 className="auth-title">Create Account</h1>
-        <p className="auth-subtitle">
-          Register to Access the real estate due diligence platform
-        </p>
+
+        <div className="auth-header">
+
+          <div className="auth-header-top">
+
+            <div className="logo-circle">
+              <img src={logo} alt="Logo" />
+            </div>
+
+          </div>
+
+          <h1 className="auth-title">
+            Create Account
+          </h1>
+
+          <p className="auth-subtitle">
+            Register to access the Real Estate Due Diligence platform
+          </p>
+
+        </div>
 
         {error && <div className="auth-error-msg">{error}</div>}
         {success && <div className="auth-success-msg">{success}</div>}
 
         <form onSubmit={handleSubmit}>
+
           <div className="auth-grid">
+
             <div className="auth-field">
               <label htmlFor="fullName">Full Name</label>
+
               <input
                 id="fullName"
                 type="text"
                 className="auth-input"
-                placeholder="Enter Your Full Name"
+                placeholder="Enter your full name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
@@ -88,11 +144,12 @@ function Register() {
 
             <div className="auth-field">
               <label htmlFor="email">Email Address</label>
+
               <input
                 id="email"
                 type="email"
                 className="auth-input"
-                placeholder="Enter Your Email"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -101,11 +158,12 @@ function Register() {
 
             <div className="auth-field">
               <label htmlFor="phone">Phone Number</label>
+
               <input
                 id="phone"
                 type="tel"
                 className="auth-input"
-                placeholder="Enter Your Phone Number"
+                placeholder="Enter your phone number"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 required
@@ -113,32 +171,32 @@ function Register() {
             </div>
 
             <div className="auth-field">
-              <label htmlFor="role">Role</label>
-              <select
-                id="role"
-                className="auth-input"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                required
-              >
-                <option value="" disabled>
-                  Select Role
-                </option>
-                <option value="ADMIN">Admin</option>
-                <option value="BUYER">Buyer</option>
-                <option value="AGENT">Agent</option>
-                <option value="LEGAL_REVIEWER">Legal Reviewer</option>
-                <option value="BANK">Financial Institution (Bank)</option>
-              </select>
+              <label>Role</label>
+
+              <Select
+                className="react-select-container"
+                classNamePrefix="react-select"
+                options={roleOptions}
+                placeholder="Select Role"
+                value={roleOptions.find((option) => option.value === role) || null}
+                onChange={(selectedOption) =>
+                  setRole(selectedOption ? selectedOption.value : "")
+                }
+                isSearchable={false}
+                isClearable
+                menuPlacement="auto"
+                menuPosition="fixed"
+              />
             </div>
 
-            <div className="auth-field">
+                        <div className="auth-field">
               <label htmlFor="password">Password</label>
+
               <input
                 id="password"
                 type="password"
                 className="auth-input"
-                placeholder="Enter Your Password"
+                placeholder="Create a strong password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -150,11 +208,18 @@ function Register() {
                     {[0, 1, 2, 3].map((i) => (
                       <span
                         key={i}
-                        className={`strength-bar${i < passwordStrength ? ` strength-${passwordStrength}` : ""}`}
+                        className={`strength-bar${
+                          i < passwordStrength
+                            ? ` strength-${passwordStrength}`
+                            : ""
+                        }`}
                       />
                     ))}
                   </div>
-                  <span className={`password-strength-label strength-text-${passwordStrength}`}>
+
+                  <span
+                    className={`password-strength-label strength-text-${passwordStrength}`}
+                  >
                     {STRENGTH_LABELS[passwordStrength]}
                   </span>
                 </div>
@@ -162,34 +227,60 @@ function Register() {
             </div>
 
             <div className="auth-field">
-              <label htmlFor="confirmPassword">Confirm Password</label>
+              <label htmlFor="confirmPassword">
+                Confirm Password
+              </label>
+
               <input
                 id="confirmPassword"
                 type="password"
                 className="auth-input"
-                placeholder="Confirm Your Password"
+                placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
+
+              {passwordsMatch && (
+                <div className="password-match success">
+                  ✓ Passwords match
+                </div>
+              )}
+
+              {passwordsDifferent && (
+                <div className="password-match error">
+                  ✕ Passwords do not match
+                </div>
+              )}
             </div>
+
           </div>
 
           <button
             type="submit"
             className="auth-submit-btn"
-            disabled={loading}
+            disabled={
+              loading ||
+              (confirmPassword.length > 0 && !passwordsMatch)
+            }
           >
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading
+              ? "Creating Account..."
+              : "Create Account"}
           </button>
+
         </form>
 
         <p className="auth-footer">
           Already have an account?{" "}
-          <Link to="/login" className="auth-link-bold">
+          <Link
+            to="/login"
+            className="auth-link-bold"
+          >
             Sign In
           </Link>
         </p>
+
       </div>
     </AuthLayout>
   );
