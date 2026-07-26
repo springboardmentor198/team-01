@@ -15,7 +15,6 @@ import {
   LuUserCog,
   LuBell,
   LuLock,
-  LuUsersRound,
   LuChevronRight,
   LuX,
   LuCheck,
@@ -72,12 +71,6 @@ const BASE_SETTINGS = [
   { icon: LuLock, title: "Security", desc: "Password and two-factor authentication", comingSoon: true },
 ];
 
-const ADMIN_SETTINGS_ROW = {
-  icon: LuUsersRound,
-  title: "User Management",
-  desc: "Manage roles, permissions and access",
-  comingSoon: true,
-};
 
 function getInitials(name) {
   if (!name) return "??";
@@ -196,7 +189,7 @@ function Profile() {
     navigate("/login");
   };
 
-  const settingsRows = role.isAdmin ? [...BASE_SETTINGS, ADMIN_SETTINGS_ROW] : BASE_SETTINGS;
+  const settingsRows = BASE_SETTINGS;
 
   if (loading) {
     return (

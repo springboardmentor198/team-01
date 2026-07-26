@@ -7,6 +7,7 @@ import com.realestate.duediligence.dto.RegisterRequest;
 import com.realestate.duediligence.dto.ResetPasswordRequest;
 import com.realestate.duediligence.entity.User;
 
+
 public interface UserService {
 
     User register(RegisterRequest request);
@@ -14,6 +15,8 @@ public interface UserService {
     String login(LoginRequest request);
 
     ForgotPasswordResponse requestPasswordReset(String email);
+
+    void verifyResetOtp(String email, String token);
 
     void resetPassword(ResetPasswordRequest request);
 

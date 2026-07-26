@@ -206,7 +206,34 @@ export const api = {
 
     return response.json();
   },
+  verifyOtp: async (email, token) => {
 
+      const response = await fetch(`${BASE_URL}/auth/verify-otp`, {
+
+          method: "POST",
+
+          headers: getHeaders(false),
+
+          body: JSON.stringify({
+              email,
+              token,
+          }),
+
+      });
+
+      if (!response.ok) {
+
+          const error = await response.json().catch(() => ({}));
+
+          throw new Error(
+              error.error || "Invalid OTP"
+          );
+
+      }
+
+      return response.text();
+
+  },
   resetPassword: async (token, newPassword) => {
     const response = await fetch(`${BASE_URL}/auth/reset-password`, {
       method: "POST",
