@@ -1,5 +1,36 @@
 const BASE_URL = "http://localhost:8081/api";
 
+const readAuthenticationResponse = async (response) => {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    const authentication = await response.json();
+    if (!authentication.token) {
+      throw new Error("Login response did not include a token");
+    }
+    return authentication;
+  }
+
+  return { token: await response.text() };
+};
+
+const storeAuthenticationState = (authentication, fallbackEmail) => {
+  localStorage.setItem("token", authentication.token);
+  localStorage.setItem("email", authentication.email || fallbackEmail);
+
+  ["role", "status", "profileCompleted"].forEach((key) => {
+    localStorage.removeItem(key);
+  });
+
+  if (authentication.role) localStorage.setItem("role", authentication.role);
+  if (authentication.status) localStorage.setItem("status", authentication.status);
+  if (typeof authentication.profileCompleted === "boolean") {
+    localStorage.setItem("profileCompleted", String(authentication.profileCompleted));
+  }
+  if (authentication.name) localStorage.setItem("fullName", authentication.name);
+  if (authentication.avatarUrl) localStorage.setItem("avatarUrl", authentication.avatarUrl);
+};
+
 const getHeaders = (includeAuth = true) => {
   const headers = {
     "Content-Type": "application/json",
@@ -19,10 +50,13 @@ export const getPropertyOwnerName = (property) => {
   return "Property Owner";
 };
 
+export const isAdmin = () => {
+  return localStorage.getItem("role") === "ADMIN";
+};
+
 export const api = {
   // Authentication APIs
-  login: async (email, password, role) => {
-    // Mithun's login DTO takes email and password
+  login: async (email, password) => {
     const response = await fetch(`${BASE_URL}/auth/login`, {
       method: "POST",
       headers: getHeaders(false),
@@ -34,37 +68,43 @@ export const api = {
       throw new Error(errorText || "Login failed");
     }
 
-    // Mithun's login returns raw JWT token string
-    const token = await response.text();
-    localStorage.setItem("token", token);
-    localStorage.setItem("email", email);
-    localStorage.setItem("role", role); // Save selected role in frontend session
-    localStorage.setItem("fullName", email.split("@")[0]); // Fallback display name
+    const authentication = await readAuthenticationResponse(response);
+    storeAuthenticationState(authentication, email);
+    localStorage.setItem("fullName", authentication.name || email.split("@")[0]);
 
     try {
-      // Fetch profile to get official full name and user id
       const profile = await api.getUserProfile();
       if (profile) {
         if (profile.name) localStorage.setItem("fullName", profile.name);
         if (profile.userId) localStorage.setItem("userId", String(profile.userId));
+        if (profile.role) localStorage.setItem("role", profile.role);
+        if (profile.status) localStorage.setItem("status", profile.status);
+        if (typeof profile.profileCompleted === "boolean") {
+          localStorage.setItem("profileCompleted", String(profile.profileCompleted));
+        }
       }
     } catch (e) {
       console.warn("Failed to fetch profile during login", e);
     }
 
-    return { token, email, role };
+    return {
+      token: authentication.token,
+      email: authentication.email || email,
+      role: localStorage.getItem("role"),
+      status: localStorage.getItem("status"),
+      profileCompleted: localStorage.getItem("profileCompleted") === null
+        ? null
+        : localStorage.getItem("profileCompleted") === "true",
+    };
   },
 
   // Google OAuth login — Login.jsx uses useGoogleLogin({ flow: "auth-code" }),
   // so tokenResponse contains an authorization `code`, not an access_token.
-  // NOTE: backend needs a POST /api/auth/google endpoint that accepts
-  // { code, role } and returns a raw JWT string (same shape as /auth/login).
-  // Confirm the exact route/DTO with your backend teammate and adjust below.
-  loginWithGoogle: async (tokenResponse, role) => {
+  loginWithGoogle: async (tokenResponse) => {
     const response = await fetch(`${BASE_URL}/auth/google`, {
       method: "POST",
       headers: getHeaders(false),
-      body: JSON.stringify({ code: tokenResponse.code, role }),
+      body: JSON.stringify({ code: tokenResponse.code }),
     });
 
     if (!response.ok) {
@@ -72,11 +112,9 @@ export const api = {
       throw new Error(errorText || "Google login failed");
     }
 
-    // Assuming backend returns raw JWT text, same as /auth/login
-    const token = await response.text();
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", role);
-    localStorage.setItem("fullName", "Google User"); // Fallback until profile fetch
+    const authentication = await readAuthenticationResponse(response);
+    storeAuthenticationState(authentication);
+    localStorage.setItem("fullName", authentication.name || "Google User");
 
     try {
       const profile = await api.getUserProfile();
@@ -84,16 +122,29 @@ export const api = {
         if (profile.name) localStorage.setItem("fullName", profile.name);
         if (profile.email) localStorage.setItem("email", profile.email);
         if (profile.userId) localStorage.setItem("userId", String(profile.userId));
+        if (profile.role) localStorage.setItem("role", profile.role);
+        if (profile.status) localStorage.setItem("status", profile.status);
+        if (typeof profile.profileCompleted === "boolean") {
+          localStorage.setItem("profileCompleted", String(profile.profileCompleted));
+        }
       }
     } catch (e) {
       console.warn("Failed to fetch profile during Google login", e);
     }
 
-    return { token, role };
+    return {
+      token: authentication.token,
+      role: localStorage.getItem("role"),
+      status: localStorage.getItem("status"),
+      profileCompleted: localStorage.getItem("profileCompleted") === null
+        ? null
+        : localStorage.getItem("profileCompleted") === "true",
+    };
   },
 
-  register: async (fullName, email, password, role, phoneNumber) => {
-    // Mithun's RegisterRequest takes name, email, password, role (Enum)
+  register: async (fullName, email, password, phoneNumberOrRole, legacyPhoneNumber) => {
+    const phoneNumber = legacyPhoneNumber ?? phoneNumberOrRole;
+
     const response = await fetch(`${BASE_URL}/auth/register`, {
       method: "POST",
       headers: getHeaders(false),
@@ -101,7 +152,6 @@ export const api = {
         name: fullName,
         email: email,
         password: password,
-        role: role,
         phoneNumber: phoneNumber,
       }),
     });
@@ -120,6 +170,9 @@ export const api = {
     localStorage.removeItem("fullName");
     localStorage.removeItem("email");
     localStorage.removeItem("role");
+    localStorage.removeItem("status");
+    localStorage.removeItem("profileCompleted");
+    localStorage.removeItem("avatarUrl");
   },
 
   isAuthenticated: () => {
@@ -132,6 +185,10 @@ export const api = {
       fullName: localStorage.getItem("fullName"),
       email: localStorage.getItem("email"),
       role: localStorage.getItem("role"),
+      status: localStorage.getItem("status"),
+      profileCompleted: localStorage.getItem("profileCompleted") === null
+        ? null
+        : localStorage.getItem("profileCompleted") === "true",
     };
   },
 
@@ -192,6 +249,77 @@ export const api = {
     return response.text();
   },
 
+  completeProfile: async (accountType) => {
+    const response = await fetch(`${BASE_URL}/profile/complete`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify({ accountType }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text() || "Unable to complete onboarding");
+    }
+
+    return response.json();
+  },
+
+  createRoleRequest: async (requestData) => {
+    const response = await fetch(`${BASE_URL}/role-request`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify(requestData),
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text() || "Unable to submit verification request");
+    }
+
+    return response.json();
+  },
+
+  getAdminRoleRequests: async ({ status, requestedRole } = {}) => {
+    const query = new URLSearchParams();
+    if (status) query.set("status", status);
+    if (requestedRole) query.set("requestedRole", requestedRole);
+
+    const suffix = query.toString() ? `?${query}` : "";
+    const response = await fetch(`${BASE_URL}/admin/role-requests${suffix}`, {
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text() || "Unable to load role requests");
+    }
+
+    return response.json();
+  },
+
+  approveAdminRoleRequest: async (id) => {
+    const response = await fetch(`${BASE_URL}/admin/role-requests/${id}/approve`, {
+      method: "PUT",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text() || "Unable to approve role request");
+    }
+
+    return response.json();
+  },
+
+  rejectAdminRoleRequest: async (id) => {
+    const response = await fetch(`${BASE_URL}/admin/role-requests/${id}/reject`, {
+      method: "PUT",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text() || "Unable to reject role request");
+    }
+
+    return response.json();
+  },
+
   // Dashboard API
   getDashboardSummary: async () => {
     const response = await fetch(`${BASE_URL}/dashboard/stats`, { headers: getHeaders(true) });
@@ -226,6 +354,50 @@ export const api = {
     }
 
     return await response.json();
+  },
+
+  createProperty: async (payload) => {
+    const response = await fetch(`${BASE_URL}/properties`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to create property");
+    }
+
+    return await response.json();
+  },
+
+  updateProperty: async (id, payload) => {
+    const response = await fetch(`${BASE_URL}/properties/${id}`, {
+      method: "PUT",
+      headers: getHeaders(true),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to update property");
+    }
+
+    return await response.json();
+  },
+
+  deleteProperty: async (id) => {
+    const response = await fetch(`${BASE_URL}/properties/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to delete property");
+    }
+
+    return await response.text();
   },
 
   getPropertyTaxHistory: async (propertyId) => {

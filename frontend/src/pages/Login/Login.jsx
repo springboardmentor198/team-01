@@ -1,6 +1,5 @@
-import { useState} from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiUser } from "react-icons/fi";
 import { useGoogleLogin } from "@react-oauth/google";
 
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
@@ -8,22 +7,36 @@ import { api } from "../../services/api";
 
 import "./Login.css";
 import logo from "../../assets/images/logo.png";
-import Select from "react-select";
 
-const ROLE_OPTIONS = [
-  { value: "ADMIN", label: "Admin" },
-  { value: "BUYER", label: "Buyer" },
-  { value: "AGENT", label: "Agent" },
-  { value: "LEGAL_REVIEWER", label: "Legal Reviewer" },
-  { value: "BANK", label: "Financial Institution (Bank)" },
-];
+
+const getPostLoginPath = ({ profileCompleted, role }) => {
+  if (role === "ADMIN") {
+    return "/admin/dashboard";
+  }
+
+  if (profileCompleted === false) {
+    return "/onboarding";
+  }
+
+  if (profileCompleted === true) {
+    const dashboardPaths = {
+      BUYER: "/buyer/dashboard",
+      AGENT: "/agent/dashboard",
+      LEGAL_REVIEWER: "/legal/dashboard",
+      BANK: "/bank/dashboard",
+    };
+
+    return dashboardPaths[role] || "/dashboard";
+  }
+
+  return "/dashboard";
+};
 
 function Login() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -34,17 +47,12 @@ function Login() {
 
     setError("");
 
-    if (!role) {
-      setError("Please select a role");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      await api.login(email, password, role);
+      const authentication = await api.login(email, password);
 
-      navigate("/dashboard", {
+      navigate(getPostLoginPath(authentication), {
         replace: true,
       });
     } catch (err) {
@@ -62,9 +70,10 @@ function Login() {
       setGoogleLoading(true);
 
       try {
-        await api.loginWithGoogle(tokenResponse, role);
+        const authentication =
+          await api.loginWithGoogle(tokenResponse);
 
-        navigate("/dashboard", {
+        navigate(getPostLoginPath(authentication), {
           replace: true,
         });
       } catch (err) {
@@ -232,31 +241,6 @@ function Login() {
 
           </div>
 
-          <div className="auth-field">
-
-            <label>Role</label>
-
-            <div className="select-wrapper">
-              <FiUser className="input-icon" />
-
-              <Select
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  options={ROLE_OPTIONS}
-                  placeholder="Select Role"
-                  value={ROLE_OPTIONS.find(option => option.value === role) || null}
-                  onChange={(selectedOption) =>
-                      setRole(selectedOption?.value || "")
-                  }
-                  isSearchable={false}
-                  isClearable
-                  menuPlacement="auto"
-                  menuPosition="fixed"
-              />
-          </div>
-
-          </div>
-
           <div className="auth-options">
             <label className="remember-me">
               <input type="checkbox" />
@@ -341,3 +325,4 @@ function Login() {
 }
 
 export default Login;
+ 

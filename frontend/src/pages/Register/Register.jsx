@@ -40,9 +40,9 @@ function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [role, setRole] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("");
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -62,11 +62,6 @@ function Register() {
     setError("");
     setSuccess("");
 
-    if (!role) {
-      setError("Please select a role");
-      return;
-    }
-
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -75,18 +70,8 @@ function Register() {
     setLoading(true);
 
     try {
-      await api.register(
-        fullName,
-        email,
-        password,
-        role,
-        phoneNumber
-      );
-
-      setSuccess(
-        "Account created successfully! Redirecting to login..."
-      );
-
+      await api.register(fullName, email, password, phoneNumber);
+      setSuccess("Account created successfully! Redirecting to login...");
       setTimeout(() => {
         navigate("/login");
       }, 1500);
@@ -178,9 +163,9 @@ function Register() {
                 classNamePrefix="react-select"
                 options={roleOptions}
                 placeholder="Select Role"
-                value={roleOptions.find((option) => option.value === role) || null}
+                value={roleOptions.find(option => option.value === role) || null}
                 onChange={(selectedOption) =>
-                  setRole(selectedOption ? selectedOption.value : "")
+                  setRole(selectedOption?.value || "")
                 }
                 isSearchable={false}
                 isClearable
@@ -189,7 +174,7 @@ function Register() {
               />
             </div>
 
-                        <div className="auth-field">
+            <div className="auth-field">
               <label htmlFor="password">Password</label>
 
               <input

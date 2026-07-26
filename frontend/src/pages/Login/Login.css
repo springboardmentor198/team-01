@@ -354,7 +354,7 @@ body,
     justify-content:space-between;
     gap:12px;
 
-    margin:8px 0 6px;
+    margin:8px 0 20px;
 
     font-size:13px;
 }
@@ -393,6 +393,7 @@ body,
     color:#fff;
     font-size:15px;
     font-weight:700;
+    margin-top: 16px;
     cursor:pointer;
     transition:.2s ease;
 }

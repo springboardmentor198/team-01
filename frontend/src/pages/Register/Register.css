@@ -14,6 +14,7 @@
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:18px 22px;
     margin-top:10px;
+     margin-bottom: 20px;
 }
 
 .auth-grid .auth-field{

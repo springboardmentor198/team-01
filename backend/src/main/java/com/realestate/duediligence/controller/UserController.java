@@ -96,6 +96,8 @@ public class UserController {
         response.setBio(user.getBio());
         response.setAvatarUrl(user.getAvatarUrl());
         response.setRole(user.getRole());
+        response.setStatus(user.getStatus());
+        response.setProfileCompleted(user.getProfileCompleted());
         response.setLocation(user.getLocation());
         response.setJoinDate(user.getCreatedAt());
         return response;
