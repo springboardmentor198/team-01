@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .name(request.getName()).email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .avatarUrl(request.getAvatarUrl()).role(request.getRole())
+                .avatarUrl(request.getAvatarUrl()).role(Role.BUYER)
                 .phoneNumber(request.getPhoneNumber()).createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now()).build();
         return userRepository.save(user);
@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.save(User.builder()
                 .name((String) profile.getOrDefault("name", email.substring(0, email.indexOf('@'))))
                 .email(email).passwordHash(passwordEncoder.encode(UUID.randomUUID().toString()))
-                .avatarUrl((String) profile.get("picture")).role(Role.valueOf(request.getRole()))
+                .avatarUrl((String) profile.get("picture")).role(Role.BUYER)
                 .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build()));
         return jwtService.generateToken(user.getEmail());
     }
