@@ -47,8 +47,8 @@ public class FloodZoneServiceImpl implements FloodZoneService {
             return mapToResponse(recordOpt.get());
         }
 
-        // If it doesn't exist, trigger verification to fetch live data rather than throwing an error
-        return verifyFloodZone(propertyId);
+        // If it doesn't exist, throw exception to let frontend fallback to 'Not Available'
+        throw new RuntimeException("Flood zone record not found");
     }
 
     @Override

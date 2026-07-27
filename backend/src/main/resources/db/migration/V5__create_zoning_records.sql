@@ -1,4 +1,4 @@
-CREATE TABLE zoning_records (
+CREATE TABLE IF NOT EXISTS zoning_records (
     id SERIAL PRIMARY KEY,
 
     property_id INTEGER NOT NULL UNIQUE,

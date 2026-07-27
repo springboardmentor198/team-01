@@ -17,7 +17,7 @@ export default function FloodZoneVerification({ floodZone }) {
           <LuMapPin />
           <div>
             <span>Flood Zone</span>
-            <strong>{floodZone?.zone || "Zone X (Minimal Risk)"}</strong>
+            <strong>{floodZone?.zone || "Not Available"}</strong>
           </div>
         </div>
 
@@ -25,7 +25,7 @@ export default function FloodZoneVerification({ floodZone }) {
           <LuCircleAlert />
           <div>
             <span>Risk Level</span>
-            <strong>{floodZone?.riskLevel || "Low"}</strong>
+            <strong>{floodZone?.riskLevel || "Not Available"}</strong>
           </div>
         </div>
 
@@ -33,7 +33,7 @@ export default function FloodZoneVerification({ floodZone }) {
           <LuLandmark />
           <div>
             <span>Elevation</span>
-            <strong>{floodZone?.elevation || "42 m above sea level"}</strong>
+            <strong>{floodZone?.elevation || "Not Available"}</strong>
           </div>
         </div>
 
@@ -41,7 +41,7 @@ export default function FloodZoneVerification({ floodZone }) {
           <LuFileText />
           <div>
             <span>FEMA Classification</span>
-            <strong>{floodZone?.femaClassification || "Not in Special Flood Hazard Area"}</strong>
+            <strong>{floodZone?.femaClassification || "Not Available"}</strong>
           </div>
         </div>
 
@@ -49,7 +49,7 @@ export default function FloodZoneVerification({ floodZone }) {
           <LuShieldCheck />
           <div>
             <span>Flood Insurance Required</span>
-            <strong>{floodZone?.insuranceRequired ? "Yes" : "No"}</strong>
+            <strong>{floodZone?.insuranceRequired != null ? (floodZone.insuranceRequired ? "Yes" : "No") : "Not Available"}</strong>
           </div>
         </div>
 

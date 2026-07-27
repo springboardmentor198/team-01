@@ -9,6 +9,7 @@ import PropertyInformation from "./components/PropertyInformation";
 import OwnerDetails from "./components/OwnerDetails";
 import PropertyTaxHistory from "./components/PropertyTaxHistory";
 import ZoningInformation from "./components/ZoningInformation";
+import FloodZoneVerification from "./components/FloodZoneVerification";
 import RiskSummary from "./components/RiskSummary";
 import Documents from "./components/Documents";
 import PermitEnvironmentalRecords from "./components/PermitEnvironmentalRecords";
@@ -28,6 +29,8 @@ export default function PropertyDetails() {
   const [property, setProperty] = useState(null);
   const [ownership, setOwnership] = useState(null);
   const [taxSummary, setTaxSummary] = useState(null);
+  const [zoning, setZoning] = useState(null);
+  const [floodZone, setFloodZone] = useState(null);
   const [activeTab, setActiveTab] = useState("Overview");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -42,11 +45,15 @@ export default function PropertyDetails() {
       api.getPropertyById(id),
       api.getOwnership(id).catch(() => []),
       api.getPropertyTaxSummary(id).catch(() => null),
+      api.getZoning(id).catch(() => null),
+      api.getFloodZone(id).catch(() => null),
     ])
-      .then(([details, owners, summary]) => {
+      .then(([details, owners, summary, zoningData, floodZoneData]) => {
         setProperty(details);
         setOwnership(owners[0] || null);
         setTaxSummary(summary);
+        setZoning(zoningData);
+        setFloodZone(floodZoneData);
       })
       .catch((err) =>
         setError(err.message || "Failed to load property details"),
@@ -89,7 +96,9 @@ export default function PropertyDetails() {
 
             <PropertyTaxHistory taxSummary={taxSummary} />
 
-            <ZoningInformation property={property} />
+            <ZoningInformation zoning={zoning} />
+
+            <FloodZoneVerification floodZone={floodZone} />
           </div>
         );
 
