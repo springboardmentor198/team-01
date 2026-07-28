@@ -1,5 +1,7 @@
 package com.realestate.duediligence.service;
 
+import com.realestate.duediligence.exception.ResourceNotFoundException;
+
 import com.realestate.duediligence.dto.ProfileCompletionRequest;
 import com.realestate.duediligence.dto.ProfileCompletionResponse;
 import com.realestate.duediligence.entity.User;
@@ -29,7 +31,7 @@ public class OnboardingServiceImpl implements OnboardingService {
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
 
         if (accountType == Role.BUYER) {
             user.setProfileCompleted(true);
