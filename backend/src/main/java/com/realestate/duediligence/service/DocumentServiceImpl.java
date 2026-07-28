@@ -1,5 +1,7 @@
 package com.realestate.duediligence.service;
 
+import com.realestate.duediligence.exception.ResourceNotFoundException;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +31,7 @@ public class DocumentServiceImpl implements DocumentService {
     public DocumentResponse createDocument(DocumentRequest request) {
 
         Property property = propertyRepository.findById(request.getPropertyId())
-                .orElseThrow(() -> new RuntimeException("Property not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
 
         Document document = Document.builder()
                 .property(property)
@@ -57,7 +59,7 @@ public class DocumentServiceImpl implements DocumentService {
     public DocumentResponse updateDocument(Integer id, DocumentRequest request) {
 
         Document document = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
 
         document.setDocumentName(request.getDocumentName());
         document.setDocumentType(request.getDocumentType());
