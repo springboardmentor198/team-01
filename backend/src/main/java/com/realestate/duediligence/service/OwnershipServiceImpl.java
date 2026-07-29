@@ -1,5 +1,7 @@
 package com.realestate.duediligence.service;
 
+import com.realestate.duediligence.exception.ResourceNotFoundException;
+
 import com.realestate.duediligence.dto.OwnershipResponse;
 import com.realestate.duediligence.entity.OwnershipRecord;
 import com.realestate.duediligence.repository.OwnershipRecordRepository;
@@ -60,7 +62,7 @@ public class OwnershipServiceImpl implements OwnershipService {
                                            OwnershipRecord ownershipRecord) {
 
         OwnershipRecord existing = ownershipRecordRepository.findById(ownershipId)
-                .orElseThrow(() -> new RuntimeException("Ownership record not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Ownership record not found"));
 
         existing.setOwnerName(ownershipRecord.getOwnerName());
         existing.setOwnerType(ownershipRecord.getOwnerType());
@@ -80,7 +82,7 @@ public class OwnershipServiceImpl implements OwnershipService {
     public void deleteOwnership(Integer ownershipId) {
 
         OwnershipRecord existing = ownershipRecordRepository.findById(ownershipId)
-                .orElseThrow(() -> new RuntimeException("Ownership record not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Ownership record not found"));
 
         ownershipRecordRepository.delete(existing);
     }

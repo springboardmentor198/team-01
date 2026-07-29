@@ -1,5 +1,7 @@
 package com.realestate.duediligence.controller;
 
+import com.realestate.duediligence.exception.ResourceNotFoundException;
+
 import java.time.LocalDateTime;
 
 import org.springframework.http.HttpStatus;
@@ -42,7 +44,7 @@ public class UserController {
             String token = authHeader.substring(7);
             String email = jwtService.extractUsername(token);
             User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
 
             return ResponseEntity.ok(toProfileResponse(user));
         } catch (Exception e) {
@@ -63,7 +65,7 @@ public class UserController {
             String token = authHeader.substring(7);
             String email = jwtService.extractUsername(token);
             User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
 
             if (request.getName() != null) {
                 user.setName(request.getName());

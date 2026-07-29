@@ -1,5 +1,7 @@
 package com.realestate.duediligence.service;
 
+import com.realestate.duediligence.exception.ExternalServiceException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -250,7 +252,7 @@ public class EmailService {
 
             e.printStackTrace();
 
-            throw new RuntimeException("Unable to send email", e);
+            throw new ExternalServiceException("Unable to send email", e);
 
         }
 
