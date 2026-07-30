@@ -596,4 +596,32 @@ export const api = {
 
     return await response.json();
   },
+
+  getZoning: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/zoning/${propertyId}`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to load zoning details");
+    }
+
+    return await response.json();
+  },
+
+  getFloodZone: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/flood-zone/${propertyId}`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to load flood zone details");
+    }
+
+    return await response.json();
+  },
 };

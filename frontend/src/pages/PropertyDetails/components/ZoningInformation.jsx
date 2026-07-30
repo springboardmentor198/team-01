@@ -16,7 +16,7 @@ export default function ZoningInformation({ zoning }) {
           <LuMap />
           <div>
             <span>Zone Type</span>
-            <strong>{zoning?.zoneType || "Residential"}</strong>
+            <strong>{zoning?.zoneType || "Not Available"}</strong>
           </div>
         </div>
 
@@ -24,7 +24,7 @@ export default function ZoningInformation({ zoning }) {
           <LuBuilding2 />
           <div>
             <span>Land Use</span>
-            <strong>{zoning?.landUse || "Residential Housing"}</strong>
+            <strong>{zoning?.landUse || "Not Available"}</strong>
           </div>
         </div>
 
@@ -32,7 +32,7 @@ export default function ZoningInformation({ zoning }) {
           <LuLandmark />
           <div>
             <span>Floor Area Ratio (FAR)</span>
-            <strong>{zoning?.far || "2.5"}</strong>
+            <strong>{zoning?.far || "Not Available"}</strong>
           </div>
         </div>
 
@@ -41,7 +41,7 @@ export default function ZoningInformation({ zoning }) {
           <div>
             <span>Restrictions</span>
             <strong>
-              {zoning?.restrictions || "No Commercial Activities Allowed"}
+              {zoning?.restrictions || "Not Available"}
             </strong>
           </div>
         </div>

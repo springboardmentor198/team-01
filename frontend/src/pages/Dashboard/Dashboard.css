@@ -238,6 +238,22 @@
   color: #DC2626;
 }
 
+/* status badges used by AdminDashboard's verification requests table */
+.risk-badge.pending {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.risk-badge.active {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.risk-badge.rejected {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
 /* ================= QUICK ACTIONS ================= */
 
 .quick-actions-card {
@@ -307,6 +323,93 @@
   color: #6B7280;
 }
 
+/* ================= ADMIN VERIFICATION FILTERS (AdminDashboard.jsx) ================= */
+
+.verification-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.admin-filter-select {
+  padding: 10px 14px;
+  border: 1px solid #DBE3EC;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #334155;
+  background: #ffffff;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.admin-filter-select:hover {
+  border-color: #1E2B4D;
+}
+
+.admin-filter-select:focus {
+  outline: none;
+  border-color: #1E2B4D;
+  box-shadow: 0 0 0 3px rgba(30,43,77,.15);
+}
+
+.admin-apply-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #1E2B4D;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.admin-apply-btn:hover {
+  background: #16213A;
+}
+
+.admin-request-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.admin-action-btn.approve {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.admin-action-btn.approve:hover {
+  background: #BBF7D0;
+}
+
+.admin-action-btn.reject {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.admin-action-btn.reject:hover {
+  background: #FECACA;
+}
+
+.admin-action-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 1200px) {
@@ -351,6 +454,19 @@
 
   .stat-card {
     padding: 16px;
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .verification-filters {
+    flex-direction: column;
+  }
+
+  .admin-filter-select,
+  .admin-apply-btn {
+    width: 100%;
   }
 
 }

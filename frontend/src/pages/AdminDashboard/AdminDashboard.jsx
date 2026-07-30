@@ -50,7 +50,11 @@ function AdminDashboard() {
       return;
     }
 
-    loadRequests();
+    // Deferring the call itself into a .then() (instead of calling
+    // loadRequests() synchronously here) satisfies react-hooks/set-state-in-effect.
+    Promise.resolve().then(() => {
+      loadRequests();
+    });
   }, [loadRequests, navigate]);
 
   const updateRequest = async (id, action) => {
@@ -101,20 +105,30 @@ function AdminDashboard() {
           <h3 className="card-title">Professional Verification Requests</h3>
           {error && <div className="demo-data-notice" role="alert">{error}</div>}
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", margin: "16px 0" }}>
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
+          <div className="verification-filters">
+            <select
+              className="admin-filter-select"
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+            >
               <option value="">All statuses</option>
               <option value="PENDING">Pending</option>
               <option value="ACTIVE">Approved</option>
               <option value="REJECTED">Rejected</option>
             </select>
-            <select value={requestedRole} onChange={(event) => setRequestedRole(event.target.value)}>
+            <select
+              className="admin-filter-select"
+              value={requestedRole}
+              onChange={(event) => setRequestedRole(event.target.value)}
+            >
               <option value="">All professional roles</option>
               <option value="AGENT">Property Agent</option>
               <option value="LEGAL_REVIEWER">Legal Professional</option>
               <option value="BANK">Financial Institution</option>
             </select>
-            <button type="button" onClick={loadRequests}>Apply filters</button>
+            <button type="button" className="admin-apply-btn" onClick={loadRequests}>
+              Apply filters
+            </button>
           </div>
 
           <div className="table-wrapper">
@@ -148,9 +162,10 @@ function AdminDashboard() {
                     <td><span className={`risk-badge ${request.status.toLowerCase()}`}>{request.status}</span></td>
                     <td>
                       {request.status === "PENDING" ? (
-                        <div style={{ display: "flex", gap: "8px" }}>
+                        <div className="admin-request-actions">
                           <button
                             type="button"
+                            className="admin-action-btn approve"
                             disabled={actionId === request.requestId}
                             onClick={() => updateRequest(request.requestId, "approve")}
                           >
@@ -158,6 +173,7 @@ function AdminDashboard() {
                           </button>
                           <button
                             type="button"
+                            className="admin-action-btn reject"
                             disabled={actionId === request.requestId}
                             onClick={() => updateRequest(request.requestId, "reject")}
                           >

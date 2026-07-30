@@ -1,5 +1,7 @@
 package com.realestate.duediligence.service;
 
+import com.realestate.duediligence.exception.ResourceNotFoundException;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
@@ -47,14 +49,14 @@ public class FloodZoneServiceImpl implements FloodZoneService {
             return mapToResponse(recordOpt.get());
         }
 
-        // If it doesn't exist, trigger verification to fetch live data rather than throwing an error
-        return verifyFloodZone(propertyId);
+        // If it doesn't exist, throw exception to let frontend fallback to 'Not Available'
+        throw new ResourceNotFoundException("Flood zone record not found");
     }
 
     @Override
     public FloodZoneResponse verifyFloodZone(Integer propertyId) {
         Property property = propertyRepository.findById(propertyId)
-                .orElseThrow(() -> new RuntimeException("Property not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
 
         // 1. Geocode the property location using Nominatim API
         double[] coordinates = geocodeLocation(property.getAddress(), property.getCity());

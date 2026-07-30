@@ -1,0 +1,112 @@
+/* ================= ROLE DASHBOARD HEADER ================= */
+
+.role-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.role-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.role-header-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: #1E2B4D;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.role-header-eyebrow {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #1E2B4D;
+  margin-bottom: 4px;
+}
+
+.role-header-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.role-header-subtitle {
+  font-size: 14px;
+  color: #6B7280;
+}
+
+.role-header-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #1E2B4D;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+  white-space: nowrap;
+}
+
+.role-header-btn:hover {
+  background: #24375E;
+}
+
+/* ================= PRIORITY BADGES (Legal Reviewer queue) ================= */
+
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.priority-badge.high {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.priority-badge.medium {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.priority-badge.low {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 600px) {
+
+  .role-header-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .role-header-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+}
