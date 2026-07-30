@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
-import { LuShieldCheck } from "react-icons/lu";
 import { api } from "../../../services/api";
+
+import RiskHeader from "./risk/RiskHeader";
+import RiskScoreCard from "./risk/RiskScoreCard";
+import RiskFactorGrid from "./risk/RiskFactorGrid";
+import ComplianceCard from "./risk/ComplianceCard";
+import CriticalIssues from "./risk/CriticalIssues";
+import RecommendationCard from "./risk/RecommendationCard";
 
 export default function RiskSummary({ propertyId }) {
   const [risk, setRisk] = useState(null);
@@ -8,85 +14,56 @@ export default function RiskSummary({ propertyId }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setLoading(true);
-    setError("");
-
     api
       .getRiskSummary(propertyId)
       .then((data) => {
         setRisk(data);
       })
-      .catch((e) => {
-        console.error(e);
-        setError(e.message || "Failed to load risk summary");
+      .catch((err) => {
+        setError(err.message || "Failed to load risk");
       })
       .finally(() => {
         setLoading(false);
       });
   }, [propertyId]);
 
-  if (loading) {
+  if (loading)
     return (
       <div className="details-card">
-        <h3>Risk Summary</h3>
-        <p className="no-data">Loading risk assessment...</p>
+        <h3>Risk Assessment</h3>
+        <p>Loading assessment...</p>
       </div>
     );
-  }
 
-  if (error) {
+  if (error)
     return (
       <div className="details-card">
-        <h3>Risk Summary</h3>
-        <p className="no-data">{error}</p>
+        <h3>Risk Assessment</h3>
+        <p>{error}</p>
       </div>
     );
-  }
 
-  if (!risk) {
+  if (!risk)
     return (
       <div className="details-card">
-        <h3>Risk Summary</h3>
-        <p className="no-data">No risk summary available for this property.</p>
+        <h3>Risk Assessment</h3>
+        <p>No risk data available</p>
       </div>
     );
-  }
-
-  const level = (risk.overallRisk || "medium").toLowerCase();
 
   return (
-    <>
-      <div className={`risk-card border-${level}`}>
-        <div className="risk-left">
-          <LuShieldCheck className={`risk-icon text-${level}`} />
+    <div className="risk-container">
+      <RiskHeader risk={risk} />
 
-          <div>
-            <h3>Risk Summary</h3>
-            <p>{risk.remarks || "No assessment remarks have been recorded."}</p>
-          </div>
-        </div>
+      <RiskScoreCard risk={risk} />
 
-        <span className={`risk-level ${level}`}>
-          {risk.overallRisk || "Unrated"} · Score {risk.riskScore ?? "—"}
-        </span>
-      </div>
+      <RiskFactorGrid risk={risk} />
 
-      <div className="risk-factors">
-        <div>
-          <span>Flood Risk</span>
-          <strong>{risk.floodRisk || "—"}</strong>
-        </div>
+      <ComplianceCard risk={risk} />
 
-        <div>
-          <span>Legal Risk</span>
-          <strong>{risk.legalRisk || "—"}</strong>
-        </div>
+      <CriticalIssues risk={risk} />
 
-        <div>
-          <span>Environmental Risk</span>
-          <strong>{risk.environmentalRisk || "—"}</strong>
-        </div>
-      </div>
-    </>
+      <RecommendationCard risk={risk} />
+    </div>
   );
 }
