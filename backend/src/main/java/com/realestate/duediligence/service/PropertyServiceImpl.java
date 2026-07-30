@@ -1,10 +1,15 @@
 package com.realestate.duediligence.service;
 
+import com.realestate.duediligence.entity.ActivityLog;
+import com.realestate.duediligence.repository.ActivityLogRepository;
 import com.realestate.duediligence.entity.Property;
 import com.realestate.duediligence.repository.PropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -13,27 +18,42 @@ public class PropertyServiceImpl implements PropertyService {
     @Autowired
     private PropertyRepository propertyRepository;
 
+    @Autowired
+    private ActivityLogRepository activityLogRepository;
+
     @Override
-    public Property save(Property property) {
+public Property save(Property property) {
 
-        if (property.getPropertyCode() == null || property.getPropertyCode().isBlank()) {
-            throw new RuntimeException("Property Code is required");
-        }
-
-        if (property.getAddress() == null || property.getAddress().isBlank()) {
-            throw new RuntimeException("Address is required");
-        }
-
-        if (property.getCity() == null || property.getCity().isBlank()) {
-            throw new RuntimeException("City is required");
-        }
-
-        if (property.getCountry() == null || property.getCountry().isBlank()) {
-            throw new RuntimeException("Country is required");
-        }
-
-        return propertyRepository.save(property);
+    if (property.getPropertyCode() == null || property.getPropertyCode().isBlank()) {
+        throw new RuntimeException("Property Code is required");
     }
+
+    if (property.getAddress() == null || property.getAddress().isBlank()) {
+        throw new RuntimeException("Address is required");
+    }
+
+    if (property.getCity() == null || property.getCity().isBlank()) {
+        throw new RuntimeException("City is required");
+    }
+
+    if (property.getCountry() == null || property.getCountry().isBlank()) {
+        throw new RuntimeException("Country is required");
+    }
+
+    Property savedProperty = propertyRepository.save(property);
+
+    activityLogRepository.save(
+        ActivityLog.builder()
+            .property(savedProperty)
+            .activityType("PROPERTY_CREATED")
+            .description("Property was added to the system.")
+            .performedBy("System")
+            .createdAt(LocalDateTime.now())
+            .build()
+    );
+
+    return savedProperty;
+}
 
     @Override
     public List<Property> getAll() {

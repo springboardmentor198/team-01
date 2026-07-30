@@ -6,6 +6,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
 @Service
@@ -62,7 +63,12 @@ public class EmailService {
                     new MimeMessageHelper(message, true, "UTF-8");
 
             if (fromAddress != null && !fromAddress.isBlank()) {
-                helper.setFrom(fromAddress, "Real Estate Due Diligence");
+              helper.setFrom(
+    new InternetAddress(
+        "2400033012hte.cse@gmail.com",
+        "Real Estate Due Diligence"
+    )
+);
             }
 
             helper.setTo(email);

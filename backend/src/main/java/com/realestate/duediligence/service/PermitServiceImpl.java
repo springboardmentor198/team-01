@@ -8,21 +8,26 @@ import org.springframework.stereotype.Service;
 
 import com.realestate.duediligence.dto.PermitRequest;
 import com.realestate.duediligence.dto.PermitResponse;
+import com.realestate.duediligence.entity.ActivityLog;
 import com.realestate.duediligence.entity.PermitRecord;
 import com.realestate.duediligence.entity.Property;
 import com.realestate.duediligence.repository.PermitRepository;
 import com.realestate.duediligence.repository.PropertyRepository;
+import com.realestate.duediligence.repository.ActivityLogRepository;
 
 @Service
 public class PermitServiceImpl implements PermitService {
 
     private final PermitRepository repository;
     private final PropertyRepository propertyRepository;
+    private final ActivityLogRepository activityLogRepository;
 
     public PermitServiceImpl(PermitRepository repository,
-                             PropertyRepository propertyRepository) {
+                             PropertyRepository propertyRepository,
+                             ActivityLogRepository activityLogRepository) {
         this.repository = repository;
         this.propertyRepository = propertyRepository;
+        this.activityLogRepository = activityLogRepository;
     }
 
     @Override
@@ -70,6 +75,16 @@ public class PermitServiceImpl implements PermitService {
         permit.setRemarks(request.getRemarks());
 
         repository.save(permit);
+
+        activityLogRepository.save(
+    ActivityLog.builder()
+        .property(permit.getProperty())
+        .activityType("PERMIT_ADDED")
+        .description("Building permit approved.")
+        .performedBy("Legal Reviewer")
+        .createdAt(LocalDateTime.now())
+        .build()
+);
 
         return mapToResponse(permit);
     }

@@ -6,21 +6,27 @@ import org.springframework.stereotype.Service;
 
 import com.realestate.duediligence.dto.RiskSummaryRequest;
 import com.realestate.duediligence.dto.RiskSummaryResponse;
+import com.realestate.duediligence.entity.ActivityLog;
 import com.realestate.duediligence.entity.Property;
 import com.realestate.duediligence.entity.RiskSummary;
 import com.realestate.duediligence.repository.PropertyRepository;
 import com.realestate.duediligence.repository.RiskSummaryRepository;
+import com.realestate.duediligence.repository.ActivityLogRepository;
+
 
 @Service
 public class RiskSummaryServiceImpl implements RiskSummaryService {
 
     private final RiskSummaryRepository repository;
     private final PropertyRepository propertyRepository;
+    private final ActivityLogRepository activityLogRepository;
 
     public RiskSummaryServiceImpl(RiskSummaryRepository repository,
-                                  PropertyRepository propertyRepository) {
+                                  PropertyRepository propertyRepository,
+                                  ActivityLogRepository activityLogRepository) {
         this.repository = repository;
         this.propertyRepository = propertyRepository;
+        this.activityLogRepository = activityLogRepository;
     }
 
     @Override
@@ -47,18 +53,28 @@ public RiskSummaryResponse createRiskSummary(RiskSummaryRequest request) {
             .build();
 
     repository.save(risk);
+    
+    activityLogRepository.save(
+    ActivityLog.builder()
+        .property(property)
+        .activityType("RISK_SUMMARY_CREATED")
+        .description("Risk assessment completed successfully.")
+        .performedBy("System")
+        .createdAt(LocalDateTime.now())
+        .build()
+);
+
 
     return mapToResponse(risk);
 }
 
     @Override
-    public RiskSummaryResponse getRiskSummary(Integer propertyId) {
+public RiskSummaryResponse getRiskSummary(Integer propertyId) {
 
-        RiskSummary risk = repository.findByProperty_PropertyId(propertyId)
-                .orElseThrow(() -> new RuntimeException("Risk Summary not found"));
-
-        return mapToResponse(risk);
-    }
+    return repository.findByProperty_PropertyId(propertyId)
+            .map(this::mapToResponse)
+            .orElse(null);
+}
 
     @Override
     public RiskSummaryResponse updateRiskSummary(Integer id, RiskSummaryRequest request) {
