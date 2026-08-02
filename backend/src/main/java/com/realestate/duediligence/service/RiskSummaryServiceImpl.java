@@ -9,6 +9,7 @@ import com.realestate.duediligence.dto.RiskSummaryResponse;
 import com.realestate.duediligence.entity.ActivityLog;
 import com.realestate.duediligence.entity.Property;
 import com.realestate.duediligence.entity.RiskSummary;
+import com.realestate.duediligence.exception.ResourceNotFoundException;
 import com.realestate.duediligence.repository.PropertyRepository;
 import com.realestate.duediligence.repository.RiskSummaryRepository;
 import com.realestate.duediligence.repository.ActivityLogRepository;
@@ -30,57 +31,51 @@ public class RiskSummaryServiceImpl implements RiskSummaryService {
     }
 
     @Override
-public RiskSummaryResponse createRiskSummary(RiskSummaryRequest request) {
+    public RiskSummaryResponse createRiskSummary(RiskSummaryRequest request) {
 
-    System.out.println("Received Property ID = " + request.getPropertyId());
+        Property property = propertyRepository.findById(request.getPropertyId())
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
 
-    System.out.println("All properties in database:");
-    propertyRepository.findAll().forEach(System.out::println);
+        RiskSummary risk = RiskSummary.builder()
+                .property(property)
+                .riskScore(request.getRiskScore())
+                .overallRisk(request.getOverallRisk())
+                .floodRisk(request.getFloodRisk())
+                .legalRisk(request.getLegalRisk())
+                .environmentalRisk(request.getEnvironmentalRisk())
+                .remarks(request.getRemarks())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
-    Property property = propertyRepository.findById(request.getPropertyId())
-            .orElseThrow(() -> new RuntimeException("Property not found"));
+        repository.save(risk);
 
-    RiskSummary risk = RiskSummary.builder()
-            .property(property)
-            .riskScore(request.getRiskScore())
-            .overallRisk(request.getOverallRisk())
-            .floodRisk(request.getFloodRisk())
-            .legalRisk(request.getLegalRisk())
-            .environmentalRisk(request.getEnvironmentalRisk())
-            .remarks(request.getRemarks())
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .build();
+        activityLogRepository.save(
+            ActivityLog.builder()
+                .property(property)
+                .activityType("RISK_SUMMARY_CREATED")
+                .description("Risk assessment completed successfully.")
+                .performedBy("System")
+                .createdAt(LocalDateTime.now())
+                .build()
+        );
 
-    repository.save(risk);
-    
-    activityLogRepository.save(
-    ActivityLog.builder()
-        .property(property)
-        .activityType("RISK_SUMMARY_CREATED")
-        .description("Risk assessment completed successfully.")
-        .performedBy("System")
-        .createdAt(LocalDateTime.now())
-        .build()
-);
-
-
-    return mapToResponse(risk);
-}
+        return mapToResponse(risk);
+    }
 
     @Override
-public RiskSummaryResponse getRiskSummary(Integer propertyId) {
+    public RiskSummaryResponse getRiskSummary(Integer propertyId) {
 
-    return repository.findByProperty_PropertyId(propertyId)
-            .map(this::mapToResponse)
-            .orElse(null);
-}
+        return repository.findByProperty_PropertyId(propertyId)
+                .map(this::mapToResponse)
+                .orElse(null);
+    }
 
     @Override
     public RiskSummaryResponse updateRiskSummary(Integer id, RiskSummaryRequest request) {
 
         RiskSummary risk = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Risk Summary not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Risk Summary not found"));
 
         risk.setRiskScore(request.getRiskScore());
         risk.setOverallRisk(request.getOverallRisk());
@@ -98,6 +93,9 @@ public RiskSummaryResponse getRiskSummary(Integer propertyId) {
     @Override
     public void deleteRiskSummary(Integer id) {
 
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Risk Summary not found");
+        }
         repository.deleteById(id);
 
     }
