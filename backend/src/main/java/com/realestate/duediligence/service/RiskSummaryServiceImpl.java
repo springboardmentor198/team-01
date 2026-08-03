@@ -15,6 +15,7 @@ import com.realestate.duediligence.exception.ResourceNotFoundException;
 import com.realestate.duediligence.repository.ActivityLogRepository;
 import com.realestate.duediligence.repository.PropertyRepository;
 import com.realestate.duediligence.repository.RiskSummaryRepository;
+
 @Service
 public class RiskSummaryServiceImpl implements RiskSummaryService {
 
@@ -36,7 +37,7 @@ public class RiskSummaryServiceImpl implements RiskSummaryService {
     }
 
     @Override
-    @Override
+  
 public RiskSummaryResponse createRiskSummary(RiskSummaryRequest request) {
 
     Property property = propertyRepository.findById(request.getPropertyId())
@@ -100,7 +101,14 @@ public RiskSummaryResponse createRiskSummary(RiskSummaryRequest request) {
 
     return mapToResponse(risk);
 }
-    @@Override
+@Override
+public RiskSummaryResponse getRiskSummary(Integer propertyId) {
+
+    return repository.findByProperty_PropertyId(propertyId)
+            .map(this::mapToResponse)
+            .orElseThrow(() -> new ResourceNotFoundException("Risk Summary not found"));
+}
+    @Override
 public RiskSummaryResponse updateRiskSummary(Integer id, RiskSummaryRequest request) {
 
     RiskSummary risk = repository.findById(id)
