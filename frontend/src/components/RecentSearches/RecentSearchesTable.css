@@ -1,0 +1,100 @@
+.recent-searches-table-wrapper {
+  overflow-x: auto;
+}
+
+.recent-searches-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recent-searches-table thead {
+  background: #f8fafc;
+}
+
+.recent-searches-table th {
+  text-align: left;
+  padding: 14px;
+  font-size: 13px;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.recent-searches-table td {
+  padding: 15px 14px;
+  font-size: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.recent-searches-table tbody tr.clickable-row {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.recent-searches-table tbody tr.clickable-row:hover {
+  background: #f9fafb;
+}
+
+.recent-searches-empty,
+.recent-searches-loading,
+.recent-searches-error {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.recent-searches-error {
+  color: #dc2626;
+}
+
+.recent-searches-table .risk-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.recent-searches-table .risk-badge.low {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.recent-searches-table .risk-badge.medium {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.recent-searches-table .risk-badge.high,
+.recent-searches-table .risk-badge.critical {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.recent-searches-table .risk-badge.unrated {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.recent-searches-table .status-text {
+  color: #374151;
+  font-weight: 500;
+}
+
+.property-name-cell {
+  max-width: 280px;
+}
+
+.property-name {
+  display: block;
+  color: #111827;
+  font-weight: 600;
+}
+
+.property-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: #6b7280;
+}

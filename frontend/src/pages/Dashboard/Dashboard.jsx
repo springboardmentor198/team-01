@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import Layout from "../../components/Layout/Layout";
+import RecentSearchesTable from "../../components/RecentSearches/RecentSearchesTable";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
+import { useRecentSearches } from "../../hooks/useRecentSearches";
 import "./Dashboard.css";
 
 import {
@@ -42,7 +44,15 @@ const quickActions = [
   },
 ];
 
-const emptyDashboardData = { totalProperties: 0, totalReports: 0, highRiskCount: 0, pendingReviews: 0, recentSearches: [], riskBreakdown: [], notifications: [] };
+const emptyDashboardData = {
+  totalProperties: 0,
+  totalReports: 0,
+  highRiskCount: 0,
+  pendingReviews: 0,
+  recentSearches: [],
+  riskBreakdown: [],
+  notifications: [],
+};
 
 function RiskDonut({ data, total }) {
   const size = 170;
@@ -54,7 +64,7 @@ function RiskDonut({ data, total }) {
     const previous = acc[acc.length - 1];
     const before = previous ? previous.after : 0;
 
-    const fraction = total > 0 ? (segment.count / total) : 0;
+    const fraction = total > 0 ? segment.count / total : 0;
 
     acc.push({
       ...segment,
@@ -97,6 +107,11 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [data, setData] = useState(emptyDashboardData);
   const [error, setError] = useState("");
+  const {
+    searches: recentSearches,
+    loading: recentSearchesLoading,
+    error: recentSearchesError,
+  } = useRecentSearches();
 
   useEffect(() => {
     if (!api.isAuthenticated()) {
@@ -104,26 +119,28 @@ export default function Dashboard() {
       return;
     }
 
-    const fetchDashboardData = async () => { try {
-    const summary = await api.getDashboardSummary();
+    const fetchDashboardData = async () => {
+      try {
+        const summary = await api.getDashboardSummary();
 
-    setData({
-      totalProperties: summary.totalProperties,
-      totalReports: summary.totalReports,
-      highRiskCount: summary.highRiskProperties,
-      pendingReviews: 0,
-      recentSearches: [],
-      riskBreakdown: [
-        {
-          label: "High Risk",
-          count: summary.highRiskProperties,
-          color: "#EF4444",
-        },
-      ],
-      notifications: [],
-    });
-
-    } catch (err) { setError(err.message || "Unable to load dashboard statistics"); } };
+        setData((prev) => ({
+          totalProperties: summary.totalProperties,
+          totalReports: summary.totalReports,
+          highRiskCount: summary.highRiskProperties,
+          pendingReviews: 0,
+          riskBreakdown: [
+            {
+              label: "High Risk",
+              count: summary.highRiskProperties,
+              color: "#EF4444",
+            },
+          ],
+          notifications: [],
+        }));
+      } catch (err) {
+        setError(err.message || "Unable to load dashboard statistics");
+      }
+    };
 
     fetchDashboardData();
   }, [navigate]);
@@ -159,15 +176,21 @@ export default function Dashboard() {
     },
   ];
 
-  const recentSearches = data.recentSearches;
   const riskBreakdown = data.riskBreakdown;
   const notifications = data.notifications;
-  const totalProperties = riskBreakdown.reduce((sum, item) => sum + item.count, 0);
+  const totalProperties = riskBreakdown.reduce(
+    (sum, item) => sum + item.count,
+    0,
+  );
 
   return (
     <Layout title="Dashboard" showSearch={true}>
       <div className="dashboard-page">
-        {error && <div className="demo-data-notice" role="alert">{error}</div>}
+        {error && (
+          <div className="demo-data-notice" role="alert">
+            {error}
+          </div>
+        )}
         <div className="stats-grid">
           {stats.map((item) => {
             const Icon = item.icon;
@@ -195,39 +218,14 @@ export default function Dashboard() {
           {/* ================= RECENT SEARCHES ================= */}
           <div className="dashboard-card recent-search-card">
             <h3 className="card-title">Recent Searches</h3>
-            <div className="table-wrapper">
-              <table className="recent-table">
-                <thead>
-                  <tr>
-                    <th>Property</th>
-                    <th>Type</th>
-                    <th>Risk</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentSearches.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.property}</td>
-                      <td>{item.type}</td>
-                      <td>
-                        <span className={`risk-badge ${item.risk.toLowerCase()}`}>
-                          {item.risk}
-                        </span>
-                      </td>
-                      <td>{item.status}</td>
-                    </tr>
-                  ))}
-                  {recentSearches.length === 0 && (
-                    <tr>
-                      <td colSpan="4" style={{ textAlign: "center", padding: "20px", color: "#666" }}>
-                        No searches logged.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <RecentSearchesTable
+              searches={recentSearches}
+              loading={recentSearchesLoading}
+              error={recentSearchesError}
+              showStatus={true}
+              clickable={true}
+              emptyMessage="No searches logged. Use the search bar above to find properties."
+            />
           </div>
 
           {/* ================= RIGHT PANEL ================= */}
@@ -266,7 +264,9 @@ export default function Dashboard() {
                 </div>
               ))}
               {notifications.length === 0 && (
-                <p style={{ color: "#666", padding: "10px 0" }}>No notifications.</p>
+                <p style={{ color: "#666", padding: "10px 0" }}>
+                  No notifications.
+                </p>
               )}
             </div>
           </div>

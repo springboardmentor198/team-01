@@ -7,16 +7,22 @@ import com.realestate.duediligence.dto.ProfileCompletionResponse;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.enums.AccountStatus;
 import com.realestate.duediligence.enums.Role;
+import com.realestate.duediligence.event.NotificationEvents;
 import com.realestate.duediligence.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OnboardingServiceImpl implements OnboardingService {
 
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public OnboardingServiceImpl(UserRepository userRepository) {
+    public OnboardingServiceImpl(
+            UserRepository userRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -37,6 +43,7 @@ public class OnboardingServiceImpl implements OnboardingService {
             user.setProfileCompleted(true);
             user.setStatus(AccountStatus.ACTIVE);
             User savedUser = userRepository.save(user);
+            eventPublisher.publishEvent(new NotificationEvents.ProfileCompletedEvent(savedUser));
 
             return new ProfileCompletionResponse(
                     "Buyer onboarding completed successfully",

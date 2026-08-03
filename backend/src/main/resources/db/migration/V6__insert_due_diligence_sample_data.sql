@@ -20,6 +20,6 @@ VALUES
     25,
     NOW(),
     NOW(),
-    1
+    4
 )
 ON CONFLICT (property_id) DO NOTHING;

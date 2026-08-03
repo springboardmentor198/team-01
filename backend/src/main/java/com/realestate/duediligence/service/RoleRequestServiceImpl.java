@@ -1,5 +1,6 @@
 package com.realestate.duediligence.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import com.realestate.duediligence.entity.RoleRequest;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.enums.AccountStatus;
 import com.realestate.duediligence.enums.Role;
+import com.realestate.duediligence.event.NotificationEvents;
 import com.realestate.duediligence.repository.RoleRequestRepository;
 import com.realestate.duediligence.repository.UserRepository;
 
@@ -19,11 +21,15 @@ public class RoleRequestServiceImpl implements RoleRequestService {
 
     private final RoleRequestRepository roleRequestRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public RoleRequestServiceImpl(RoleRequestRepository roleRequestRepository,
-                                  UserRepository userRepository) {
+    public RoleRequestServiceImpl(
+            RoleRequestRepository roleRequestRepository,
+            UserRepository userRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.roleRequestRepository = roleRequestRepository;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -57,7 +63,11 @@ public class RoleRequestServiceImpl implements RoleRequestService {
                 .status(AccountStatus.PENDING)
                 .build();
 
-        return toResponse(roleRequestRepository.save(roleRequest));
+        RoleRequest saved = roleRequestRepository.save(roleRequest);
+        eventPublisher.publishEvent(new NotificationEvents.RoleRequestSubmittedEvent(
+                user,
+                request.getRequestedRole().name()));
+        return toResponse(saved);
     }
 
     private void validateRequestedRole(Role requestedRole) {

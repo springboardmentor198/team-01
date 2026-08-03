@@ -4,7 +4,9 @@ import com.realestate.duediligence.entity.ActivityLog;
 import com.realestate.duediligence.repository.ActivityLogRepository;
 import com.realestate.duediligence.entity.Property;
 import com.realestate.duediligence.repository.PropertyRepository;
+import com.realestate.duediligence.event.NotificationEvents;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,6 +22,9 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Autowired
     private ActivityLogRepository activityLogRepository;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Override
 public Property save(Property property) {
@@ -52,6 +57,8 @@ public Property save(Property property) {
             .build()
     );
 
+    eventPublisher.publishEvent(new NotificationEvents.PropertyCreatedEvent(savedProperty, null));
+
     return savedProperty;
 }
 
@@ -70,6 +77,7 @@ public Property save(Property property) {
     public Property update(Integer id, Property property) {
 
         Property existing = getById(id);
+        String previousStatus = existing.getStatus();
 
         existing.setPropertyCode(property.getPropertyCode());
         existing.setParcelId(property.getParcelId());
@@ -86,11 +94,22 @@ public Property save(Property property) {
         existing.setStatus(property.getStatus());
         existing.setImageUrl(property.getImageUrl());
 
-        return propertyRepository.save(existing);
+        Property updated = propertyRepository.save(existing);
+        eventPublisher.publishEvent(new NotificationEvents.PropertyUpdatedEvent(
+                updated,
+                null,
+                previousStatus,
+                updated.getStatus()));
+        return updated;
     }
 
     @Override
     public void delete(Integer id) {
+        Property property = getById(id);
+        eventPublisher.publishEvent(new NotificationEvents.PropertyDeletedEvent(
+                id,
+                property.getPropertyCode(),
+                null));
         propertyRepository.deleteById(id);
     }
 

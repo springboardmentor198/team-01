@@ -8,11 +8,13 @@ import com.realestate.duediligence.dto.ResetPasswordRequest;
 import com.realestate.duediligence.entity.PasswordResetToken;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.enums.Role;
+import com.realestate.duediligence.event.NotificationEvents;
 import com.realestate.duediligence.repository.PasswordResetTokenRepository;
 import com.realestate.duediligence.repository.UserRepository;
 import com.realestate.duediligence.util.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -39,6 +41,7 @@ public class UserServiceImpl implements UserService {
     @Autowired private EmailService emailService;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private JwtService jwtService;
+    @Autowired private ApplicationEventPublisher eventPublisher;
 
     @Value("${google.client.id}") private String googleClientId;
     @Value("${google.client.secret}") private String googleClientSecret;
@@ -57,7 +60,9 @@ public class UserServiceImpl implements UserService {
                 .avatarUrl(request.getAvatarUrl()).role(Role.BUYER)
                 .phoneNumber(request.getPhoneNumber()).createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now()).build();
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        eventPublisher.publishEvent(new NotificationEvents.UserRegisteredEvent(saved));
+        return saved;
     }
 
     @Override

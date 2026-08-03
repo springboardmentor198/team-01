@@ -56,4 +56,33 @@ public class RiskSummary {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    @Column(name = "reviewed_by")
+private String reviewedBy;
+
+@Column(name = "reviewed_at")
+private LocalDateTime reviewedAt;
+
+@Column(name = "compliance_status")
+private String complianceStatus;
+
+@Column(name = "critical_issues", columnDefinition = "TEXT")
+private String criticalIssues;
+
+@Column(name = "recommendation", columnDefinition = "TEXT")
+private String recommendation;
+
+@Column(name = "missing_documents", columnDefinition = "TEXT")
+private String missingDocuments;
+
+@Column(name = "financial_risk")
+private String financialRisk;
+
+@Column(name = "market_risk")
+private String marketRisk;
+
+@Column(name = "ownership_risk")
+private String ownershipRisk;
+
+@Column(name = "risk_trend")
+private String riskTrend;
 }

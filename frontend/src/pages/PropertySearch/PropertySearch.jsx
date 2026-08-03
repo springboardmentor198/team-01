@@ -1,19 +1,14 @@
 import { useState } from "react";
 import Layout from "../../components/Layout/Layout";
+import RecentSearchesTable from "../../components/RecentSearches/RecentSearchesTable";
 import "./PropertySearch.css";
 import { useNavigate } from "react-router-dom";
+import { useRecentSearches } from "../../hooks/useRecentSearches";
+import { buildSearchHistoryPayload } from "../../utils/searchUtils";
 
-import {
-  FiSearch,
-  FiMapPin,
-  FiHome,
-  FiClock,
-} from "react-icons/fi";
+import { FiSearch, FiMapPin, FiHome, FiClock } from "react-icons/fi";
 
-import {
-  IoFilterOutline,
-  IoLocationOutline,
-} from "react-icons/io5";
+import { IoFilterOutline, IoLocationOutline } from "react-icons/io5";
 
 import { MdOutlineApartment } from "react-icons/md";
 
@@ -25,28 +20,41 @@ function PropertySearch() {
   const [city, setCity] = useState("All");
   const [riskLevel, setRiskLevel] = useState("All");
   const [status, setStatus] = useState("All");
+  const {
+    searches: recentSearches,
+    loading: recentSearchesLoading,
+    error: recentSearchesError,
+    recordSearch,
+  } = useRecentSearches();
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     const params = new URLSearchParams();
-    if (address.trim()) params.append("query", address.trim());
+    const trimmedAddress = address.trim();
+    if (trimmedAddress) params.append("query", trimmedAddress);
     if (propertyType !== "All") params.append("type", propertyType);
     if (city !== "All") params.append("city", city);
     if (riskLevel !== "All") params.append("risk", riskLevel);
     if (status !== "All") params.append("status", status);
 
+    await recordSearch(
+      buildSearchHistoryPayload({
+        query: trimmedAddress || undefined,
+        city: city !== "All" ? city : undefined,
+        propertyType: propertyType !== "All" ? propertyType : undefined,
+        risk: riskLevel !== "All" ? riskLevel : undefined,
+        status: status !== "All" ? status : undefined,
+      }),
+    );
+
     navigate(`/property-results?${params.toString()}`);
   };
 
-  // TODO: replace with real data from api.getRecentSearches() once backend
-  // endpoint exists. Left empty (not fake data) until then.
-  const recentSearches = [];
+  const handleQuickLocation = async (loc) => {
+    await recordSearch(buildSearchHistoryPayload({ city: loc }));
+    navigate(`/property-results?city=${encodeURIComponent(loc)}`);
+  };
 
-  const quickLocations = [
-    "Delhi",
-    "Noida",
-    "Mumbai",
-    "Bangalore",
-  ];
+  const quickLocations = ["Delhi", "Noida", "Mumbai", "Bangalore"];
 
   return (
     <Layout title="Property Search">
@@ -58,7 +66,8 @@ function PropertySearch() {
           </div>
           <h1>Find Properties with Confidence</h1>
           <p>
-            Search properties by address or use advanced filters for detailed due diligence.
+            Search properties by address or use advanced filters for detailed
+            due diligence.
           </p>
         </section>
 
@@ -89,7 +98,7 @@ function PropertySearch() {
               <button
                 key={loc}
                 className="chip"
-                onClick={() => navigate(`/property-results?city=${loc}`)}
+                onClick={() => handleQuickLocation(loc)}
               >
                 <IoLocationOutline />
                 {loc}
@@ -135,10 +144,7 @@ function PropertySearch() {
 
             <div className="filter-box">
               <label>City</label>
-              <select
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              >
+              <select value={city} onChange={(e) => setCity(e.target.value)}>
                 <option value="All">All Cities</option>
                 <option value="Delhi">Delhi</option>
                 <option value="Noida">Noida</option>
@@ -184,36 +190,14 @@ function PropertySearch() {
             <FiClock />
             <h2>Recent Searches</h2>
           </div>
-          {recentSearches.length === 0 ? (
-            <p className="empty-state">No recent searches yet.</p>
-          ) : (
-            <table className="recent-table">
-              <thead>
-                <tr>
-                  <th>Property</th>
-                  <th>Type</th>
-                  <th>Risk</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentSearches.map((item, index) => (
-                  <tr
-                    key={index}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => navigate(`/property-results?query=${encodeURIComponent(item.address)}`)}
-                  >
-                    <td>{item.address}</td>
-                    <td>{item.type}</td>
-                    <td>
-                      <span className={`risk ${item.risk.toLowerCase()}`}>
-                        {item.risk}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          <RecentSearchesTable
+            searches={recentSearches}
+            loading={recentSearchesLoading}
+            error={recentSearchesError}
+            showStatus={false}
+            clickable={true}
+            emptyMessage="No recent searches yet."
+          />
         </section>
 
         {/* ================= SAVED FILTERS ================= */}

@@ -3,6 +3,7 @@ package com.realestate.duediligence.service;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import com.realestate.duediligence.entity.RoleRequest;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.enums.AccountStatus;
 import com.realestate.duediligence.enums.Role;
+import com.realestate.duediligence.event.NotificationEvents;
 import com.realestate.duediligence.repository.RoleRequestRepository;
 import com.realestate.duediligence.repository.UserRepository;
 
@@ -21,11 +23,15 @@ public class AdminRoleServiceImpl implements AdminRoleService {
 
     private final RoleRequestRepository roleRequestRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public AdminRoleServiceImpl(RoleRequestRepository roleRequestRepository,
-                                UserRepository userRepository) {
+    public AdminRoleServiceImpl(
+            RoleRequestRepository roleRequestRepository,
+            UserRepository userRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.roleRequestRepository = roleRequestRepository;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -81,6 +87,10 @@ public class AdminRoleServiceImpl implements AdminRoleService {
 
         userRepository.save(user);
         RoleRequest savedRequest = roleRequestRepository.save(roleRequest);
+        eventPublisher.publishEvent(new NotificationEvents.RoleRequestDecisionEvent(
+                user,
+                true,
+                roleRequest.getRequestedRole().name()));
 
         return toResponse(savedRequest);
     }
@@ -100,6 +110,10 @@ public class AdminRoleServiceImpl implements AdminRoleService {
 
         userRepository.save(user);
         RoleRequest savedRequest = roleRequestRepository.save(roleRequest);
+        eventPublisher.publishEvent(new NotificationEvents.RoleRequestDecisionEvent(
+                user,
+                false,
+                roleRequest.getRequestedRole().name()));
 
         return toResponse(savedRequest);
     }

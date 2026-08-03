@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.realestate.duediligence.dto.DocumentRequest;
@@ -13,6 +14,7 @@ import com.realestate.duediligence.dto.DocumentResponse;
 import com.realestate.duediligence.entity.ActivityLog;
 import com.realestate.duediligence.entity.Document;
 import com.realestate.duediligence.entity.Property;
+import com.realestate.duediligence.event.NotificationEvents;
 import com.realestate.duediligence.repository.ActivityLogRepository;
 import com.realestate.duediligence.repository.DocumentRepository;
 import com.realestate.duediligence.repository.PropertyRepository;
@@ -23,13 +25,16 @@ public class DocumentServiceImpl implements DocumentService {
     private final DocumentRepository repository;
     private final PropertyRepository propertyRepository;
     private final ActivityLogRepository activityLogRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public DocumentServiceImpl(DocumentRepository repository,
                                PropertyRepository propertyRepository,
-                               ActivityLogRepository activityLogRepository) {
+                               ActivityLogRepository activityLogRepository,
+                               ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.propertyRepository = propertyRepository;
         this.activityLogRepository = activityLogRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -58,6 +63,12 @@ public class DocumentServiceImpl implements DocumentService {
         .build()
 );
 
+        eventPublisher.publishEvent(new NotificationEvents.DocumentUploadedEvent(
+                property.getPropertyId(),
+                property.getPropertyCode(),
+                document.getDocumentName(),
+                null));
+
         return mapToResponse(document);
     }
 
@@ -82,11 +93,26 @@ public class DocumentServiceImpl implements DocumentService {
 
         repository.save(document);
 
+        eventPublisher.publishEvent(new NotificationEvents.DocumentUpdatedEvent(
+                document.getProperty().getPropertyId(),
+                document.getProperty().getPropertyCode(),
+                document.getDocumentName(),
+                null));
+
         return mapToResponse(document);
     }
 
     @Override
     public void deleteDocument(Integer id) {
+
+        Document document = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
+
+        eventPublisher.publishEvent(new NotificationEvents.DocumentDeletedEvent(
+                document.getProperty().getPropertyId(),
+                document.getProperty().getPropertyCode(),
+                document.getDocumentName(),
+                null));
 
         repository.deleteById(id);
 

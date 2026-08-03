@@ -10,4 +10,5 @@ public interface DashboardStatsService {
     List<Property> getRecentProperties();
     RiskDistributionResponse getRiskDistribution();
     List<NotificationResponse> getNotifications();
+    List<RecentSearchResponse> getRecentSearches();
 }

@@ -2,6 +2,7 @@ package com.realestate.duediligence.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.realestate.duediligence.dto.RiskSummaryRequest;
@@ -9,10 +10,10 @@ import com.realestate.duediligence.dto.RiskSummaryResponse;
 import com.realestate.duediligence.entity.ActivityLog;
 import com.realestate.duediligence.entity.Property;
 import com.realestate.duediligence.entity.RiskSummary;
+import com.realestate.duediligence.event.NotificationEvents;
+import com.realestate.duediligence.repository.ActivityLogRepository;
 import com.realestate.duediligence.repository.PropertyRepository;
 import com.realestate.duediligence.repository.RiskSummaryRepository;
-import com.realestate.duediligence.repository.ActivityLogRepository;
-
 
 @Service
 public class RiskSummaryServiceImpl implements RiskSummaryService {
@@ -20,77 +21,149 @@ public class RiskSummaryServiceImpl implements RiskSummaryService {
     private final RiskSummaryRepository repository;
     private final PropertyRepository propertyRepository;
     private final ActivityLogRepository activityLogRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public RiskSummaryServiceImpl(RiskSummaryRepository repository,
-                                  PropertyRepository propertyRepository,
-                                  ActivityLogRepository activityLogRepository) {
+    public RiskSummaryServiceImpl(
+            RiskSummaryRepository repository,
+            PropertyRepository propertyRepository,
+            ActivityLogRepository activityLogRepository,
+            ApplicationEventPublisher eventPublisher) {
+
         this.repository = repository;
         this.propertyRepository = propertyRepository;
         this.activityLogRepository = activityLogRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
-public RiskSummaryResponse createRiskSummary(RiskSummaryRequest request) {
+    public RiskSummaryResponse createRiskSummary(RiskSummaryRequest request) {
 
-    System.out.println("Received Property ID = " + request.getPropertyId());
+        Property property = propertyRepository.findById(request.getPropertyId())
+                .orElseThrow(() -> new RuntimeException("Property not found"));
 
-    System.out.println("All properties in database:");
-    propertyRepository.findAll().forEach(System.out::println);
+        RiskSummary risk = RiskSummary.builder()
+                .property(property)
 
-    Property property = propertyRepository.findById(request.getPropertyId())
-            .orElseThrow(() -> new RuntimeException("Property not found"));
+                // Overall Assessment
+                .riskScore(request.getRiskScore())
+                .overallRisk(request.getOverallRisk())
 
-    RiskSummary risk = RiskSummary.builder()
-            .property(property)
-            .riskScore(request.getRiskScore())
-            .overallRisk(request.getOverallRisk())
-            .floodRisk(request.getFloodRisk())
-            .legalRisk(request.getLegalRisk())
-            .environmentalRisk(request.getEnvironmentalRisk())
-            .remarks(request.getRemarks())
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .build();
+                // Risk Breakdown
+                .floodRisk(request.getFloodRisk())
+                .legalRisk(request.getLegalRisk())
+                .environmentalRisk(request.getEnvironmentalRisk())
+                .financialRisk(request.getFinancialRisk())
+                .marketRisk(request.getMarketRisk())
+                .ownershipRisk(request.getOwnershipRisk())
 
-    repository.save(risk);
-    
-    activityLogRepository.save(
-    ActivityLog.builder()
-        .property(property)
-        .activityType("RISK_SUMMARY_CREATED")
-        .description("Risk assessment completed successfully.")
-        .performedBy("System")
-        .createdAt(LocalDateTime.now())
-        .build()
-);
+                // Review
+                .reviewedBy(request.getReviewedBy())
+                .reviewedAt(request.getReviewedAt())
 
+                // Compliance
+                .complianceStatus(request.getComplianceStatus())
 
-    return mapToResponse(risk);
-}
+                // Details
+                .criticalIssues(request.getCriticalIssues())
+                .recommendation(request.getRecommendation())
+                .missingDocuments(request.getMissingDocuments())
+                .riskTrend(request.getRiskTrend())
+                .remarks(request.getRemarks())
+
+                // Audit
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+
+                .build();
+
+        repository.save(risk);
+
+        activityLogRepository.save(
+                ActivityLog.builder()
+                        .property(property)
+                        .activityType("RISK_SUMMARY_CREATED")
+                        .description("Risk assessment created.")
+                        .performedBy(
+                                request.getReviewedBy() != null
+                                        ? request.getReviewedBy()
+                                        : "System")
+                        .createdAt(LocalDateTime.now())
+                        .build());
+
+        eventPublisher.publishEvent(new NotificationEvents.RiskSummaryUpdatedEvent(
+                property.getPropertyId(),
+                property.getPropertyCode(),
+                null,
+                risk.getOverallRisk(),
+                null));
+
+        return mapToResponse(risk);
+    }
 
     @Override
-public RiskSummaryResponse getRiskSummary(Integer propertyId) {
+    public RiskSummaryResponse getRiskSummary(Integer propertyId) {
 
-    return repository.findByProperty_PropertyId(propertyId)
-            .map(this::mapToResponse)
-            .orElse(null);
-}
+        return repository.findByProperty_PropertyId(propertyId)
+                .map(this::mapToResponse)
+                .orElse(null);
+    }
 
     @Override
     public RiskSummaryResponse updateRiskSummary(Integer id, RiskSummaryRequest request) {
 
         RiskSummary risk = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Risk Summary not found"));
+        String previousRisk = risk.getOverallRisk();
 
+        // Overall
         risk.setRiskScore(request.getRiskScore());
         risk.setOverallRisk(request.getOverallRisk());
+
+        // Risk Breakdown
         risk.setFloodRisk(request.getFloodRisk());
         risk.setLegalRisk(request.getLegalRisk());
         risk.setEnvironmentalRisk(request.getEnvironmentalRisk());
+        risk.setFinancialRisk(request.getFinancialRisk());
+        risk.setMarketRisk(request.getMarketRisk());
+        risk.setOwnershipRisk(request.getOwnershipRisk());
+
+        // Review
+        risk.setReviewedBy(request.getReviewedBy());
+        risk.setReviewedAt(request.getReviewedAt());
+
+        // Compliance
+        risk.setComplianceStatus(request.getComplianceStatus());
+
+        // Details
+        risk.setCriticalIssues(request.getCriticalIssues());
+        risk.setRecommendation(request.getRecommendation());
+        risk.setMissingDocuments(request.getMissingDocuments());
+        risk.setRiskTrend(request.getRiskTrend());
         risk.setRemarks(request.getRemarks());
+
+        // Audit
         risk.setUpdatedAt(LocalDateTime.now());
 
         repository.save(risk);
+
+        activityLogRepository.save(
+                ActivityLog.builder()
+                        .property(risk.getProperty())
+                        .activityType("RISK_SUMMARY_UPDATED")
+                        .description("Risk assessment updated.")
+                        .performedBy(
+                                request.getReviewedBy() != null
+                                        ? request.getReviewedBy()
+                                        : "System")
+                        .createdAt(LocalDateTime.now())
+                        .build());
+
+        eventPublisher.publishEvent(new NotificationEvents.RiskSummaryUpdatedEvent(
+                risk.getProperty().getPropertyId(),
+                risk.getProperty().getPropertyCode(),
+                previousRisk,
+                risk.getOverallRisk(),
+                null));
 
         return mapToResponse(risk);
     }
@@ -99,21 +172,45 @@ public RiskSummaryResponse getRiskSummary(Integer propertyId) {
     public void deleteRiskSummary(Integer id) {
 
         repository.deleteById(id);
-
     }
 
     private RiskSummaryResponse mapToResponse(RiskSummary risk) {
 
         return RiskSummaryResponse.builder()
+
                 .id(risk.getId())
                 .propertyId(risk.getProperty().getPropertyId())
+
+                // Overall
                 .riskScore(risk.getRiskScore())
                 .overallRisk(risk.getOverallRisk())
+
+                // Risk Breakdown
                 .floodRisk(risk.getFloodRisk())
                 .legalRisk(risk.getLegalRisk())
                 .environmentalRisk(risk.getEnvironmentalRisk())
-                .remarks(risk.getRemarks())
-                .build();
+                .financialRisk(risk.getFinancialRisk())
+                .marketRisk(risk.getMarketRisk())
+                .ownershipRisk(risk.getOwnershipRisk())
 
+                // Review
+                .reviewedBy(risk.getReviewedBy())
+                .reviewedAt(risk.getReviewedAt())
+
+                // Compliance
+                .complianceStatus(risk.getComplianceStatus())
+
+                // Details
+                .criticalIssues(risk.getCriticalIssues())
+                .recommendation(risk.getRecommendation())
+                .missingDocuments(risk.getMissingDocuments())
+                .riskTrend(risk.getRiskTrend())
+                .remarks(risk.getRemarks())
+
+                // Audit
+                .createdAt(risk.getCreatedAt())
+                .updatedAt(risk.getUpdatedAt())
+
+                .build();
     }
 }

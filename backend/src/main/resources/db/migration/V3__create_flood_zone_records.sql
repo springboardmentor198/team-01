@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS flood_zone_records (
+CREATE TABLE flood_zone_records (
     id SERIAL PRIMARY KEY,
 
     property_id INTEGER NOT NULL UNIQUE,

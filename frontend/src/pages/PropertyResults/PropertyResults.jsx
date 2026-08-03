@@ -44,8 +44,17 @@ export default function PropertyResults() {
       try {
         const data = await api.getProperties();
         setProperties(data);
-        const summaries = await Promise.all(data.map((p) => api.getRiskSummary(p.propertyId).catch(() => null)));
-        setRisks(Object.fromEntries(data.map((p, index) => [p.propertyId, summaries[index]?.overallRisk || "Unrated"])));
+        const summaries = await Promise.all(
+          data.map((p) => api.getRiskSummary(p.propertyId).catch(() => null)),
+        );
+        setRisks(
+          Object.fromEntries(
+            data.map((p, index) => [
+              p.propertyId,
+              summaries[index]?.overallRisk || "Unrated",
+            ]),
+          ),
+        );
       } catch (err) {
         setError(err.message || "Failed to load properties");
       } finally {
@@ -71,7 +80,10 @@ export default function PropertyResults() {
       <Layout title="Search Results">
         <div className="error-container">
           <p className="error-message">Error: {error}</p>
-          <button onClick={() => window.location.reload()} className="retry-btn">
+          <button
+            onClick={() => window.location.reload()}
+            className="retry-btn"
+          >
             Retry
           </button>
         </div>
@@ -81,7 +93,11 @@ export default function PropertyResults() {
 
   // Filter properties client-side based on criteria
   const filtered = properties.filter((property) => {
-    if (query && !property.address.toLowerCase().includes(query.toLowerCase()) && !property.propertyCode.toLowerCase().includes(query.toLowerCase())) {
+    if (
+      query &&
+      !property.address.toLowerCase().includes(query.toLowerCase()) &&
+      !property.propertyCode.toLowerCase().includes(query.toLowerCase())
+    ) {
       return false;
     }
     if (type && property.propertyType.toLowerCase() !== type.toLowerCase()) {
@@ -90,7 +106,10 @@ export default function PropertyResults() {
     if (city && property.city.toLowerCase() !== city.toLowerCase()) {
       return false;
     }
-    if (risk && (risks[property.propertyId] || "").toLowerCase() !== risk.toLowerCase()) {
+    if (
+      risk &&
+      (risks[property.propertyId] || "").toLowerCase() !== risk.toLowerCase()
+    ) {
       return false;
     }
     if (status && property.status.toLowerCase() !== status.toLowerCase()) {
@@ -110,13 +129,21 @@ export default function PropertyResults() {
   });
 
   const totalResults = enriched.length;
-  const verifiedCount = enriched.filter((p) => p.status === "AVAILABLE" || p.status === "VERIFIED").length;
-  const pendingCount = enriched.filter((p) => p.status === "UNDER_REVIEW").length;
-  const highRiskCount = enriched.filter((p) => p.riskLvl === "High" || p.riskLvl === "Critical").length;
+  const verifiedCount = enriched.filter(
+    (p) => p.status === "AVAILABLE" || p.status === "VERIFIED",
+  ).length;
+  const pendingCount = enriched.filter(
+    (p) => p.status === "UNDER_REVIEW",
+  ).length;
+  const highRiskCount = enriched.filter(
+    (p) => p.riskLvl === "High" || p.riskLvl === "Critical",
+  ).length;
 
   // ---- Additional summary stats (distinct from the top summary-grid) ----
   const prices = enriched.map((p) => p.estimatedPrice);
-  const avgPrice = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0;
+  const avgPrice = prices.length
+    ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length)
+    : 0;
   const minPrice = prices.length ? Math.min(...prices) : 0;
   const maxPrice = prices.length ? Math.max(...prices) : 0;
 
@@ -134,7 +161,9 @@ export default function PropertyResults() {
   }, {});
   const citiesCovered = Object.keys(cityBreakdown).length;
 
-  const verificationRate = totalResults ? Math.round((verifiedCount / totalResults) * 100) : 0;
+  const verificationRate = totalResults
+    ? Math.round((verifiedCount / totalResults) * 100)
+    : 0;
 
   const formatINR = (n) => `₹${n.toLocaleString("en-IN")}`;
 
@@ -198,7 +227,9 @@ export default function PropertyResults() {
                     </p>
                   </div>
 
-                  <span className={`risk-badge ${property.riskLvl.toLowerCase()}`}>
+                  <span
+                    className={`risk-badge ${property.riskLvl.toLowerCase()}`}
+                  >
                     {property.riskLvl} Risk
                   </span>
                 </div>
@@ -231,28 +262,46 @@ export default function PropertyResults() {
 
                 <div className="property-footer">
                   <span
-                    className={`status-badge ${property.status
-                      ? property.status.toLowerCase().replace(/\s/g, "-")
-                      : "available"}`}
+                    className={`status-badge ${
+                      property.status
+                        ? property.status.toLowerCase().replace(/\s/g, "-")
+                        : "available"
+                    }`}
                   >
-                    {property.status === "AVAILABLE" || property.status === "VERIFIED" ? "Available" : property.status === "UNDER_REVIEW" ? "Under Review" : property.status || "Available"}
+                    {property.status === "AVAILABLE" ||
+                    property.status === "VERIFIED"
+                      ? "Available"
+                      : property.status === "UNDER_REVIEW"
+                        ? "Under Review"
+                        : property.status || "Available"}
                   </span>
 
                   <button
-                      className="view-btn"
-                      onClick={() => navigate(`/property/${property.propertyId}`)}
-                      >
-                      <LuEye />
-                       Detail View
-                </button>
+                    className="view-btn"
+                    onClick={() => navigate(`/property/${property.propertyId}`)}
+                  >
+                    <LuEye />
+                    Detail View
+                  </button>
                 </div>
               </div>
             );
           })}
 
           {enriched.length === 0 && (
-            <div className="no-results-card" style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px", color: "#666" }}>
-              <LuTriangleAlert size={48} style={{ marginBottom: "15px", color: "#F59E0B" }} />
+            <div
+              className="no-results-card"
+              style={{
+                gridColumn: "1 / -1",
+                textAlign: "center",
+                padding: "40px",
+                color: "#666",
+              }}
+            >
+              <LuTriangleAlert
+                size={48}
+                style={{ marginBottom: "15px", color: "#F59E0B" }}
+              />
               <h3>No Properties Found</h3>
               <p>Try clearing some filters or searching for another address.</p>
             </div>
@@ -268,14 +317,18 @@ export default function PropertyResults() {
                 <LuWallet className="summary-item-icon" />
                 <span>Average Estimated Price</span>
                 <strong>{formatINR(avgPrice)}</strong>
-                <small>{formatINR(minPrice)} - {formatINR(maxPrice)} range</small>
+                <small>
+                  {formatINR(minPrice)} - {formatINR(maxPrice)} range
+                </small>
               </div>
 
               <div className="summary-item">
                 <LuLayers className="summary-item-icon" />
                 <span>Most Common Type</span>
                 <strong>{topType ? topType[0] : "-"}</strong>
-                <small>{topType ? `${topType[1]} of ${totalResults} properties` : ""}</small>
+                <small>
+                  {topType ? `${topType[1]} of ${totalResults} properties` : ""}
+                </small>
               </div>
 
               <div className="summary-item">

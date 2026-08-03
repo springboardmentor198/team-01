@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS property_tax_history (
+CREATE TABLE property_tax_history (
     tax_history_id BIGSERIAL PRIMARY KEY,
 
     property_id INTEGER NOT NULL,

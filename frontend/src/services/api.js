@@ -366,6 +366,91 @@ export const api = {
     return response.json();
   },
 
+  getRecentSearches: async () => {
+    const response = await fetch(`${BASE_URL}/dashboard/recent-searches`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load recent searches",
+      );
+    return response.json();
+  },
+
+  saveSearchHistory: async (payload) => {
+    const response = await fetch(`${BASE_URL}/search-history`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to save search");
+    return response.json();
+  },
+
+  getNotifications: async ({ page = 0, size = 20, filter } = {}) => {
+    const params = new URLSearchParams({ page, size });
+    if (filter) params.set("filter", filter);
+
+    const response = await fetch(`${BASE_URL}/notifications?${params}`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to load notifications");
+    return response.json();
+  },
+
+  getUnreadNotifications: async ({ page = 0, size = 20 } = {}) => {
+    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    const response = await fetch(`${BASE_URL}/notifications/unread?${params}`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load unread notifications",
+      );
+    return response.json();
+  },
+
+  getNotificationCount: async () => {
+    const response = await fetch(`${BASE_URL}/notifications/count`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to load notification count");
+    return response.json();
+  },
+
+  markNotificationRead: async (id) => {
+    const response = await fetch(`${BASE_URL}/notifications/${id}/read`, {
+      method: "PATCH",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to mark notification read");
+    return response.json();
+  },
+
+  markAllNotificationsRead: async () => {
+    const response = await fetch(`${BASE_URL}/notifications/read-all`, {
+      method: "PATCH",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to mark all notifications read",
+      );
+  },
+
+  deleteNotification: async (id) => {
+    const response = await fetch(`${BASE_URL}/notifications/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to delete notification");
+  },
+
   // Property APIs
   getProperties: async () => {
     const response = await fetch(`${BASE_URL}/properties`, {
