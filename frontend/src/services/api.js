@@ -45,9 +45,13 @@ const getHeaders = (includeAuth = true) => {
 };
 
 export const getPropertyOwnerName = (property) => {
+  if (!property) return "N/A";
+
   if (property.ownerName) return property.ownerName;
-  if (property.owner && property.owner.name) return property.owner.name;
-  return "Property Owner";
+
+  if (property.owner?.name) return property.owner.name;
+
+  return "N/A";
 };
 
 export const isAdmin = () => {

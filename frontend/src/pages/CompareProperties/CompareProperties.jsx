@@ -7,6 +7,10 @@ import {
   LuBuilding2,
   LuMapPin,
   LuShieldCheck,
+  LuUser,
+  LuRuler,
+  LuBadgeCheck,
+  LuIndianRupee,
 } from "react-icons/lu";
 
 const properties = [
@@ -19,6 +23,10 @@ const properties = [
     status: "Available",
     risk: "Medium",
     owner: "Satya Prakash",
+    valuation: "₹1.25 Cr",
+    tax: "Paid",
+    flood: "Low",
+    legal: "Verified",
   },
   {
     id: 2,
@@ -29,6 +37,10 @@ const properties = [
     status: "Under Review",
     risk: "High",
     owner: "Amit Sharma",
+    valuation: "₹2.80 Cr",
+    tax: "Pending",
+    flood: "Medium",
+    legal: "Review Required",
   },
   {
     id: 3,
@@ -39,6 +51,10 @@ const properties = [
     status: "Available",
     risk: "Low",
     owner: "Rajesh Kumar",
+    valuation: "₹95 L",
+    tax: "Paid",
+    flood: "Low",
+    legal: "Verified",
   },
 ];
 
@@ -60,14 +76,15 @@ export default function CompareProperties() {
           </h2>
 
           <p>
-            Select any two properties to compare their details side by side.
+            Select two properties to compare their valuation,
+            ownership, legal status and overall risk assessment.
           </p>
         </div>
 
         <div className="compare-selection">
 
           <div className="select-card">
-            <label>Property 1</label>
+            <label>Property A</label>
 
             <select
               value={property1}
@@ -86,7 +103,7 @@ export default function CompareProperties() {
           <div className="vs-text">VS</div>
 
           <div className="select-card">
-            <label>Property 2</label>
+            <label>Property B</label>
 
             <select
               value={property2}
@@ -105,85 +122,204 @@ export default function CompareProperties() {
         </div>
 
         {first && second && (
-          <div className="comparison-card">
+          <>
+            {/* Property Summary Cards */}
 
-            <table className="comparison-table">
+            <div className="compare-summary">
 
-              <thead>
+              <div className="summary-card">
 
-                <tr>
-                  <th>Field</th>
-                  <th>{first.name}</th>
-                  <th>{second.name}</th>
-                </tr>
+                <h3>{first.name}</h3>
 
-              </thead>
+                <div className="summary-grid">
 
-              <tbody>
+                  <div>
+                    <span>Type</span>
+                    <strong>{first.type}</strong>
+                  </div>
 
-                <tr>
-                  <td>
-                    <LuBuilding2 />
-                    Type
-                  </td>
-                  <td>{first.type}</td>
-                  <td>{second.type}</td>
-                </tr>
+                  <div>
+                    <span>City</span>
+                    <strong>{first.city}</strong>
+                  </div>
 
-                <tr>
-                  <td>
-                    <LuMapPin />
-                    City
-                  </td>
-                  <td>{first.city}</td>
-                  <td>{second.city}</td>
-                </tr>
+                  <div>
+                    <span>Risk</span>
 
-                <tr>
-                  <td>Area</td>
-                  <td>{first.area}</td>
-                  <td>{second.area}</td>
-                </tr>
-
-                <tr>
-                  <td>Status</td>
-                  <td>{first.status}</td>
-                  <td>{second.status}</td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <LuShieldCheck />
-                    Risk
-                  </td>
-                  <td>
                     <span
                       className={`risk-badge ${first.risk.toLowerCase()}`}
                     >
                       {first.risk}
                     </span>
-                  </td>
 
-                  <td>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div className="summary-card">
+
+                <h3>{second.name}</h3>
+
+                <div className="summary-grid">
+
+                  <div>
+                    <span>Type</span>
+                    <strong>{second.type}</strong>
+                  </div>
+
+                  <div>
+                    <span>City</span>
+                    <strong>{second.city}</strong>
+                  </div>
+
+                  <div>
+                    <span>Risk</span>
+
                     <span
                       className={`risk-badge ${second.risk.toLowerCase()}`}
                     >
                       {second.risk}
                     </span>
-                  </td>
-                </tr>
 
-                <tr>
-                  <td>Owner</td>
-                  <td>{first.owner}</td>
-                  <td>{second.owner}</td>
-                </tr>
+                  </div>
 
-              </tbody>
+                </div>
 
-            </table>
+              </div>
 
-          </div>
+            </div>
+
+            {/* Comparison Table */}
+
+            <div className="comparison-card">
+
+              <table className="comparison-table">
+
+                <thead>
+
+                  <tr>
+                    <th>Comparison</th>
+                    <th>{first.name}</th>
+                    <th>{second.name}</th>
+                  </tr>
+
+                </thead>
+
+                <tbody>
+
+                  <tr>
+                    <td>
+                      <LuBuilding2 />
+                      Property Type
+                    </td>
+
+                    <td>{first.type}</td>
+                    <td>{second.type}</td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <LuMapPin />
+                      Location
+                    </td>
+
+                    <td>{first.city}</td>
+                    <td>{second.city}</td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <LuRuler />
+                      Area
+                    </td>
+
+                    <td>{first.area}</td>
+                    <td>{second.area}</td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <LuIndianRupee />
+                      Estimated Value
+                    </td>
+
+                    <td>{first.valuation}</td>
+                    <td>{second.valuation}</td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <LuUser />
+                      Owner
+                    </td>
+
+                    <td>{first.owner}</td>
+                    <td>{second.owner}</td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <LuShieldCheck />
+                      Overall Risk
+                    </td>
+
+                    <td>
+                      <span
+                        className={`risk-badge ${first.risk.toLowerCase()}`}
+                      >
+                        {first.risk}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span
+                        className={`risk-badge ${second.risk.toLowerCase()}`}
+                      >
+                        {second.risk}
+                      </span>
+                    </td>
+
+                  </tr>
+
+                  <tr>
+                    <td>Tax Status</td>
+
+                    <td>{first.tax}</td>
+                    <td>{second.tax}</td>
+                  </tr>
+
+                  <tr>
+                    <td>Flood Zone</td>
+
+                    <td>{first.flood}</td>
+                    <td>{second.flood}</td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <LuBadgeCheck />
+                      Legal Status
+                    </td>
+
+                    <td>{first.legal}</td>
+                    <td>{second.legal}</td>
+                  </tr>
+
+                  <tr>
+                    <td>Status</td>
+
+                    <td>{first.status}</td>
+                    <td>{second.status}</td>
+                  </tr>
+
+                </tbody>
+
+              </table>
+
+            </div>
+          </>
         )}
 
       </div>
