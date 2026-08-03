@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LuBadgeCheck,
   LuCircleX,
   LuClipboardList,
   LuUsers,
+  LuChevronDown,
+  LuCheck,
 } from "react-icons/lu";
 import Layout from "../../components/Layout/Layout";
 import { api } from "../../services/api";
@@ -15,6 +17,73 @@ const roleLabels = {
   LEGAL_REVIEWER: "Legal Professional",
   BANK: "Financial Institution",
 };
+
+const statusOptions = [
+  { value: "", label: "All statuses" },
+  { value: "PENDING", label: "Pending" },
+  { value: "ACTIVE", label: "Approved" },
+  { value: "REJECTED", label: "Rejected" },
+];
+
+const roleOptions = [
+  { value: "", label: "All professional roles" },
+  { value: "AGENT", label: "Property Agent" },
+  { value: "LEGAL_REVIEWER", label: "Legal Professional" },
+  { value: "BANK", label: "Financial Institution" },
+];
+
+// Small local dropdown, defined right here so no new files are needed.
+// Native <select> option lists can't be restyled (rendered by the browser/OS),
+// so this re-implements the same behavior with fully CSS-controllable markup.
+function InlineDropdown({ options, value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selected = options.find((opt) => opt.value === value);
+
+  return (
+    <div className="inline-dropdown" ref={containerRef}>
+      <button
+        type="button"
+        className={`inline-dropdown-trigger ${open ? "open" : ""}`}
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        <span>{selected ? selected.label : "Select..."}</span>
+        <LuChevronDown className="inline-dropdown-arrow" size={16} />
+      </button>
+
+      {open && (
+        <div className="inline-dropdown-list" role="listbox">
+          {options.map((option) => (
+            <div
+              key={option.value}
+              role="option"
+              aria-selected={option.value === value}
+              className={`inline-dropdown-option ${option.value === value ? "selected" : ""}`}
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+            >
+              <span>{option.label}</span>
+              {option.value === value && <LuCheck size={15} />}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -50,7 +119,9 @@ function AdminDashboard() {
       return;
     }
 
-    loadRequests();
+    Promise.resolve().then(() => {
+      loadRequests();
+    });
   }, [loadRequests, navigate]);
 
   const updateRequest = async (id, action) => {
@@ -101,20 +172,20 @@ function AdminDashboard() {
           <h3 className="card-title">Professional Verification Requests</h3>
           {error && <div className="demo-data-notice" role="alert">{error}</div>}
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", margin: "16px 0" }}>
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="">All statuses</option>
-              <option value="PENDING">Pending</option>
-              <option value="ACTIVE">Approved</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
-            <select value={requestedRole} onChange={(event) => setRequestedRole(event.target.value)}>
-              <option value="">All professional roles</option>
-              <option value="AGENT">Property Agent</option>
-              <option value="LEGAL_REVIEWER">Legal Professional</option>
-              <option value="BANK">Financial Institution</option>
-            </select>
-            <button type="button" onClick={loadRequests}>Apply filters</button>
+          <div className="verification-filters">
+            <InlineDropdown
+              options={statusOptions}
+              value={status}
+              onChange={setStatus}
+            />
+            <InlineDropdown
+              options={roleOptions}
+              value={requestedRole}
+              onChange={setRequestedRole}
+            />
+            <button type="button" className="admin-apply-btn" onClick={loadRequests}>
+              Apply filters
+            </button>
           </div>
 
           <div className="table-wrapper">
@@ -148,9 +219,10 @@ function AdminDashboard() {
                     <td><span className={`risk-badge ${request.status.toLowerCase()}`}>{request.status}</span></td>
                     <td>
                       {request.status === "PENDING" ? (
-                        <div style={{ display: "flex", gap: "8px" }}>
+                        <div className="admin-request-actions">
                           <button
                             type="button"
+                            className="admin-action-btn approve"
                             disabled={actionId === request.requestId}
                             onClick={() => updateRequest(request.requestId, "approve")}
                           >
@@ -158,6 +230,7 @@ function AdminDashboard() {
                           </button>
                           <button
                             type="button"
+                            className="admin-action-btn reject"
                             disabled={actionId === request.requestId}
                             onClick={() => updateRequest(request.requestId, "reject")}
                           >

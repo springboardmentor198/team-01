@@ -11,6 +11,8 @@ import com.realestate.duediligence.entity.RoleRequest;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.enums.AccountStatus;
 import com.realestate.duediligence.enums.Role;
+import com.realestate.duediligence.exception.BadRequestException;
+import com.realestate.duediligence.exception.ResourceNotFoundException;
 import com.realestate.duediligence.repository.RoleRequestRepository;
 import com.realestate.duediligence.repository.UserRepository;
 
@@ -30,13 +32,13 @@ public class RoleRequestServiceImpl implements RoleRequestService {
     @Transactional
     public RoleRequestResponse createRoleRequest(String email, RoleRequestRequest request) {
         if (request == null || request.getRequestedRole() == null) {
-            throw new IllegalArgumentException("Requested role is required");
+            throw new BadRequestException("Requested role is required");
         }
 
         validateRequestedRole(request.getRequestedRole());
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
 
         if (roleRequestRepository.existsByUserAndStatus(user, AccountStatus.PENDING)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -64,7 +66,7 @@ public class RoleRequestServiceImpl implements RoleRequestService {
         if (requestedRole != Role.AGENT
                 && requestedRole != Role.LEGAL_REVIEWER
                 && requestedRole != Role.BANK) {
-            throw new IllegalArgumentException("Only AGENT, LEGAL_REVIEWER, and BANK can request verification");
+            throw new BadRequestException("Only AGENT, LEGAL_REVIEWER, and BANK can request verification");
         }
     }
 

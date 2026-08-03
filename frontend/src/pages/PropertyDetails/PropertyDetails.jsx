@@ -4,6 +4,7 @@ import { LuDownload, LuMapPin } from "react-icons/lu";
 import Layout from "../../components/Layout/Layout";
 import { api } from "../../services/api";
 import "./PropertyDetails.css";
+import ActivityTimeline from "./components/ActivityTimeline";
 
 import PropertyInformation from "./components/PropertyInformation";
 import OwnerDetails from "./components/OwnerDetails";
@@ -49,6 +50,12 @@ export default function PropertyDetails() {
       api.getFloodZone(id).catch(() => null),
     ])
       .then(([details, owners, summary, zoningData, floodZoneData]) => {
+        console.log("Property:", details);
+        console.log("Ownership:", owners);
+        console.log("Tax Summary:", summary);
+        console.log("Zoning:", zoningData);
+        console.log("Flood Zone:", floodZoneData);
+
         setProperty(details);
         setOwnership(owners[0] || null);
         setTaxSummary(summary);
@@ -60,7 +67,6 @@ export default function PropertyDetails() {
       )
       .finally(() => setLoading(false));
   }, [id, navigate]);
-
   if (loading) {
     return (
       <Layout title="Property Details">
@@ -112,17 +118,7 @@ export default function PropertyDetails() {
         return <PermitEnvironmentalRecords propertyId={id} />;
 
       case "Activity Timeline":
-      default:
-        return (
-          <div className="details-card">
-            <h3>Activity Timeline</h3>
-
-            <p className="no-data">
-              Activity events will appear here when the activity API becomes
-              available.
-            </p>
-          </div>
-        );
+        return <ActivityTimeline propertyId={id} />;
     }
   };
 

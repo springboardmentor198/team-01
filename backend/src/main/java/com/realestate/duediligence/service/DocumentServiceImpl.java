@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import com.realestate.duediligence.dto.DocumentRequest;
 import com.realestate.duediligence.dto.DocumentResponse;
+import com.realestate.duediligence.entity.ActivityLog;
 import com.realestate.duediligence.entity.Document;
 import com.realestate.duediligence.entity.Property;
+import com.realestate.duediligence.repository.ActivityLogRepository;
 import com.realestate.duediligence.repository.DocumentRepository;
 import com.realestate.duediligence.repository.PropertyRepository;
 
@@ -20,11 +22,14 @@ public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository repository;
     private final PropertyRepository propertyRepository;
+    private final ActivityLogRepository activityLogRepository;
 
     public DocumentServiceImpl(DocumentRepository repository,
-                               PropertyRepository propertyRepository) {
+                               PropertyRepository propertyRepository,
+                               ActivityLogRepository activityLogRepository) {
         this.repository = repository;
         this.propertyRepository = propertyRepository;
+        this.activityLogRepository = activityLogRepository;
     }
 
     @Override
@@ -42,6 +47,16 @@ public class DocumentServiceImpl implements DocumentService {
                 .build();
 
         repository.save(document);
+
+        activityLogRepository.save(
+    ActivityLog.builder()
+        .property(document.getProperty())
+        .activityType("DOCUMENT_UPLOADED")
+        .description(document.getDocumentType() + " uploaded.")
+        .performedBy("Samridhi Prakash")
+        .createdAt(LocalDateTime.now())
+        .build()
+);
 
         return mapToResponse(document);
     }

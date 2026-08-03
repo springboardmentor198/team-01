@@ -8,6 +8,8 @@ import com.realestate.duediligence.dto.ResetPasswordRequest;
 import com.realestate.duediligence.entity.PasswordResetToken;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.enums.Role;
+import com.realestate.duediligence.exception.BadRequestException;
+import com.realestate.duediligence.exception.ConflictException;
 import com.realestate.duediligence.repository.PasswordResetTokenRepository;
 import com.realestate.duediligence.repository.UserRepository;
 import com.realestate.duediligence.util.JwtService;
@@ -49,7 +51,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new ConflictException("Email already exists");
         }
         User user = User.builder()
                 .name(request.getName()).email(request.getEmail())
@@ -63,9 +65,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public String login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid Email"));
+                .orElseThrow(() -> new BadRequestException("Invalid Email"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid Password");
+            throw new BadRequestException("Invalid Password");
         }
         return jwtService.generateToken(user.getEmail());
     }
@@ -91,25 +93,29 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                        new BadRequestException("User not found"));
 
         PasswordResetToken resetToken =
                 passwordResetTokenRepository
                         .findByTokenHashAndUsedAtIsNull(hashToken(token))
                         .orElseThrow(() ->
-                                new RuntimeException("Invalid OTP"));
+                                new BadRequestException("Invalid OTP"));
 
         if (!resetToken.getUser().getUserId().equals(user.getUserId())) {
 
-            throw new RuntimeException("Invalid OTP");
+            throw new BadRequestException("Invalid OTP");
 
         }
 
         if (resetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
 
-            throw new RuntimeException("OTP has expired.");
+            throw new BadRequestException("OTP has expired.");
 
         }
+
+        // Mark the OTP as verified so resetPassword can enforce that verification actually happened
+        resetToken.setVerifiedAt(LocalDateTime.now());
+        passwordResetTokenRepository.save(resetToken);
 
     }
 
@@ -118,9 +124,12 @@ public class UserServiceImpl implements UserService {
     public void resetPassword(ResetPasswordRequest request) {
         PasswordResetToken resetToken = passwordResetTokenRepository
                 .findByTokenHashAndUsedAtIsNull(hashToken(request.getToken()))
-                .orElseThrow(() -> new RuntimeException("Invalid or already used reset token"));
+                .orElseThrow(() -> new BadRequestException("Invalid or already used reset token"));
         if (resetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Reset token has expired. Please request a new one.");
+            throw new BadRequestException("Reset token has expired. Please request a new one.");
+        }
+        if (resetToken.getVerifiedAt() == null) {
+            throw new BadRequestException("OTP has not been verified for this reset request.");
         }
         User user = resetToken.getUser();
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
@@ -143,14 +152,14 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> tokens = restTemplate.postForObject("https://oauth2.googleapis.com/token",
                 new HttpEntity<>(body, headers), Map.class);
         if (tokens == null || tokens.get("access_token") == null) {
-            throw new RuntimeException("Failed to exchange Google authorization code");
+            throw new BadRequestException("Failed to exchange Google authorization code");
         }
         HttpHeaders profileHeaders = new HttpHeaders();
         profileHeaders.setBearerAuth((String) tokens.get("access_token"));
         Map<String, Object> profile = restTemplate.exchange("https://www.googleapis.com/oauth2/v3/userinfo",
                 HttpMethod.GET, new HttpEntity<Void>(profileHeaders), Map.class).getBody();
         if (profile == null || profile.get("email") == null) {
-            throw new RuntimeException("Failed to fetch Google user profile");
+            throw new BadRequestException("Failed to fetch Google user profile");
         }
         String email = (String) profile.get("email");
         User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.save(User.builder()

@@ -23,12 +23,18 @@ const storeAuthenticationState = (authentication, fallbackEmail) => {
   });
 
   if (authentication.role) localStorage.setItem("role", authentication.role);
-  if (authentication.status) localStorage.setItem("status", authentication.status);
+  if (authentication.status)
+    localStorage.setItem("status", authentication.status);
   if (typeof authentication.profileCompleted === "boolean") {
-    localStorage.setItem("profileCompleted", String(authentication.profileCompleted));
+    localStorage.setItem(
+      "profileCompleted",
+      String(authentication.profileCompleted),
+    );
   }
-  if (authentication.name) localStorage.setItem("fullName", authentication.name);
-  if (authentication.avatarUrl) localStorage.setItem("avatarUrl", authentication.avatarUrl);
+  if (authentication.name)
+    localStorage.setItem("fullName", authentication.name);
+  if (authentication.avatarUrl)
+    localStorage.setItem("avatarUrl", authentication.avatarUrl);
 };
 
 const getHeaders = (includeAuth = true) => {
@@ -74,17 +80,24 @@ export const api = {
 
     const authentication = await readAuthenticationResponse(response);
     storeAuthenticationState(authentication, email);
-    localStorage.setItem("fullName", authentication.name || email.split("@")[0]);
+    localStorage.setItem(
+      "fullName",
+      authentication.name || email.split("@")[0],
+    );
 
     try {
       const profile = await api.getUserProfile();
       if (profile) {
         if (profile.name) localStorage.setItem("fullName", profile.name);
-        if (profile.userId) localStorage.setItem("userId", String(profile.userId));
+        if (profile.userId)
+          localStorage.setItem("userId", String(profile.userId));
         if (profile.role) localStorage.setItem("role", profile.role);
         if (profile.status) localStorage.setItem("status", profile.status);
         if (typeof profile.profileCompleted === "boolean") {
-          localStorage.setItem("profileCompleted", String(profile.profileCompleted));
+          localStorage.setItem(
+            "profileCompleted",
+            String(profile.profileCompleted),
+          );
         }
       }
     } catch (e) {
@@ -96,9 +109,10 @@ export const api = {
       email: authentication.email || email,
       role: localStorage.getItem("role"),
       status: localStorage.getItem("status"),
-      profileCompleted: localStorage.getItem("profileCompleted") === null
-        ? null
-        : localStorage.getItem("profileCompleted") === "true",
+      profileCompleted:
+        localStorage.getItem("profileCompleted") === null
+          ? null
+          : localStorage.getItem("profileCompleted") === "true",
     };
   },
 
@@ -125,11 +139,15 @@ export const api = {
       if (profile) {
         if (profile.name) localStorage.setItem("fullName", profile.name);
         if (profile.email) localStorage.setItem("email", profile.email);
-        if (profile.userId) localStorage.setItem("userId", String(profile.userId));
+        if (profile.userId)
+          localStorage.setItem("userId", String(profile.userId));
         if (profile.role) localStorage.setItem("role", profile.role);
         if (profile.status) localStorage.setItem("status", profile.status);
         if (typeof profile.profileCompleted === "boolean") {
-          localStorage.setItem("profileCompleted", String(profile.profileCompleted));
+          localStorage.setItem(
+            "profileCompleted",
+            String(profile.profileCompleted),
+          );
         }
       }
     } catch (e) {
@@ -140,13 +158,20 @@ export const api = {
       token: authentication.token,
       role: localStorage.getItem("role"),
       status: localStorage.getItem("status"),
-      profileCompleted: localStorage.getItem("profileCompleted") === null
-        ? null
-        : localStorage.getItem("profileCompleted") === "true",
+      profileCompleted:
+        localStorage.getItem("profileCompleted") === null
+          ? null
+          : localStorage.getItem("profileCompleted") === "true",
     };
   },
 
-  register: async (fullName, email, password, phoneNumberOrRole, legacyPhoneNumber) => {
+  register: async (
+    fullName,
+    email,
+    password,
+    phoneNumberOrRole,
+    legacyPhoneNumber,
+  ) => {
     const phoneNumber = legacyPhoneNumber ?? phoneNumberOrRole;
 
     const response = await fetch(`${BASE_URL}/auth/register`, {
@@ -190,9 +215,10 @@ export const api = {
       email: localStorage.getItem("email"),
       role: localStorage.getItem("role"),
       status: localStorage.getItem("status"),
-      profileCompleted: localStorage.getItem("profileCompleted") === null
-        ? null
-        : localStorage.getItem("profileCompleted") === "true",
+      profileCompleted:
+        localStorage.getItem("profileCompleted") === null
+          ? null
+          : localStorage.getItem("profileCompleted") === "true",
     };
   },
 
@@ -211,32 +237,24 @@ export const api = {
     return response.json();
   },
   verifyOtp: async (email, token) => {
+    const response = await fetch(`${BASE_URL}/auth/verify-otp`, {
+      method: "POST",
 
-      const response = await fetch(`${BASE_URL}/auth/verify-otp`, {
+      headers: getHeaders(false),
 
-          method: "POST",
+      body: JSON.stringify({
+        email,
+        token,
+      }),
+    });
 
-          headers: getHeaders(false),
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
 
-          body: JSON.stringify({
-              email,
-              token,
-          }),
+      throw new Error(error.error || "Invalid OTP");
+    }
 
-      });
-
-      if (!response.ok) {
-
-          const error = await response.json().catch(() => ({}));
-
-          throw new Error(
-              error.error || "Invalid OTP"
-          );
-
-      }
-
-      return response.text();
-
+    return response.text();
   },
   resetPassword: async (token, newPassword) => {
     const response = await fetch(`${BASE_URL}/auth/reset-password`, {
@@ -261,7 +279,9 @@ export const api = {
     });
 
     if (!response.ok) {
-      throw new Error(await response.text() || "Unable to complete onboarding");
+      throw new Error(
+        (await response.text()) || "Unable to complete onboarding",
+      );
     }
 
     return response.json();
@@ -275,7 +295,9 @@ export const api = {
     });
 
     if (!response.ok) {
-      throw new Error(await response.text() || "Unable to submit verification request");
+      throw new Error(
+        (await response.text()) || "Unable to submit verification request",
+      );
     }
 
     return response.json();
@@ -292,33 +314,45 @@ export const api = {
     });
 
     if (!response.ok) {
-      throw new Error(await response.text() || "Unable to load role requests");
+      throw new Error(
+        (await response.text()) || "Unable to load role requests",
+      );
     }
 
     return response.json();
   },
 
   approveAdminRoleRequest: async (id) => {
-    const response = await fetch(`${BASE_URL}/admin/role-requests/${id}/approve`, {
-      method: "PUT",
-      headers: getHeaders(true),
-    });
+    const response = await fetch(
+      `${BASE_URL}/admin/role-requests/${id}/approve`,
+      {
+        method: "PUT",
+        headers: getHeaders(true),
+      },
+    );
 
     if (!response.ok) {
-      throw new Error(await response.text() || "Unable to approve role request");
+      throw new Error(
+        (await response.text()) || "Unable to approve role request",
+      );
     }
 
     return response.json();
   },
 
   rejectAdminRoleRequest: async (id) => {
-    const response = await fetch(`${BASE_URL}/admin/role-requests/${id}/reject`, {
-      method: "PUT",
-      headers: getHeaders(true),
-    });
+    const response = await fetch(
+      `${BASE_URL}/admin/role-requests/${id}/reject`,
+      {
+        method: "PUT",
+        headers: getHeaders(true),
+      },
+    );
 
     if (!response.ok) {
-      throw new Error(await response.text() || "Unable to reject role request");
+      throw new Error(
+        (await response.text()) || "Unable to reject role request",
+      );
     }
 
     return response.json();
@@ -326,8 +360,13 @@ export const api = {
 
   // Dashboard API
   getDashboardSummary: async () => {
-    const response = await fetch(`${BASE_URL}/dashboard/stats`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error(await response.text() || "Failed to load dashboard statistics");
+    const response = await fetch(`${BASE_URL}/dashboard/stats`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load dashboard statistics",
+      );
     return response.json();
   },
 
@@ -405,10 +444,13 @@ export const api = {
   },
 
   getPropertyTaxHistory: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/properties/${propertyId}/tax-history`, {
-      method: "GET",
-      headers: getHeaders(true),
-    });
+    const response = await fetch(
+      `${BASE_URL}/properties/${propertyId}/tax-history`,
+      {
+        method: "GET",
+        headers: getHeaders(true),
+      },
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -419,10 +461,13 @@ export const api = {
   },
 
   getPropertyTaxSummary: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/properties/${propertyId}/tax-summary`, {
-      method: "GET",
-      headers: getHeaders(true),
-    });
+    const response = await fetch(
+      `${BASE_URL}/properties/${propertyId}/tax-summary`,
+      {
+        method: "GET",
+        headers: getHeaders(true),
+      },
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -433,47 +478,84 @@ export const api = {
   },
 
   getOwnership: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/ownership/${propertyId}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error(await response.text() || "Failed to load ownership records");
+    const response = await fetch(`${BASE_URL}/ownership/${propertyId}`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load ownership records",
+      );
     return response.json();
   },
   getRiskSummary: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/risk-summary/${propertyId}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error(await response.text() || "Failed to load risk summary");
+    const response = await fetch(`${BASE_URL}/risk-summary/${propertyId}`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to load risk summary");
     return response.json();
   },
   getDocuments: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/documents/${propertyId}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error(await response.text() || "Failed to load documents");
+    const response = await fetch(`${BASE_URL}/documents/${propertyId}`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to load documents");
     return response.json();
   },
   createDocument: async (payload) => {
-    const response = await fetch(`${BASE_URL}/documents`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(payload) });
-    if (!response.ok) throw new Error(await response.text() || "Failed to add document");
+    const response = await fetch(`${BASE_URL}/documents`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to add document");
     return response.json();
   },
   deleteDocument: async (id) => {
-    const response = await fetch(`${BASE_URL}/documents/${id}`, { method: "DELETE", headers: getHeaders(true) });
-    if (!response.ok) throw new Error(await response.text() || "Failed to delete document");
+    const response = await fetch(`${BASE_URL}/documents/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to delete document");
   },
   getPermits: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/permits/${propertyId}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error(await response.text() || "Failed to load permits");
+    const response = await fetch(`${BASE_URL}/permits/${propertyId}`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to load permits");
     return response.json();
   },
   createPermit: async (payload) => {
-    const response = await fetch(`${BASE_URL}/permits`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(payload) });
-    if (!response.ok) throw new Error(await response.text() || "Failed to add permit");
+    const response = await fetch(`${BASE_URL}/permits`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to add permit");
     return response.json();
   },
   updatePermit: async (id, payload) => {
-    const response = await fetch(`${BASE_URL}/permits/${id}`, { method: "PUT", headers: getHeaders(true), body: JSON.stringify(payload) });
-    if (!response.ok) throw new Error(await response.text() || "Failed to update permit");
+    const response = await fetch(`${BASE_URL}/permits/${id}`, {
+      method: "PUT",
+      headers: getHeaders(true),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to update permit");
     return response.json();
   },
   deletePermit: async (id) => {
-    const response = await fetch(`${BASE_URL}/permits/${id}`, { method: "DELETE", headers: getHeaders(true) });
-    if (!response.ok) throw new Error(await response.text() || "Failed to delete permit");
+    const response = await fetch(`${BASE_URL}/permits/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to delete permit");
   },
 
   // Profile APIs
@@ -489,6 +571,19 @@ export const api = {
     }
 
     return await response.json();
+  },
+  getActivityLogs: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/activity-log/${propertyId}`, {
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Failed to load activity logs",
+      );
+    }
+
+    return response.json();
   },
 
   updateUserProfile: async (profileData) => {
