@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Layout from "../../components/Layout/Layout";
-import RecentSearchesTable from "../../components/RecentSearches/RecentSearchesTable";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
-import { useRecentSearches } from "../../hooks/useRecentSearches";
 import "./Dashboard.css";
 
 import {
@@ -49,54 +47,39 @@ const emptyDashboardData = {
   totalReports: 0,
   highRiskCount: 0,
   pendingReviews: 0,
-  recentSearches: [],
-  riskBreakdown: [],
-  notifications: [],
 };
 
-function RiskDonut({ data, total }) {
+function RiskDonut({ total }) {
   const size = 170;
   const strokeWidth = 18;
   const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-
-  const segments = data.reduce((acc, segment) => {
-    const previous = acc[acc.length - 1];
-    const before = previous ? previous.after : 0;
-
-    const fraction = total > 0 ? segment.count / total : 0;
-
-    acc.push({
-      ...segment,
-      dashArray: `${fraction * circumference} ${circumference}`,
-      dashOffset: -before * circumference,
-      after: before + fraction,
-    });
-
-    return acc;
-  }, []);
 
   return (
     <svg width={size} height={size}>
-      <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
-        {segments.map((segment) => (
-          <circle
-            key={segment.label}
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke={segment.color}
-            strokeWidth={strokeWidth}
-            strokeDasharray={segment.dashArray}
-            strokeDashoffset={segment.dashOffset}
-          />
-        ))}
-      </g>
-      <text x="50%" y="47%" textAnchor="middle" className="donut-value">
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="#E5E7EB"
+        strokeWidth={strokeWidth}
+      />
+
+      <text
+        x="50%"
+        y="47%"
+        textAnchor="middle"
+        className="donut-value"
+      >
         {total}
       </text>
-      <text x="50%" y="60%" textAnchor="middle" className="donut-label">
+
+      <text
+        x="50%"
+        y="60%"
+        textAnchor="middle"
+        className="donut-label"
+      >
         Total
       </text>
     </svg>
@@ -105,13 +88,54 @@ function RiskDonut({ data, total }) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [data, setData] = useState(emptyDashboardData);
+
+  const [dashboardData, setDashboardData] =
+    useState(emptyDashboardData);
+
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const {
-    searches: recentSearches,
-    loading: recentSearchesLoading,
-    error: recentSearchesError,
-  } = useRecentSearches();
+
+  const loadDashboard = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const [
+        summary,
+        searches,
+        notificationResponse,
+      ] = await Promise.all([
+        api.getDashboardSummary(),
+        api.getRecentSearches(),
+        api.getNotifications({ page: 0, size: 5 }),
+      ]);
+
+      setDashboardData({
+        totalProperties: summary.totalProperties ?? 0,
+        totalReports: summary.totalReports ?? 0,
+        highRiskCount: summary.highRiskProperties ?? 0,
+        pendingReviews: summary.pendingReviews ?? 0,
+      });
+
+      setRecentSearches(Array.isArray(searches) ? searches : []);
+
+      if (Array.isArray(notificationResponse)) {
+        setNotifications(notificationResponse);
+      } else if (notificationResponse?.content) {
+        setNotifications(notificationResponse.content);
+      } else {
+        setNotifications([]);
+      }
+
+      setError("");
+    } catch (err) {
+      setError(err.message || "Failed to load dashboard.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!api.isAuthenticated()) {
@@ -119,83 +143,71 @@ export default function Dashboard() {
       return;
     }
 
-    const fetchDashboardData = async () => {
-      try {
-        const summary = await api.getDashboardSummary();
-
-        setData((prev) => ({
-          totalProperties: summary.totalProperties,
-          totalReports: summary.totalReports,
-          highRiskCount: summary.highRiskProperties,
-          pendingReviews: 0,
-          riskBreakdown: [
-            {
-              label: "High Risk",
-              count: summary.highRiskProperties,
-              color: "#EF4444",
-            },
-          ],
-          notifications: [],
-        }));
-      } catch (err) {
-        setError(err.message || "Unable to load dashboard statistics");
-      }
-    };
-
-    fetchDashboardData();
-  }, [navigate]);
+    loadDashboard();
+  }, [navigate, loadDashboard]);
 
   const stats = [
     {
       label: "Total Properties",
-      value: data.totalProperties,
+      value: dashboardData.totalProperties,
       icon: LuBuilding2,
       color: "#2563EB",
       bg: "#DBEAFE",
     },
     {
       label: "Reports Generated",
-      value: data.totalReports,
+      value: dashboardData.totalReports,
       icon: LuFileText,
       color: "#10B981",
       bg: "#D1FAE5",
     },
     {
       label: "High Risk",
-      value: data.highRiskCount,
+      value: dashboardData.highRiskCount,
       icon: LuTriangleAlert,
       color: "#EF4444",
       bg: "#FEE2E2",
     },
     {
       label: "Pending Reviews",
-      value: data.pendingReviews,
+      value: dashboardData.pendingReviews,
       icon: LuClock,
       color: "#F59E0B",
       bg: "#FEF3C7",
     },
   ];
 
-  const riskBreakdown = data.riskBreakdown;
-  const notifications = data.notifications;
-  const totalProperties = riskBreakdown.reduce(
-    (sum, item) => sum + item.count,
-    0,
-  );
+  if (loading) {
+    return (
+      <Layout title="Dashboard">
+        <div className="loading-container">
+          Loading Dashboard...
+        </div>
+      </Layout>
+    );
+  }
 
-  return (
+    return (
     <Layout title="Dashboard" showSearch={true}>
       <div className="dashboard-page">
+
         {error && (
           <div className="demo-data-notice" role="alert">
             {error}
           </div>
         )}
+
+        {/* ================= KPI CARDS ================= */}
+
         <div className="stats-grid">
           {stats.map((item) => {
             const Icon = item.icon;
+
             return (
-              <div key={item.label} className="stat-card">
+              <div
+                key={item.label}
+                className="stat-card"
+              >
                 <div
                   className="stat-icon"
                   style={{
@@ -205,9 +217,15 @@ export default function Dashboard() {
                 >
                   <Icon size={20} />
                 </div>
+
                 <div>
-                  <p className="stat-label">{item.label}</p>
-                  <h2 className="stat-value">{item.value}</h2>
+                  <p className="stat-label">
+                    {item.label}
+                  </p>
+
+                  <h2 className="stat-value">
+                    {item.value}
+                  </h2>
                 </div>
               </div>
             );
@@ -215,92 +233,286 @@ export default function Dashboard() {
         </div>
 
         <div className="dashboard-content">
+
           {/* ================= RECENT SEARCHES ================= */}
+
           <div className="dashboard-card recent-search-card">
-            <h3 className="card-title">Recent Searches</h3>
-            <RecentSearchesTable
-              searches={recentSearches}
-              loading={recentSearchesLoading}
-              error={recentSearchesError}
-              showStatus={true}
-              clickable={true}
-              emptyMessage="No searches logged. Use the search bar above to find properties."
-            />
-          </div>
 
-          {/* ================= RIGHT PANEL ================= */}
-          <div className="dashboard-card right-panel">
-            <h3 className="card-title">Risk Summary</h3>
-            <div className="risk-section">
-              <RiskDonut data={riskBreakdown} total={totalProperties} />
-              <div className="risk-list">
-                {riskBreakdown.map((risk) => (
-                  <div key={risk.label} className="risk-item">
-                    <span
-                      className="risk-dot"
-                      style={{
-                        background: risk.color,
-                      }}
-                    ></span>
-                    <span>
-                      {risk.label} ({risk.count})
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <h3 className="card-title" style={{ marginTop: "28px" }}>
-              Upcoming Notifications
+            <h3 className="card-title">
+              Recent Searches
             </h3>
-            <div className="notification-list">
-              {notifications.map((item, index) => (
-                <div key={index} className="notification-item">
-                  <div>
-                    <h4>{item.title}</h4>
-                    <p>{item.subtitle}</p>
-                  </div>
-                  <LuChevronRight />
-                </div>
-              ))}
-              {notifications.length === 0 && (
-                <p style={{ color: "#666", padding: "10px 0" }}>
-                  No notifications.
-                </p>
-              )}
+
+            <div className="table-wrapper">
+
+              <table className="recent-table">
+
+                <thead>
+                  <tr>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Risk</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  {recentSearches.length > 0 ? (
+                    recentSearches.map((item, index) => (
+                      <tr
+                        key={index}
+                        className="recent-search-row"
+                        onClick={() =>
+  navigate("/property-search", {
+    state: {
+      search: item.propertyTitle || item.query || item.searchText
+    }
+  })
+}
+                      >
+
+                        <td>
+                          {item.propertyTitle ||
+                            item.propertyCode ||
+                            item.property ||
+                            "N/A"}
+                        </td>
+
+                        <td>
+                          {item.propertyType ||
+                            item.type ||
+                            "N/A"}
+                        </td>
+
+                        <td>
+                          <span
+                            className={`risk-badge ${
+                              (
+                                item.riskLevel ||
+                                item.risk ||
+                                "low"
+                              ).toLowerCase()
+                            }`}
+                          >
+                            {item.riskLevel ||
+                              item.risk ||
+                              "N/A"}
+                          </span>
+                        </td>
+
+                        <td>
+                          {item.status || "N/A"}
+                        </td>
+
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        style={{
+                          textAlign: "center",
+                          padding: "20px",
+                          color: "#64748B",
+                        }}
+                      >
+                        No recent searches available.
+                      </td>
+                    </tr>
+                  )}
+
+                </tbody>
+
+              </table>
+
             </div>
+
           </div>
+
+                    {/* ================= RIGHT PANEL ================= */}
+
+          <div className="dashboard-card right-panel">
+
+            <h3 className="card-title">
+              Risk Summary
+            </h3>
+
+            <div className="risk-section">
+
+              <RiskDonut
+                total={dashboardData.highRiskCount}
+              />
+
+              <div className="risk-list">
+
+                <div className="risk-item">
+                  <span
+                    className="risk-dot"
+                    style={{
+                      background: "#EF4444",
+                    }}
+                  ></span>
+
+                  <span>
+                    High Risk (
+                    {dashboardData.highRiskCount})
+                  </span>
+                </div>
+
+                <div className="risk-item">
+                  <span
+                    className="risk-dot"
+                    style={{
+                      background: "#10B981",
+                    }}
+                  ></span>
+
+                  <span>
+                    Total Properties (
+                    {dashboardData.totalProperties})
+                  </span>
+                </div>
+
+                <div className="risk-item">
+                  <span
+                    className="risk-dot"
+                    style={{
+                      background: "#3B82F6",
+                    }}
+                  ></span>
+
+                  <span>
+                    Reports (
+                    {dashboardData.totalReports})
+                  </span>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div
+              className="dashboard-notification-header"
+              style={{ marginTop: "28px" }}
+            >
+              <h3 className="card-title">Notifications</h3>
+
+              <button
+                className="view-all-link"
+                onClick={() => navigate("/notifications")}
+              >
+                View All
+              </button>
+            </div>
+
+            <div className="notification-list">
+
+              {notifications.length > 0 ? (
+
+                notifications.slice(0, 3).map(
+                  (notification, index) => (
+                    <div
+                      key={
+                        notification.id ??
+                        index
+                      }
+                      className="notification-item"
+                      onClick={() => navigate("/notifications")}
+                    >
+                      <div>
+
+                        <h4>
+                          {notification.title ||
+                            "Notification"}
+                        </h4>
+
+                        <p>
+                          {notification.message ||
+                            notification.subtitle ||
+                            "No description"}
+                        </p>
+
+                      </div>
+
+                      <LuChevronRight />
+
+                    </div>
+                  )
+                )
+
+              ) : (
+
+                <div className="empty-notification-state">
+
+                  <p>No new notifications.</p>
+
+                  <button
+                    className="view-all-btn"
+                    onClick={() => navigate("/notifications")}
+                  >
+                    View All Notifications
+                  </button>
+
+                </div>
+
+              )}
+
+            </div>
+
+          </div>
+
         </div>
 
         {/* ================= QUICK ACTIONS ================= */}
+
         <div className="dashboard-card quick-actions-card">
-          <h3 className="card-title">Quick Actions</h3>
+
+          <h3 className="card-title">
+            Quick Actions
+          </h3>
 
           <div className="quick-actions-grid">
+
             {quickActions.map((action) => {
+
               const Icon = action.icon;
 
               return (
                 <button
                   key={action.label}
                   className="quick-action-btn"
-                  onClick={() => navigate(action.path)}
+                  onClick={() =>
+                    navigate(action.path)
+                  }
                 >
+
                   <div className="quick-action-icon">
                     <Icon size={20} />
                   </div>
 
                   <div className="quick-action-content">
+
                     <h4>{action.label}</h4>
-                    <p>{action.subtitle}</p>
+
+                    <p>
+                      {action.subtitle}
+                    </p>
+
                   </div>
 
-                  <LuChevronRight className="quick-action-arrow" size={18} />
+                  <LuChevronRight
+                    className="quick-action-arrow"
+                    size={18}
+                  />
+
                 </button>
               );
             })}
+
           </div>
+
         </div>
+
       </div>
     </Layout>
   );
