@@ -25,8 +25,8 @@ public class Report {
     @Column(name = "executive_summary")
     private String executiveSummary;
 
-    @Column(name = "report_data")
-    private String reportData; // full report payload, stored as JSON
+   @Column(name = "report_data", columnDefinition = "TEXT")
+private String reportData;
 
     @Column(name = "status", nullable = false)
     private String status = "GENERATED";
