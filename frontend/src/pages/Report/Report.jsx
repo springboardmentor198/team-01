@@ -13,7 +13,7 @@ function Skeleton() { return <div className="report-skeleton"><div /><div /><div
 export default function Report() {
   const { propertyId } = useParams(); const navigate = useNavigate();
   const [data, setData] = useState(null); const [loading, setLoading] = useState(Boolean(propertyId)); const [error, setError] = useState(false); const [notFound, setNotFound] = useState(false);
-  const [properties, setProperties] = useState([]); const [propertiesLoading, setPropertiesLoading] = useState(!propertyId);
+  const [properties, setProperties] = useState([]); const [propertiesLoading, setPropertiesLoading] = useState(!propertyId); const [selectedProperty, setSelectedProperty] = useState(propertyId || "");
   const load = async () => {
     if (!propertyId) return;
     setLoading(true); setError(false); setNotFound(false);
@@ -25,15 +25,42 @@ export default function Report() {
     } catch (err) { if (/not found/i.test(err.message || "")) setNotFound(true); else setError(true); } finally { setLoading(false); }
   };
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!propertyId) return;
+
+    setLoading(true);
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId]);
+  useEffect(() => {
+  setSelectedProperty(propertyId || "");
+}, [propertyId]);
   useEffect(() => { if (!propertyId) api.getProperties().then(setProperties).catch(() => setError(true)).finally(() => setPropertiesLoading(false)); }, [propertyId]);
-  if (!propertyId) return <Layout title="Reports"><div className="report-empty"><LuFileText /><h2>No property selected</h2><p>Select a property to preview its due diligence report.</p>{propertiesLoading ? <div className="report-select-skeleton" /> : properties.length ? <div className="report-selector"><label htmlFor="report-property">Property</label><select id="report-property" defaultValue="" onChange={(event) => event.target.value && navigate(`/report/${event.target.value}`)}><option value="" disabled>Select a property</option>{properties.map((property) => <option key={property.propertyId} value={property.propertyId}>{property.propertyCode || "Property"} — {[property.address, property.city].filter(Boolean).join(", ")}</option>)}</select></div> : <p className="report-muted">No properties are available yet.</p>}<button onClick={() => navigate("/properties")}>Go to Properties</button></div></Layout>;
+  if (!propertyId) return <Layout title="Reports"><div className="report-empty"><LuFileText /><h2>No property selected</h2><p>Select a property to preview its due diligence report.</p>{propertiesLoading ? <div className="report-select-skeleton" /> : properties.length ? <div className="report-selector"><label htmlFor="report-property">Property</label>
+  <select
+    id="report-property"
+    value={selectedProperty}
+    onChange={(event) => {
+
+        const id = event.target.value;
+
+        setSelectedProperty(id);
+
+        if (id) {
+            navigate(`/report/${id}`);
+        }
+
+    }}
+>
+    <option value="" disabled>Select a property</option>{properties.map((property) => <option key={property.propertyId} value={property.propertyId}>{property.propertyCode || "Property"} — {[property.address, property.city].filter(Boolean).join(", ")}</option>)}</select></div> : <p className="report-muted">No properties are available yet.</p>}<button onClick={() => navigate("/properties")}>Go to Properties</button></div></Layout>;
   if (loading) return <Layout title="Due Diligence Report"><Skeleton /></Layout>;
   if (notFound) return <Layout title="Due Diligence Report"><div className="report-empty"><LuFileText /><h2>Report not found.</h2><p>The requested property could not be found.</p><button onClick={() => navigate("/properties")}>Go to Properties</button></div></Layout>;
   if (error) return <Layout title="Due Diligence Report"><div className="report-empty"><LuRefreshCw /><h2>Unable to load report.</h2><button onClick={load}>Retry</button></div></Layout>;
+  if (!data) {
+  return (
+    <Layout title="Due Diligence Report">
+      <Skeleton />
+    </Layout>
+  );
+}
   const { property, risk, documents, permits } = data; const score = risk?.riskScore ?? 0; const recommendation = score <= 30 ? ["Safe to Purchase", "Available records indicate a lower due-diligence risk profile."] : score <= 70 ? ["Review Recommended", "Review the listed risks and outstanding records before proceeding."] : ["High Risk", "Additional legal verification recommended."];
   return <Layout title="Due Diligence Report"><div className="report-page">
     <header className="report-header"><div><p className="report-eyebrow">Due Diligence Report</p><h1>{property.propertyCode || "Property Report"}</h1><p>Generated {formatDate(new Date())} · <Badge>{property.status || "Draft"}</Badge></p></div><div className="report-actions"><button onClick={() => window.print()}><LuPrinter />Print</button></div></header>
