@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS search_history CASCADE;
+
 CREATE TABLE search_history (
     search_id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,

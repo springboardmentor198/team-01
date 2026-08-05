@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS notifications CASCADE;
+DROP TABLE IF EXISTS property_follows CASCADE;
+DROP TABLE IF EXISTS agent_follows CASCADE;
+DROP TABLE IF EXISTS owner_follows CASCADE;
+
 CREATE TABLE IF NOT EXISTS notifications (
     id BIGSERIAL PRIMARY KEY,
     recipient_id BIGINT NOT NULL,

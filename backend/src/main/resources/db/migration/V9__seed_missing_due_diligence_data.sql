@@ -1,4 +1,48 @@
 -- ==========================================
+-- Mock Properties Seed for Foreign Keys
+-- ==========================================
+
+INSERT INTO properties (property_id, owner_id, property_title, property_type, address, city, state, zip_code, area_sqft, estimated_price, status)
+VALUES
+(2, 1, 'Mock Property 2', 'Residential', 'Mock Address 2', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(3, 1, 'Mock Property 3', 'Residential', 'Mock Address 3', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(4, 1, 'Mock Property 4', 'Residential', 'Mock Address 4', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(5, 1, 'Mock Property 5', 'Residential', 'Mock Address 5', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(6, 1, 'Mock Property 6', 'Residential', 'Mock Address 6', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(7, 1, 'Mock Property 7', 'Residential', 'Mock Address 7', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(8, 1, 'Mock Property 8', 'Residential', 'Mock Address 8', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(9, 1, 'Mock Property 9', 'Residential', 'Mock Address 9', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(10, 1, 'Mock Property 10', 'Residential', 'Mock Address 10', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(11, 1, 'Mock Property 11', 'Residential', 'Mock Address 11', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(12, 1, 'Mock Property 12', 'Residential', 'Mock Address 12', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(13, 1, 'Mock Property 13', 'Residential', 'Mock Address 13', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(14, 1, 'Mock Property 14', 'Residential', 'Mock Address 14', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(15, 1, 'Mock Property 15', 'Residential', 'Mock Address 15', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(16, 1, 'Mock Property 16', 'Residential', 'Mock Address 16', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(17, 1, 'Mock Property 17', 'Residential', 'Mock Address 17', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(18, 1, 'Mock Property 18', 'Residential', 'Mock Address 18', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(19, 1, 'Mock Property 19', 'Residential', 'Mock Address 19', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(20, 1, 'Mock Property 20', 'Residential', 'Mock Address 20', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(21, 1, 'Mock Property 21', 'Residential', 'Mock Address 21', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(22, 1, 'Mock Property 22', 'Residential', 'Mock Address 22', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(23, 1, 'Mock Property 23', 'Residential', 'Mock Address 23', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(24, 1, 'Mock Property 24', 'Residential', 'Mock Address 24', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(25, 1, 'Mock Property 25', 'Residential', 'Mock Address 25', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(26, 1, 'Mock Property 26', 'Residential', 'Mock Address 26', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(27, 1, 'Mock Property 27', 'Residential', 'Mock Address 27', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(28, 1, 'Mock Property 28', 'Residential', 'Mock Address 28', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(29, 1, 'Mock Property 29', 'Residential', 'Mock Address 29', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(30, 1, 'Mock Property 30', 'Residential', 'Mock Address 30', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(31, 1, 'Mock Property 31', 'Residential', 'Mock Address 31', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(32, 1, 'Mock Property 32', 'Residential', 'Mock Address 32', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(33, 1, 'Mock Property 33', 'Residential', 'Mock Address 33', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(34, 1, 'Mock Property 34', 'Residential', 'Mock Address 34', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(35, 1, 'Mock Property 35', 'Residential', 'Mock Address 35', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(36, 1, 'Mock Property 36', 'Residential', 'Mock Address 36', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE'),
+(37, 1, 'Mock Property 37', 'Residential', 'Mock Address 37', 'Bangalore', 'Karnataka', '560001', 1200.00, 5000000.00, 'AVAILABLE')
+ON CONFLICT (property_id) DO NOTHING;
+
+-- ==========================================
 -- Ownership Records Seed
 -- ==========================================
 
