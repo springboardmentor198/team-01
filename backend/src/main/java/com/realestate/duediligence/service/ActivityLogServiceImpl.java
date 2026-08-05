@@ -31,4 +31,18 @@ public class ActivityLogServiceImpl implements ActivityLogService {
 
     }
 
+    @Override
+    public List<ActivityLogResponse> getAllActivityLogs() {
+        return repository
+                .findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"))
+                .stream()
+                .map(log->ActivityLogResponse.builder()
+                        .id(log.getActivityId())
+                        .activityType(log.getActivityType())
+                        .description(log.getDescription())
+                        .performedBy(log.getPerformedBy())
+                        .createdAt(log.getCreatedAt())
+                        .build())
+                .toList();
+    }
 }

@@ -55,9 +55,9 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc</artifactId>
-		</dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
@@ -108,10 +108,32 @@
     <version>0.12.6</version>
     <scope>runtime</scope>
 </dependency>
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.fasterxml.jackson.datatype</groupId>
+    <artifactId>jackson-datatype-jsr310</artifactId>
+</dependency>
 
     <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-oauth2-client</artifactId>
+	</dependency>
+
+	<!-- PDF generation for report export -->
+	<dependency>
+		<groupId>com.openhtmltopdf</groupId>
+		<artifactId>openhtmltopdf-pdfbox</artifactId>
+		<version>1.0.10</version>
+	</dependency>
+
+	<!-- Excel generation for report export -->
+	<dependency>
+		<groupId>org.apache.poi</groupId>
+		<artifactId>poi-ooxml</artifactId>
+		<version>5.2.5</version>
 	</dependency>
 	</dependencies>
 
