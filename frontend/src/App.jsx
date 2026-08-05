@@ -19,6 +19,7 @@ import Profile from "./pages/Profile/Profile";
 import PropertyResults from "./pages/PropertyResults/PropertyResults";
 import Report from "./pages/Report/Report";
 import CompareProperties from "./pages/CompareProperties/CompareProperties";
+import RiskDashboard from "./pages/RiskDashboard/RiskDashboard";
 import UploadDocuments from "./pages/UploadDocuments/UploadDocuments";
 import Admin from "./pages/Admin/Admin";
 import VerifyOtp from "./pages/VerifyOtp/VerifyOtp";
@@ -53,6 +54,12 @@ function App() {
       <Route path="/report/:propertyId" element={<Report />} />
       <Route path="/reports" element={<Report />} />
       <Route path="/compare-properties" element={<CompareProperties />} />
+
+      <Route path="/risk-dashboard" element={<RiskDashboard />} />
+      <Route path="/agent/risk-summary" element={<RiskDashboard />} />
+      <Route path="/legal/risk-assessments" element={<RiskDashboard />} />
+      <Route path="/bank/risk-analysis" element={<RiskDashboard />} />
+
       <Route path="/upload-documents" element={<UploadDocuments />} />
 
       <Route path="/notifications" element={<Notifications />} />
