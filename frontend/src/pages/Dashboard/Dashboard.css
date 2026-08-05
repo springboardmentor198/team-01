@@ -581,3 +581,158 @@
 .inline-dropdown-option.selected svg {
   color: #ffffff;
 }
+
+/* ================= DASHBOARD LOADING ================= */
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+
+  font-size: 18px;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* ================= QUICK ACTION ARROW ================= */
+
+.quick-action-arrow {
+  margin-left: auto;
+  color: #94A3B8;
+  transition: all 0.25s ease;
+}
+
+.quick-action-btn:hover .quick-action-arrow {
+  transform: translateX(5px);
+  color: #2563EB;
+}
+
+/* ================= EMPTY STATES ================= */
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  min-height: 120px;
+
+  color: #64748B;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ================= NOTIFICATION IMPROVEMENTS ================= */
+
+.notification-item {
+  gap: 14px;
+}
+
+.notification-item h4 {
+  margin: 0;
+}
+
+.notification-item p {
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+/* ================= TABLE IMPROVEMENTS ================= */
+
+.recent-table tbody tr td {
+  vertical-align: middle;
+}
+
+.recent-table tbody tr td:first-child {
+  font-weight: 600;
+  color: #1E293B;
+}
+
+/* ================= CARD HOVER ================= */
+
+.dashboard-card {
+  transition: box-shadow .25s ease,
+              transform .25s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0,0,0,.08);
+}
+.dashboard-notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;   /* Vertically center both items */
+  margin-top: 28px;
+  margin-bottom: 16px;
+}
+
+.dashboard-notification-header .card-title {
+  margin: 0;
+}
+
+.view-all-link {
+  background: none;
+  border: none;
+
+  color: #2563EB;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  padding: 4px 0;
+
+  transition: color 0.2s ease;
+}
+
+.view-all-link:hover {
+  color: #1D4ED8;
+  text-decoration: underline;
+}
+
+.notification-item.clickable {
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.notification-item.clickable:hover {
+  background: #F8FAFC;
+}
+
+.notification-time {
+  display: block;
+  margin-top: 4px;
+  color: #94A3B8;
+  font-size: 12px;
+}
+
+.empty-notification-state {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.view-all-btn {
+  margin-top: 10px;
+  border: none;
+  background: #2563EB;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.view-all-link {
+  position: relative;
+  top: 1px;
+}
+
+.recent-search-row {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.recent-search-row:hover {
+  background: #F8FAFC;
+}

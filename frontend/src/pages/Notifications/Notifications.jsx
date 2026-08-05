@@ -8,6 +8,8 @@ import {
   getPriorityClass,
 } from "../../utils/notificationUtils";
 import "./Notifications.css";
+import { LuTrash2 } from "react-icons/lu";
+import { LuSearch } from "react-icons/lu";
 
 export default function Notifications() {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ export default function Notifications() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [markingAll, setMarkingAll] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const loadNotifications = useCallback(
     async (pageNumber = 0, append = false) => {
@@ -85,6 +88,36 @@ export default function Notifications() {
     }
   };
 
+  const handleDeleteNotification = async (event, id, status) => {
+    event.stopPropagation();
+
+    const confirmed = window.confirm(
+      "Delete this notification?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await api.deleteNotification(id);
+
+      setNotifications((prev) =>
+        prev.filter((item) => item.id !== id)
+      );
+
+      if (status === "UNREAD") {
+        setUnreadCount((count) =>
+          Math.max(0, count - 1)
+        );
+      }
+
+    } catch (err) {
+      setError(
+        err.message ||
+        "Failed to delete notification."
+      );
+    }
+  };
+
   const handleNotificationClick = async (item) => {
     if (item.status === "UNREAD") {
       await api.markNotificationRead(item.id);
@@ -101,29 +134,46 @@ export default function Notifications() {
     }
   };
 
-  const visible = notifications;
+  const visible = notifications.filter((item) => {
+  const matchesSearch =
+    `${item.title} ${item.message} ${item.type || ""} ${item.propertyName || ""}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+  return matchesSearch;
+});
 
   return (
     <Layout title="Notifications">
       <div className="notifications-page">
-        <div className="notifications-header">
-          <div className="header-text">
-            <h2>Notifications</h2>
-            <p>Stay updated on your property reviews</p>
+        <div className="notifications-toolbar">
+
+          <div className="notification-search">
+
+            <LuSearch className="search-icon" />
+
+            <input
+              type="text"
+              placeholder="Search notifications..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
           </div>
-          <div className="header-actions">
-            <span className="unread-count">{unreadCount} unread</span>
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                className="mark-all-btn"
-                onClick={handleMarkAllRead}
-                disabled={markingAll}
-              >
-                {markingAll ? "Marking..." : "Mark all read"}
-              </button>
-            )}
+
+          <div className="toolbar-actions">
+
+            <button
+              type="button"
+              className="mark-all-btn"
+              onClick={handleMarkAllRead}
+              disabled={unreadCount === 0}
+            >
+              Mark all as read
+            </button>
+
           </div>
+
         </div>
 
         <div className="notifications-tabs">
@@ -151,11 +201,19 @@ export default function Notifications() {
 
         <div className="notifications-list">
           {loading && notifications.length === 0 && (
-            <p className="notifications-empty">Loading notifications...</p>
+            <p className="notifications-empty">Fetching latest notifications...</p>
           )}
 
           {!loading && visible.length === 0 && (
-            <p className="notifications-empty">No notifications yet.</p>
+            <div className="notifications-empty">
+
+              <h3>You're all caught up!</h3>
+
+              <p>
+              No new notifications available.
+              </p>
+
+            </div>
           )}
 
           {visible.map((item) => {
@@ -197,21 +255,50 @@ export default function Notifications() {
                   </div>
                   <p>{item.message}</p>
                   <div className="notification-footer">
-                    {item.propertyName && (
-                      <span className="notification-tag">
-                        {item.propertyName}
+
+                    <div className="notification-tags">
+
+                      {item.propertyName && (
+                        <span className="notification-tag">
+                          {item.propertyName}
+                        </span>
+                      )}
+
+                      {item.senderName && (
+                        <span className="notification-tag">
+                          {item.senderName}
+                        </span>
+                      )}
+
+                      {item.type && (
+                        <span className="notification-tag">
+                          {item.type}
+                        </span>
+                      )}
+
+                      <span
+                        className={`priority-badge ${getPriorityClass(item.priority)}`}
+                      >
+                        {item.priority || "MEDIUM"}
                       </span>
-                    )}
-                    {item.senderName && (
-                      <span className="notification-tag">
-                        {item.senderName}
-                      </span>
-                    )}
-                    <span
-                      className={`priority-badge ${getPriorityClass(item.priority)}`}
+
+                    </div>
+
+                    <button
+                      type="button"
+                      className="delete-btn"
+                      onClick={(event) =>
+                        handleDeleteNotification(
+                          event,
+                          item.id,
+                          item.status
+                        )
+                      }
                     >
-                      {item.priority || "MEDIUM"}
-                    </span>
+                      <LuTrash2 size={15} />
+                      Delete
+                    </button>
+
                   </div>
                 </div>
               </div>

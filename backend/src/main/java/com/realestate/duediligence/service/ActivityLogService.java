@@ -8,4 +8,6 @@ public interface ActivityLogService {
 
     List<ActivityLogResponse> getActivityLogs(Integer propertyId);
 
+    List<ActivityLogResponse> getAllActivityLogs();
+
 }
