@@ -95,7 +95,9 @@ export default function Report() {
     }
   };
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!propertyId) return;
+
+    setLoading(true);
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId]);
