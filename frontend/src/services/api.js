@@ -381,6 +381,28 @@ export const api = {
     return response.json();
   },
 
+  searchProperties: async (keyword, { page = 0, size = 20 } = {}) => {
+    const params = new URLSearchParams({ keyword: keyword || "", page, size });
+    const response = await fetch(
+      `${BASE_URL}/properties/global-search?${params}`,
+      { headers: getHeaders(true) },
+    );
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to search properties");
+    return response.json();
+  },
+
+  autocomplete: async (keyword) => {
+    const params = new URLSearchParams({ keyword: keyword || "" });
+    const response = await fetch(
+      `${BASE_URL}/properties/autocomplete?${params}`,
+      { headers: getHeaders(true) },
+    );
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to load suggestions");
+    return response.json();
+  },
+
   saveSearchHistory: async (payload) => {
     const response = await fetch(`${BASE_URL}/search-history`, {
       method: "POST",
@@ -392,6 +414,30 @@ export const api = {
     return response.json();
   },
 
+  deleteSearchHistory: async (searchId) => {
+    const response = await fetch(`${BASE_URL}/search-history/${searchId}`, {
+      method: "DELETE",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to delete search history entry",
+      );
+    return response.text();
+  },
+
+  clearSearchHistory: async () => {
+    const response = await fetch(`${BASE_URL}/search-history`, {
+      method: "DELETE",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to clear search history",
+      );
+    return response.text();
+  },
+
   getNotifications: async ({ page = 0, size = 20, filter } = {}) => {
     const params = new URLSearchParams({ page, size });
     if (filter) params.set("filter", filter);
@@ -400,12 +446,17 @@ export const api = {
       headers: getHeaders(true),
     });
     if (!response.ok)
-      throw new Error((await response.text()) || "Failed to load notifications");
+      throw new Error(
+        (await response.text()) || "Failed to load notifications",
+      );
     return response.json();
   },
 
   getUnreadNotifications: async ({ page = 0, size = 20 } = {}) => {
-    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
     const response = await fetch(`${BASE_URL}/notifications/unread?${params}`, {
       headers: getHeaders(true),
     });
@@ -421,7 +472,9 @@ export const api = {
       headers: getHeaders(true),
     });
     if (!response.ok)
-      throw new Error((await response.text()) || "Failed to load notification count");
+      throw new Error(
+        (await response.text()) || "Failed to load notification count",
+      );
     return response.json();
   },
 
@@ -431,7 +484,9 @@ export const api = {
       headers: getHeaders(true),
     });
     if (!response.ok)
-      throw new Error((await response.text()) || "Failed to mark notification read");
+      throw new Error(
+        (await response.text()) || "Failed to mark notification read",
+      );
     return response.json();
   },
 
@@ -452,7 +507,9 @@ export const api = {
       headers: getHeaders(true),
     });
     if (!response.ok)
-      throw new Error((await response.text()) || "Failed to delete notification");
+      throw new Error(
+        (await response.text()) || "Failed to delete notification",
+      );
   },
 
   // Property APIs

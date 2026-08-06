@@ -12,6 +12,7 @@ import com.realestate.duediligence.service.RiskSummaryService;
 import com.realestate.duediligence.service.DocumentService;
 import com.realestate.duediligence.service.PermitService;
 
+
 @RestController
 @RequestMapping("/api/properties")
 @CrossOrigin(origins = "*")
@@ -55,8 +56,23 @@ public class PropertyController {
         return ResponseEntity.ok("Property deleted successfully");
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<Property>> searchByCity(@RequestParam String city) {
-        return ResponseEntity.ok(propertyService.searchByCity(city));
+@GetMapping("/search")
+public ResponseEntity<List<Property>> searchProperties(
+        @RequestParam String keyword) {
+    return ResponseEntity.ok(propertyService.searchProperties(keyword));
+}
+
+    @GetMapping("/autocomplete")
+    public ResponseEntity<List<PropertySuggestion>> autocomplete(
+            @RequestParam(defaultValue = "") String keyword) {
+        return ResponseEntity.ok(propertyService.autocomplete(keyword));
+    }
+
+    @GetMapping("/global-search")
+    public ResponseEntity<List<Property>> globalSearch(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(propertyService.globalSearch(keyword, page, size));
     }
 }

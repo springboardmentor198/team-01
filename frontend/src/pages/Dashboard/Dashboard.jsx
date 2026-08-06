@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import Layout from "../../components/Layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
+import { formatVisitedTime } from "../../utils/searchUtils";
 import "./Dashboard.css";
 
 import {
@@ -65,21 +66,11 @@ function RiskDonut({ total }) {
         strokeWidth={strokeWidth}
       />
 
-      <text
-        x="50%"
-        y="47%"
-        textAnchor="middle"
-        className="donut-value"
-      >
+      <text x="50%" y="47%" textAnchor="middle" className="donut-value">
         {total}
       </text>
 
-      <text
-        x="50%"
-        y="60%"
-        textAnchor="middle"
-        className="donut-label"
-      >
+      <text x="50%" y="60%" textAnchor="middle" className="donut-label">
         Total
       </text>
     </svg>
@@ -89,8 +80,7 @@ function RiskDonut({ total }) {
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  const [dashboardData, setDashboardData] =
-    useState(emptyDashboardData);
+  const [dashboardData, setDashboardData] = useState(emptyDashboardData);
 
   const [recentSearches, setRecentSearches] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -102,11 +92,7 @@ export default function Dashboard() {
     try {
       setLoading(true);
 
-      const [
-        summary,
-        searches,
-        notificationResponse,
-      ] = await Promise.all([
+      const [summary, searches, notificationResponse] = await Promise.all([
         api.getDashboardSummary(),
         api.getRecentSearches(),
         api.getNotifications({ page: 0, size: 5 }),
@@ -134,6 +120,28 @@ export default function Dashboard() {
       setError(err.message || "Failed to load dashboard.");
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const handleDeleteSearch = useCallback(async (searchId) => {
+    if (!api.isAuthenticated() || searchId == null) return;
+    try {
+      await api.deleteSearchHistory(searchId);
+      setRecentSearches((prev) =>
+        prev.filter((item) => item.searchId !== searchId),
+      );
+    } catch (err) {
+      console.warn("Failed to delete search history entry", err);
+    }
+  }, []);
+
+  const handleClearSearches = useCallback(async () => {
+    if (!api.isAuthenticated()) return;
+    try {
+      await api.clearSearchHistory();
+      setRecentSearches([]);
+    } catch (err) {
+      console.warn("Failed to clear search history", err);
     }
   }, []);
 
@@ -180,17 +188,14 @@ export default function Dashboard() {
   if (loading) {
     return (
       <Layout title="Dashboard">
-        <div className="loading-container">
-          Loading Dashboard...
-        </div>
+        <div className="loading-container">Loading Dashboard...</div>
       </Layout>
     );
   }
 
-    return (
+  return (
     <Layout title="Dashboard" showSearch={true}>
       <div className="dashboard-page">
-
         {error && (
           <div className="demo-data-notice" role="alert">
             {error}
@@ -204,10 +209,7 @@ export default function Dashboard() {
             const Icon = item.icon;
 
             return (
-              <div
-                key={item.label}
-                className="stat-card"
-              >
+              <div key={item.label} className="stat-card">
                 <div
                   className="stat-icon"
                   style={{
@@ -219,13 +221,9 @@ export default function Dashboard() {
                 </div>
 
                 <div>
-                  <p className="stat-label">
-                    {item.label}
-                  </p>
+                  <p className="stat-label">{item.label}</p>
 
-                  <h2 className="stat-value">
-                    {item.value}
-                  </h2>
+                  <h2 className="stat-value">{item.value}</h2>
                 </div>
               </div>
             );
@@ -233,83 +231,116 @@ export default function Dashboard() {
         </div>
 
         <div className="dashboard-content">
-
           {/* ================= RECENT SEARCHES ================= */}
 
           <div className="dashboard-card recent-search-card">
+            <div className="dashboard-notification-header recent-search-header">
+              <h3 className="card-title">Recent Searches</h3>
 
-            <h3 className="card-title">
-              Recent Searches
-            </h3>
+              {recentSearches.length > 0 && (
+                <button
+                  className="recent-search-clear-all"
+                  onClick={handleClearSearches}
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
 
-            <div className="table-wrapper">
-
+            <div className="table-wrapper recent-search-scroll">
               <table className="recent-table">
-
                 <thead>
                   <tr>
                     <th>Property</th>
                     <th>Type</th>
+                    <th>City</th>
                     <th>Risk</th>
-                    <th>Status</th>
+                    <th>Visited</th>
+                    <th className="recent-actions-header">Actions</th>
                   </tr>
                 </thead>
 
                 <tbody>
-
                   {recentSearches.length > 0 ? (
                     recentSearches.map((item, index) => (
                       <tr
-                        key={index}
+                        key={item.searchId ?? index}
                         className="recent-search-row"
                         onClick={() =>
-  navigate("/property-search", {
-    state: {
-      search: item.propertyTitle || item.query || item.searchText
-    }
-  })
-}
+                          item.propertyId
+                            ? navigate(`/property/${item.propertyId}`)
+                            : navigate("/property-search", {
+                                state: {
+                                  search:
+                                    item.propertyName ||
+                                    item.propertyTitle ||
+                                    item.query ||
+                                    item.searchText,
+                                },
+                              })
+                        }
                       >
-
-                        <td>
-                          {item.propertyTitle ||
-                            item.propertyCode ||
-                            item.property ||
-                            "N/A"}
-                        </td>
-
-                        <td>
-                          {item.propertyType ||
-                            item.type ||
-                            "N/A"}
-                        </td>
-
-                        <td>
-                          <span
-                            className={`risk-badge ${
-                              (
-                                item.riskLevel ||
-                                item.risk ||
-                                "low"
-                              ).toLowerCase()
-                            }`}
-                          >
-                            {item.riskLevel ||
-                              item.risk ||
+                        <td className="recent-property-cell">
+                          {item.imageUrl && (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.propertyName || item.property || ""}
+                              className="recent-property-thumb"
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
+                            />
+                          )}
+                          <span className="recent-property-name">
+                            {item.propertyName ||
+                              item.propertyTitle ||
+                              item.propertyCode ||
+                              item.property ||
                               "N/A"}
                           </span>
                         </td>
 
+                        <td>{item.propertyType || item.type || "N/A"}</td>
+
+                        <td>{item.city || "—"}</td>
+
                         <td>
-                          {item.status || "N/A"}
+                          <span
+                            className={`risk-badge ${(
+                              item.riskLevel ||
+                              item.risk ||
+                              "low"
+                            ).toLowerCase()}`}
+                          >
+                            {item.riskLevel || item.risk || "Unrated"}
+                          </span>
                         </td>
 
+                        <td className="recent-visited-time">
+                          {formatVisitedTime(item.searchedAt)}
+                        </td>
+
+                        <td className="recent-actions-cell">
+                          <button
+                            type="button"
+                            className="recent-search-delete"
+                            title="Delete this search"
+                            aria-label="Delete this search"
+                            onClick={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              handleDeleteSearch(item.searchId);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
                       <td
-                        colSpan="4"
+                        colSpan="6"
                         style={{
                           textAlign: "center",
                           padding: "20px",
@@ -320,31 +351,20 @@ export default function Dashboard() {
                       </td>
                     </tr>
                   )}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
 
-                    {/* ================= RIGHT PANEL ================= */}
+          {/* ================= RIGHT PANEL ================= */}
 
           <div className="dashboard-card right-panel">
-
-            <h3 className="card-title">
-              Risk Summary
-            </h3>
+            <h3 className="card-title">Risk Summary</h3>
 
             <div className="risk-section">
-
-              <RiskDonut
-                total={dashboardData.highRiskCount}
-              />
+              <RiskDonut total={dashboardData.highRiskCount} />
 
               <div className="risk-list">
-
                 <div className="risk-item">
                   <span
                     className="risk-dot"
@@ -353,10 +373,7 @@ export default function Dashboard() {
                     }}
                   ></span>
 
-                  <span>
-                    High Risk (
-                    {dashboardData.highRiskCount})
-                  </span>
+                  <span>High Risk ({dashboardData.highRiskCount})</span>
                 </div>
 
                 <div className="risk-item">
@@ -368,8 +385,7 @@ export default function Dashboard() {
                   ></span>
 
                   <span>
-                    Total Properties (
-                    {dashboardData.totalProperties})
+                    Total Properties ({dashboardData.totalProperties})
                   </span>
                 </div>
 
@@ -381,14 +397,9 @@ export default function Dashboard() {
                     }}
                   ></span>
 
-                  <span>
-                    Reports (
-                    {dashboardData.totalReports})
-                  </span>
+                  <span>Reports ({dashboardData.totalReports})</span>
                 </div>
-
               </div>
-
             </div>
 
             <div
@@ -406,44 +417,28 @@ export default function Dashboard() {
             </div>
 
             <div className="notification-list">
-
               {notifications.length > 0 ? (
+                notifications.slice(0, 3).map((notification, index) => (
+                  <div
+                    key={notification.id ?? index}
+                    className="notification-item"
+                    onClick={() => navigate("/notifications")}
+                  >
+                    <div>
+                      <h4>{notification.title || "Notification"}</h4>
 
-                notifications.slice(0, 3).map(
-                  (notification, index) => (
-                    <div
-                      key={
-                        notification.id ??
-                        index
-                      }
-                      className="notification-item"
-                      onClick={() => navigate("/notifications")}
-                    >
-                      <div>
-
-                        <h4>
-                          {notification.title ||
-                            "Notification"}
-                        </h4>
-
-                        <p>
-                          {notification.message ||
-                            notification.subtitle ||
-                            "No description"}
-                        </p>
-
-                      </div>
-
-                      <LuChevronRight />
-
+                      <p>
+                        {notification.message ||
+                          notification.subtitle ||
+                          "No description"}
+                      </p>
                     </div>
-                  )
-                )
 
+                    <LuChevronRight />
+                  </div>
+                ))
               ) : (
-
                 <div className="empty-notification-state">
-
                   <p>No new notifications.</p>
 
                   <button
@@ -452,67 +447,43 @@ export default function Dashboard() {
                   >
                     View All Notifications
                   </button>
-
                 </div>
-
               )}
-
             </div>
-
           </div>
-
         </div>
 
         {/* ================= QUICK ACTIONS ================= */}
 
         <div className="dashboard-card quick-actions-card">
-
-          <h3 className="card-title">
-            Quick Actions
-          </h3>
+          <h3 className="card-title">Quick Actions</h3>
 
           <div className="quick-actions-grid">
-
             {quickActions.map((action) => {
-
               const Icon = action.icon;
 
               return (
                 <button
                   key={action.label}
                   className="quick-action-btn"
-                  onClick={() =>
-                    navigate(action.path)
-                  }
+                  onClick={() => navigate(action.path)}
                 >
-
                   <div className="quick-action-icon">
                     <Icon size={20} />
                   </div>
 
                   <div className="quick-action-content">
-
                     <h4>{action.label}</h4>
 
-                    <p>
-                      {action.subtitle}
-                    </p>
-
+                    <p>{action.subtitle}</p>
                   </div>
 
-                  <LuChevronRight
-                    className="quick-action-arrow"
-                    size={18}
-                  />
-
+                  <LuChevronRight className="quick-action-arrow" size={18} />
                 </button>
               );
             })}
-
           </div>
-
         </div>
-
       </div>
     </Layout>
   );

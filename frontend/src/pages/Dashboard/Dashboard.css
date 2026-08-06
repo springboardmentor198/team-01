@@ -90,12 +90,27 @@
   overflow-x: auto;
 }
 
+/* Fixed-height, vertically scrollable recent searches table */
+.table-wrapper.recent-search-scroll {
+  max-height: 340px;
+  overflow-y: auto;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+}
+
 .recent-table {
   width: 100%;
   border-collapse: collapse;
 }
 
 .recent-table thead {
+  background: #f8fafc;
+}
+
+.recent-table thead tr th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   background: #f8fafc;
 }
 
@@ -115,6 +130,72 @@
 
 .recent-table tbody tr:hover {
   background: #f9fafb;
+}
+
+/* ================= RECENT SEARCH TOOLBAR & ACTIONS ================= */
+
+.recent-search-header {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.recent-search-clear-all {
+  background: none;
+  border: 1px solid #e5e7eb;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.recent-search-clear-all:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.recent-actions-header {
+  text-align: right;
+}
+
+.recent-actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.recent-search-delete {
+  background: none;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.recent-search-delete:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+/* ================= RECENT SEARCH SCROLLBAR ================= */
+
+.table-wrapper.recent-search-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.table-wrapper.recent-search-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 20px;
+}
+
+.table-wrapper.recent-search-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
 }
 
 /* ================= RISK SUMMARY ================= */
@@ -599,13 +680,13 @@
 
 .quick-action-arrow {
   margin-left: auto;
-  color: #94A3B8;
+  color: #94a3b8;
   transition: all 0.25s ease;
 }
 
 .quick-action-btn:hover .quick-action-arrow {
   transform: translateX(5px);
-  color: #2563EB;
+  color: #2563eb;
 }
 
 /* ================= EMPTY STATES ================= */
@@ -617,7 +698,7 @@
 
   min-height: 120px;
 
-  color: #64748B;
+  color: #64748b;
   font-size: 14px;
   font-weight: 500;
 }
@@ -645,24 +726,25 @@
 
 .recent-table tbody tr td:first-child {
   font-weight: 600;
-  color: #1E293B;
+  color: #1e293b;
 }
 
 /* ================= CARD HOVER ================= */
 
 .dashboard-card {
-  transition: box-shadow .25s ease,
-              transform .25s ease;
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
 .dashboard-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(0,0,0,.08);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
 }
 .dashboard-notification-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;   /* Vertically center both items */
+  align-items: center; /* Vertically center both items */
   margin-top: 28px;
   margin-bottom: 16px;
 }
@@ -675,7 +757,7 @@
   background: none;
   border: none;
 
-  color: #2563EB;
+  color: #2563eb;
 
   font-size: 12px;
   font-weight: 600;
@@ -688,23 +770,23 @@
 }
 
 .view-all-link:hover {
-  color: #1D4ED8;
+  color: #1d4ed8;
   text-decoration: underline;
 }
 
 .notification-item.clickable {
   cursor: pointer;
-  transition: background .2s ease;
+  transition: background 0.2s ease;
 }
 
 .notification-item.clickable:hover {
-  background: #F8FAFC;
+  background: #f8fafc;
 }
 
 .notification-time {
   display: block;
   margin-top: 4px;
-  color: #94A3B8;
+  color: #94a3b8;
   font-size: 12px;
 }
 
@@ -716,7 +798,7 @@
 .view-all-btn {
   margin-top: 10px;
   border: none;
-  background: #2563EB;
+  background: #2563eb;
   color: #fff;
   padding: 8px 16px;
   border-radius: 8px;
@@ -734,5 +816,31 @@
 }
 
 .recent-search-row:hover {
-  background: #F8FAFC;
+  background: #f8fafc;
+}
+
+.recent-property-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.recent-property-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #f3f4f6;
+}
+
+.recent-property-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.recent-visited-time {
+  color: #6b7280;
+  font-size: 12px;
+  white-space: nowrap;
 }

@@ -1,38 +1,45 @@
-import { useState } from "react";
 import "./Navbar.css";
 
-import { FiBell, FiSearch } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
 import { IoChevronBack } from "react-icons/io5";
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { api } from "../../services/api";
+import SmartSearchAutocomplete from "../SmartSearch/SmartSearchAutocomplete";
 
 function Navbar({ title, showSearch = false }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
 
   const showBackButton = location.pathname !== "/dashboard";
 
-  const handleSearchSubmit = async (event) => {
-    event.preventDefault();
+  const handleSelect = (suggestion) => {
+    if (api.isAuthenticated()) {
+      api
+        .saveSearchHistory({
+          query: suggestion.name || suggestion.address,
+          propertyId: suggestion.propertyId,
+          propertyType: suggestion.propertyType,
+          city: suggestion.city,
+        })
+        .catch((err) => console.warn("Failed to record search", err));
+    }
+    navigate(`/property/${suggestion.propertyId}`);
+  };
 
-    const query = searchQuery.trim();
-    if (!query) {
+  const handleSubmit = (query) => {
+    if (!query || !query.trim()) {
       navigate("/property-search");
       return;
     }
 
     if (api.isAuthenticated()) {
-      try {
-        await api.saveSearchHistory({ query });
-      } catch (err) {
-        console.warn("Failed to record search", err);
-      }
+      api
+        .saveSearchHistory({ query: query.trim() })
+        .catch((err) => console.warn("Failed to record search", err));
     }
 
-    navigate(`/property-results?query=${encodeURIComponent(query)}`);
+    navigate(`/property-results?query=${encodeURIComponent(query.trim())}`);
   };
 
   return (
@@ -53,17 +60,11 @@ function Navbar({ title, showSearch = false }) {
 
       <div className="navbar-right">
         {showSearch && (
-          <form className="navbar-search-form" onSubmit={handleSearchSubmit}>
-            <FiSearch className="navbar-search-icon" aria-hidden="true" />
-            <input
-              type="search"
-              className="navbar-search-input"
-              placeholder="Search property"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              aria-label="Search property"
-            />
-          </form>
+          <SmartSearchAutocomplete
+            onSelect={handleSelect}
+            onSearch={handleSubmit}
+            placeholder="Search property"
+          />
         )}
 
         {/* <button
