@@ -198,114 +198,115 @@ export default function Notifications() {
         </div>
 
         {error && <div className="notifications-error">{error}</div>}
+      <div className="notifications-content">
+  <div className="notifications-list">
+    {loading && notifications.length === 0 && (
+      <p className="notifications-empty">
+        Fetching latest notifications...
+      </p>
+    )}
 
-        <div className="notifications-list">
-          {loading && notifications.length === 0 && (
-            <p className="notifications-empty">Fetching latest notifications...</p>
-          )}
+    {!loading && visible.length === 0 && (
+      <div className="notifications-empty">
+        <h3>You're all caught up!</h3>
 
-          {!loading && visible.length === 0 && (
-            <div className="notifications-empty">
+        <p>No new notifications available.</p>
+      </div>
+    )}
 
-              <h3>You're all caught up!</h3>
+    {visible.map((item) => {
+      const visuals = getNotificationVisuals(item.type);
+      const Icon = visuals.icon;
+      const isUnread = item.status === "UNREAD";
 
-              <p>
-              No new notifications available.
-              </p>
+      return (
+        <div
+          key={item.id}
+          className={`notification-card ${isUnread ? "unread" : ""}`}
+          style={{ "--accent-color": visuals.color }}
+          onClick={() => handleNotificationClick(item)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              handleNotificationClick(item);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+        >
+          <div
+            className="notification-icon"
+            style={{
+              background: visuals.bg,
+              color: visuals.color,
+            }}
+          >
+            <Icon size={20} />
+          </div>
 
-            </div>
-          )}
+          <div className="notification-content">
+            <div className="notification-top">
+              <h3>{item.title}</h3>
 
-          {visible.map((item) => {
-            const visuals = getNotificationVisuals(item.type);
-            const Icon = visuals.icon;
-            const isUnread = item.status === "UNREAD";
+              <div className="notification-meta">
+                <span>{formatNotificationTime(item.createdAt)}</span>
 
-            return (
-              <div
-                key={item.id}
-                className={`notification-card ${isUnread ? "unread" : ""}`}
-                style={{ "--accent-color": visuals.color }}
-                onClick={() => handleNotificationClick(item)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    handleNotificationClick(item);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-              >
-                <div
-                  className="notification-icon"
-                  style={{
-                    background: visuals.bg,
-                    color: visuals.color,
-                  }}
-                >
-                  <Icon size={20} />
-                </div>
-                <div className="notification-content">
-                  <div className="notification-top">
-                    <h3>{item.title}</h3>
-                    <div className="notification-meta">
-                      <span>{formatNotificationTime(item.createdAt)}</span>
-                      {isUnread && <span className="unread-dot" />}
-                    </div>
-                  </div>
-                  <p>{item.message}</p>
-                  <div className="notification-footer">
-
-                    <div className="notification-tags">
-
-                      {item.propertyName && (
-                        <span className="notification-tag">
-                          {item.propertyName}
-                        </span>
-                      )}
-
-                      {item.senderName && (
-                        <span className="notification-tag">
-                          {item.senderName}
-                        </span>
-                      )}
-
-                      {item.type && (
-                        <span className="notification-tag">
-                          {item.type}
-                        </span>
-                      )}
-
-                      <span
-                        className={`priority-badge ${getPriorityClass(item.priority)}`}
-                      >
-                        {item.priority || "MEDIUM"}
-                      </span>
-
-                    </div>
-
-                    <button
-                      type="button"
-                      className="delete-btn"
-                      onClick={(event) =>
-                        handleDeleteNotification(
-                          event,
-                          item.id,
-                          item.status
-                        )
-                      }
-                    >
-                      <LuTrash2 size={15} />
-                      Delete
-                    </button>
-
-                  </div>
-                </div>
+                {isUnread && <span className="unread-dot" />}
               </div>
-            );
-          })}
-        </div>
+            </div>
 
+            <p>{item.message}</p>
+
+            <div className="notification-footer">
+              <div className="notification-tags">
+                {item.propertyName && (
+                  <span className="notification-tag">
+                    {item.propertyName}
+                  </span>
+                )}
+
+                {item.senderName && (
+                  <span className="notification-tag">
+                    {item.senderName}
+                  </span>
+                )}
+
+                {item.type && (
+                  <span className="notification-tag">
+                    {item.type}
+                  </span>
+                )}
+
+                <span
+                  className={`priority-badge ${getPriorityClass(
+                    item.priority
+                  )}`}
+                >
+                  {item.priority || "MEDIUM"}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="delete-btn"
+                onClick={(event) =>
+                  handleDeleteNotification(
+                    event,
+                    item.id,
+                    item.status
+                  )
+                }
+              >
+                <LuTrash2 size={15} />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
         {hasMore && (
           <button
             type="button"

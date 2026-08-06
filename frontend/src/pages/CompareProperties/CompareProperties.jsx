@@ -11,6 +11,9 @@ import {
   LuRuler,
   LuBadgeCheck,
   LuIndianRupee,
+  LuReceipt,
+  LuWaves,
+  LuCircleCheck,
 } from "react-icons/lu";
 
 const properties = [
@@ -191,7 +194,7 @@ export default function CompareProperties() {
 
             </div>
 
-            {/* Comparison Table */}
+                        {/* Comparison Table */}
 
             <div className="comparison-card">
 
@@ -211,8 +214,10 @@ export default function CompareProperties() {
 
                   <tr>
                     <td>
-                      <LuBuilding2 />
-                      Property Type
+                      <div className="comparison-label">
+                        <LuBuilding2 />
+                        <span>Property Type</span>
+                      </div>
                     </td>
 
                     <td>{first.type}</td>
@@ -221,8 +226,10 @@ export default function CompareProperties() {
 
                   <tr>
                     <td>
-                      <LuMapPin />
-                      Location
+                      <div className="comparison-label">
+                        <LuMapPin />
+                        <span>Location</span>
+                      </div>
                     </td>
 
                     <td>{first.city}</td>
@@ -231,8 +238,10 @@ export default function CompareProperties() {
 
                   <tr>
                     <td>
-                      <LuRuler />
-                      Area
+                      <div className="comparison-label">
+                        <LuRuler />
+                        <span>Area</span>
+                      </div>
                     </td>
 
                     <td>{first.area}</td>
@@ -241,8 +250,10 @@ export default function CompareProperties() {
 
                   <tr>
                     <td>
-                      <LuIndianRupee />
-                      Estimated Value
+                      <div className="comparison-label">
+                        <LuIndianRupee />
+                        <span>Estimated Value</span>
+                      </div>
                     </td>
 
                     <td>{first.valuation}</td>
@@ -251,8 +262,10 @@ export default function CompareProperties() {
 
                   <tr>
                     <td>
-                      <LuUser />
-                      Owner
+                      <div className="comparison-label">
+                        <LuUser />
+                        <span>Owner</span>
+                      </div>
                     </td>
 
                     <td>{first.owner}</td>
@@ -261,8 +274,10 @@ export default function CompareProperties() {
 
                   <tr>
                     <td>
-                      <LuShieldCheck />
-                      Overall Risk
+                      <div className="comparison-label">
+                        <LuShieldCheck />
+                        <span>Overall Risk</span>
+                      </div>
                     </td>
 
                     <td>
@@ -284,14 +299,24 @@ export default function CompareProperties() {
                   </tr>
 
                   <tr>
-                    <td>Tax Status</td>
+                    <td>
+                      <div className="comparison-label">
+                        <LuReceipt />
+                        <span>Tax Status</span>
+                      </div>
+                    </td>
 
                     <td>{first.tax}</td>
                     <td>{second.tax}</td>
                   </tr>
 
                   <tr>
-                    <td>Flood Zone</td>
+                    <td>
+                      <div className="comparison-label">
+                        <LuWaves />
+                        <span>Flood Zone</span>
+                      </div>
+                    </td>
 
                     <td>{first.flood}</td>
                     <td>{second.flood}</td>
@@ -299,8 +324,10 @@ export default function CompareProperties() {
 
                   <tr>
                     <td>
-                      <LuBadgeCheck />
-                      Legal Status
+                      <div className="comparison-label">
+                        <LuBadgeCheck />
+                        <span>Legal Status</span>
+                      </div>
                     </td>
 
                     <td>{first.legal}</td>
@@ -308,7 +335,12 @@ export default function CompareProperties() {
                   </tr>
 
                   <tr>
-                    <td>Status</td>
+                    <td>
+                      <div className="comparison-label">
+                        <LuCircleCheck />
+                        <span>Status</span>
+                      </div>
+                    </td>
 
                     <td>{first.status}</td>
                     <td>{second.status}</td>
@@ -321,7 +353,6 @@ export default function CompareProperties() {
             </div>
           </>
         )}
-
       </div>
     </Layout>
   );

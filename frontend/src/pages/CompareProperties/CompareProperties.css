@@ -137,23 +137,44 @@
 
 .comparison-table th {
   padding: 18px;
-  text-align: left;
+  text-align: center;
   font-size: 15px;
   font-weight: 600;
+}
+
+.comparison-table th:first-child {
+  text-align: left;
+  padding-left: 75px;
 }
 
 .comparison-table td {
   padding: 18px;
   border-bottom: 1px solid #edf2f7;
   vertical-align: middle;
+  text-align: center;
+}
+/* Property A & Property B values */
+.comparison-table td:nth-child(2),
+.comparison-table td:nth-child(3) {
+    text-align: center;
+    padding-right: 90px;   /* pushes content slightly left */
 }
 
+/* Property names in header */
+.comparison-table th:nth-child(2),
+.comparison-table th:nth-child(3) {
+    text-align: center;
+    padding-right: 90px;
+}
 .comparison-table td:first-child {
-  width: 240px;
+  width: 33.33%;
+  padding-left: 60px;
+
   font-weight: 600;
   color: #334155;
-}
 
+  text-align: left;
+}
 .comparison-table td:first-child svg {
   margin-right: 8px;
   vertical-align: middle;
@@ -168,6 +189,17 @@
   background: #f8fafc;
 }
 
+.comparison-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.comparison-label svg {
+    color: #2563EB;
+    font-size: 18px;
+    flex-shrink: 0;
+}
 /* ================= RISK BADGES ================= */
 
 .risk-badge {
