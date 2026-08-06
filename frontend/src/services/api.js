@@ -826,4 +826,48 @@ export const api = {
 
     return await response.json();
   },
+
+  // Report Engine APIs
+  generateReport: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/report/generate`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify({ propertyId }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to generate report");
+    }
+
+    return await response.json();
+  },
+
+  downloadReportPdf: async (reportId) => {
+    const response = await fetch(`${BASE_URL}/report/pdf/${reportId}`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to download PDF report");
+    }
+
+    return await response.blob();
+  },
+
+  downloadReportExcel: async (reportId) => {
+    const response = await fetch(`${BASE_URL}/report/excel/${reportId}`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to download Excel report");
+    }
+
+    return await response.blob();
+  },
 };

@@ -100,7 +100,7 @@ export default function Dashboard() {
 
       setDashboardData({
         totalProperties: summary.totalProperties ?? 0,
-        totalReports: summary.totalReports ?? 0,
+        totalReports: summary.totalReports ?? summary.reportsGenerated ?? 0,
         highRiskCount: summary.highRiskProperties ?? 0,
         pendingReviews: summary.pendingReviews ?? 0,
       });
