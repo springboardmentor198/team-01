@@ -39,8 +39,10 @@ public class DocumentController {
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<Void> downloadDocument(@PathVariable Integer id) {
-        DocumentResponse doc = service.downloadDocument(id);
+    public ResponseEntity<Void> downloadDocument(
+            @PathVariable Integer id,
+            @org.springframework.web.bind.annotation.RequestParam(value = "email", required = false) String email) {
+        DocumentResponse doc = service.downloadDocument(id, email);
         return ResponseEntity.status(org.springframework.http.HttpStatus.FOUND)
                 .location(java.net.URI.create(doc.getFileUrl()))
                 .build();

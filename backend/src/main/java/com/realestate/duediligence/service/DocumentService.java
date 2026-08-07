@@ -15,6 +15,6 @@ public interface DocumentService {
 
     void deleteDocument(Integer id);
 
-    DocumentResponse downloadDocument(Integer id);
+    DocumentResponse downloadDocument(Integer id, String email);
 
 }
