@@ -44,7 +44,12 @@ public class AuditControllerTest {
         // Arrange
         String authHeader = "Bearer mock-token";
         String email = "admin@example.com";
-        User mockUser = User.builder().userId(1).email(email).name("Admin User").build();
+        User mockUser = User.builder()
+                .userId(1)
+                .email(email)
+                .name("Admin User")
+                .role(com.realestate.duediligence.enums.Role.ADMIN)
+                .build();
 
         List<ActivityLogResponse> mockLogs = new ArrayList<>();
         mockLogs.add(ActivityLogResponse.builder()

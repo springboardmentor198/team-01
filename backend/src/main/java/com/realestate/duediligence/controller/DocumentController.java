@@ -38,6 +38,14 @@ public class DocumentController {
         return ResponseEntity.ok(service.getDocuments(propertyId));
     }
 
+    @GetMapping("/download/{id}")
+    public ResponseEntity<Void> downloadDocument(@PathVariable Integer id) {
+        DocumentResponse doc = service.downloadDocument(id);
+        return ResponseEntity.status(org.springframework.http.HttpStatus.FOUND)
+                .location(java.net.URI.create(doc.getFileUrl()))
+                .build();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<DocumentResponse> update(
             @PathVariable Integer id,

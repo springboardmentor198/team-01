@@ -118,6 +118,24 @@ public class DocumentServiceImpl implements DocumentService {
 
     }
 
+    @Override
+    public DocumentResponse downloadDocument(Integer id) {
+        Document document = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
+
+        activityLogRepository.save(
+            ActivityLog.builder()
+                .property(document.getProperty())
+                .activityType("DOCUMENT_DOWNLOADED")
+                .description("Downloaded " + document.getDocumentName() + " PDF.")
+                .performedBy("bhavishya.mentor@example.com")
+                .createdAt(LocalDateTime.now())
+                .build()
+        );
+
+        return mapToResponse(document);
+    }
+
     private DocumentResponse mapToResponse(Document document) {
 
         return DocumentResponse.builder()

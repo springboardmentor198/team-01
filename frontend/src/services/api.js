@@ -713,4 +713,18 @@ export const api = {
 
     return await response.json();
   },
+
+  getAuditLogs: async () => {
+    const response = await fetch(`${BASE_URL}/audit`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to load audit logs");
+    }
+
+    return await response.json();
+  },
 };
