@@ -65,5 +65,35 @@ export function useRecentSearches({ refreshOnFocus = true } = {}) {
     }
   }, []);
 
-  return { searches, loading, error, refresh, recordSearch };
+  const removeSearch = useCallback(async (searchId) => {
+    if (!api.isAuthenticated()) return;
+
+    try {
+      await api.deleteSearchHistory(searchId);
+      setSearches((prev) => prev.filter((item) => item.searchId !== searchId));
+    } catch (err) {
+      console.warn("Failed to delete search history entry", err);
+    }
+  }, []);
+
+  const clearAll = useCallback(async () => {
+    if (!api.isAuthenticated()) return;
+
+    try {
+      await api.clearSearchHistory();
+      setSearches([]);
+    } catch (err) {
+      console.warn("Failed to clear search history", err);
+    }
+  }, []);
+
+  return {
+    searches,
+    loading,
+    error,
+    refresh,
+    recordSearch,
+    removeSearch,
+    clearAll,
+  };
 }

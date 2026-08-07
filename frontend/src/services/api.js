@@ -74,8 +74,32 @@ export const api = {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "Login failed");
+      let message = "Login failed. Please try again.";
+
+      try {
+        const error = await response.json();
+
+        switch (error.message) {
+          case "Invalid Password":
+            message = "Incorrect password. Please try again.";
+            break;
+
+          case "User not found":
+            message = "No account found with this email.";
+            break;
+
+          case "Invalid Credentials":
+            message = "Invalid email or password.";
+            break;
+
+          default:
+            message = error.message || message;
+        }
+      } catch {
+        message = await response.text();
+      }
+
+      throw new Error(message);
     }
 
     const authentication = await readAuthenticationResponse(response);
@@ -126,8 +150,24 @@ export const api = {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "Google login failed");
+      let message = "Google login failed. Please try again.";
+
+      try {
+        const error = await response.json();
+
+        switch (error.message) {
+          case "User not found":
+            message = "No account found with this Google account.";
+            break;
+
+          default:
+            message = error.message || message;
+        }
+      } catch {
+        message = await response.text();
+      }
+
+      throw new Error(message);
     }
 
     const authentication = await readAuthenticationResponse(response);
@@ -186,8 +226,24 @@ export const api = {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "Registration failed");
+      let message = "Registration failed. Please try again.";
+
+      try {
+        const error = await response.json();
+
+        switch (error.message) {
+          case "User already exists":
+            message = "An account with this email already exists.";
+            break;
+
+          default:
+            message = error.message || message;
+        }
+      } catch {
+        message = await response.text();
+      }
+
+      throw new Error(message);
     }
 
     return await response.json();
@@ -381,6 +437,28 @@ export const api = {
     return response.json();
   },
 
+  searchProperties: async (keyword, { page = 0, size = 20 } = {}) => {
+    const params = new URLSearchParams({ keyword: keyword || "", page, size });
+    const response = await fetch(
+      `${BASE_URL}/properties/global-search?${params}`,
+      { headers: getHeaders(true) },
+    );
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to search properties");
+    return response.json();
+  },
+
+  autocomplete: async (keyword) => {
+    const params = new URLSearchParams({ keyword: keyword || "" });
+    const response = await fetch(
+      `${BASE_URL}/properties/autocomplete?${params}`,
+      { headers: getHeaders(true) },
+    );
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to load suggestions");
+    return response.json();
+  },
+
   saveSearchHistory: async (payload) => {
     const response = await fetch(`${BASE_URL}/search-history`, {
       method: "POST",
@@ -392,6 +470,30 @@ export const api = {
     return response.json();
   },
 
+  deleteSearchHistory: async (searchId) => {
+    const response = await fetch(`${BASE_URL}/search-history/${searchId}`, {
+      method: "DELETE",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to delete search history entry",
+      );
+    return response.text();
+  },
+
+  clearSearchHistory: async () => {
+    const response = await fetch(`${BASE_URL}/search-history`, {
+      method: "DELETE",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to clear search history",
+      );
+    return response.text();
+  },
+
   getNotifications: async ({ page = 0, size = 20, filter } = {}) => {
     const params = new URLSearchParams({ page, size });
     if (filter) params.set("filter", filter);
@@ -400,12 +502,17 @@ export const api = {
       headers: getHeaders(true),
     });
     if (!response.ok)
-      throw new Error((await response.text()) || "Failed to load notifications");
+      throw new Error(
+        (await response.text()) || "Failed to load notifications",
+      );
     return response.json();
   },
 
   getUnreadNotifications: async ({ page = 0, size = 20 } = {}) => {
-    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
     const response = await fetch(`${BASE_URL}/notifications/unread?${params}`, {
       headers: getHeaders(true),
     });
@@ -421,7 +528,9 @@ export const api = {
       headers: getHeaders(true),
     });
     if (!response.ok)
-      throw new Error((await response.text()) || "Failed to load notification count");
+      throw new Error(
+        (await response.text()) || "Failed to load notification count",
+      );
     return response.json();
   },
 
@@ -431,7 +540,9 @@ export const api = {
       headers: getHeaders(true),
     });
     if (!response.ok)
-      throw new Error((await response.text()) || "Failed to mark notification read");
+      throw new Error(
+        (await response.text()) || "Failed to mark notification read",
+      );
     return response.json();
   },
 
@@ -452,7 +563,9 @@ export const api = {
       headers: getHeaders(true),
     });
     if (!response.ok)
-      throw new Error((await response.text()) || "Failed to delete notification");
+      throw new Error(
+        (await response.text()) || "Failed to delete notification",
+      );
   },
 
   // Property APIs
@@ -711,9 +824,6 @@ export const api = {
       throw new Error(errorText || "Failed to load flood zone details");
     }
 
-    return await response.json();
-  },
-
   getAuditLogs: async () => {
     const response = await fetch(`${BASE_URL}/audit`, {
       method: "GET",
@@ -726,5 +836,49 @@ export const api = {
     }
 
     return await response.json();
+  },
+
+  // Report Engine APIs
+  generateReport: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/report/generate`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify({ propertyId }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to generate report");
+    }
+
+    return await response.json();
+  },
+
+  downloadReportPdf: async (reportId) => {
+    const response = await fetch(`${BASE_URL}/report/pdf/${reportId}`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to download PDF report");
+    }
+
+    return await response.blob();
+  },
+
+  downloadReportExcel: async (reportId) => {
+    const response = await fetch(`${BASE_URL}/report/excel/${reportId}`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to download Excel report");
+    }
+
+    return await response.blob();
   },
 };

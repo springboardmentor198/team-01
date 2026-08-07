@@ -1,0 +1,232 @@
+.rd-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rd-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.rd-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.rd-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1e2b4d;
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+.rd-header p {
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.rd-muted {
+  color: #6b7280;
+}
+
+.rd-error {
+  color: #dc2626;
+}
+
+.rd-subtitle {
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+/* ---------- Selector ---------- */
+
+.rd-selector label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.rd-selector select {
+  width: 100%;
+  max-width: 480px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #dbe3ec;
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s;
+  background: #fff;
+}
+
+.rd-selector select:focus {
+  border-color: #1e2b4d;
+  box-shadow: 0 0 0 3px rgba(30, 43, 77, 0.15);
+}
+
+/* ---------- Gauge + score row (inside RiskOverview) ---------- */
+
+.rd-gauge-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.rd-gauge-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 700px) {
+  .rd-gauge-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Two-column grid ---------- */
+
+.rd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.rd-chart-box {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 18px;
+}
+
+/* ---------- Comparable properties ---------- */
+
+.rd-comp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rd-comp-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  transition: 0.2s;
+}
+
+.rd-comp-item:hover {
+  border-color: #1e2b4d;
+  background: #f9fafb;
+}
+
+.rd-comp-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rd-comp-item-header strong {
+  color: #111827;
+  font-size: 15px;
+}
+
+.rd-comp-item-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.rd-comp-item-price strong {
+  color: #1e2b4d;
+  font-size: 15px;
+}
+
+.rd-comp-item-price .rd-muted {
+  font-size: 13px;
+}
+
+/* ---------- Valuation ---------- */
+
+.rd-valuation-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.rd-valuation-main span.rd-muted {
+  font-size: 13px;
+  display: block;
+}
+
+.rd-valuation-main h2 {
+  font-size: 30px;
+  color: #111827;
+  margin: 4px 0;
+}
+
+.rd-confidence {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f0f4ff;
+  border-radius: 12px;
+  padding: 12px 18px;
+}
+
+.rd-confidence-icon {
+  width: 28px;
+  height: 28px;
+  color: #1e2b4d;
+}
+
+.rd-confidence strong {
+  display: block;
+  font-size: 18px;
+  color: #111827;
+}
+
+.rd-confidence span.rd-muted {
+  font-size: 12px;
+}
+
+.rd-valuation-footnote {
+  font-size: 13px;
+  text-align: right;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .rd-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rd-valuation-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

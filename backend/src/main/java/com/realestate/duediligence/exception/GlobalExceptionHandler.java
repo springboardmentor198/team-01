@@ -1,11 +1,13 @@
 package com.realestate.duediligence.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,11 +28,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -289,7 +288,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 traceId
         );
     }
+@ExceptionHandler(ConflictException.class)
+public ResponseEntity<ErrorResponse> handleConflictException(
+        ConflictException ex,
+        HttpServletRequest request) {
 
+    String traceId = logAndGetTraceId(HttpStatus.CONFLICT, ex, request);
+
+    return build(
+            HttpStatus.CONFLICT,
+            "CONFLICT",
+            ex.getMessage(),
+            request,
+            null,
+            traceId
+    );
+}
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
             DataIntegrityViolationException ex,
