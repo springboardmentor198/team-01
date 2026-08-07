@@ -74,8 +74,32 @@ export const api = {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "Login failed");
+      let message = "Login failed. Please try again.";
+
+      try {
+        const error = await response.json();
+
+        switch (error.message) {
+          case "Invalid Password":
+            message = "Incorrect password. Please try again.";
+            break;
+
+          case "User not found":
+            message = "No account found with this email.";
+            break;
+
+          case "Invalid Credentials":
+            message = "Invalid email or password.";
+            break;
+
+          default:
+            message = error.message || message;
+        }
+      } catch {
+        message = await response.text();
+      }
+
+      throw new Error(message);
     }
 
     const authentication = await readAuthenticationResponse(response);
@@ -126,8 +150,24 @@ export const api = {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "Google login failed");
+      let message = "Google login failed. Please try again.";
+
+      try {
+        const error = await response.json();
+
+        switch (error.message) {
+          case "User not found":
+            message = "No account found with this Google account.";
+            break;
+
+          default:
+            message = error.message || message;
+        }
+      } catch {
+        message = await response.text();
+      }
+
+      throw new Error(message);
     }
 
     const authentication = await readAuthenticationResponse(response);
@@ -186,8 +226,24 @@ export const api = {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "Registration failed");
+      let message = "Registration failed. Please try again.";
+
+      try {
+        const error = await response.json();
+
+        switch (error.message) {
+          case "User already exists":
+            message = "An account with this email already exists.";
+            break;
+
+          default:
+            message = error.message || message;
+        }
+      } catch {
+        message = await response.text();
+      }
+
+      throw new Error(message);
     }
 
     return await response.json();
@@ -769,5 +825,49 @@ export const api = {
     }
 
     return await response.json();
+  },
+
+  // Report Engine APIs
+  generateReport: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/report/generate`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify({ propertyId }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to generate report");
+    }
+
+    return await response.json();
+  },
+
+  downloadReportPdf: async (reportId) => {
+    const response = await fetch(`${BASE_URL}/report/pdf/${reportId}`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to download PDF report");
+    }
+
+    return await response.blob();
+  },
+
+  downloadReportExcel: async (reportId) => {
+    const response = await fetch(`${BASE_URL}/report/excel/${reportId}`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to download Excel report");
+    }
+
+    return await response.blob();
   },
 };
