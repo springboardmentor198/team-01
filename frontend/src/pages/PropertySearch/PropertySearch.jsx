@@ -5,6 +5,7 @@ import "./PropertySearch.css";
 import { useNavigate } from "react-router-dom";
 import { useRecentSearches } from "../../hooks/useRecentSearches";
 import { buildSearchHistoryPayload } from "../../utils/searchUtils";
+import SmartSearchAutocomplete from "../../components/SmartSearch/SmartSearchAutocomplete";
 
 import { FiSearch, FiMapPin, FiHome, FiClock } from "react-icons/fi";
 
@@ -14,8 +15,7 @@ import { MdOutlineApartment } from "react-icons/md";
 
 function PropertySearch() {
   const navigate = useNavigate();
-
-  const [address, setAddress] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [propertyType, setPropertyType] = useState("All");
   const [city, setCity] = useState("All");
   const [riskLevel, setRiskLevel] = useState("All");
@@ -25,15 +25,35 @@ function PropertySearch() {
     loading: recentSearchesLoading,
     error: recentSearchesError,
     recordSearch,
+    removeSearch,
+    clearAll,
   } = useRecentSearches();
 
-  const handleSearch = async () => {
+  const handleAutocompleteSelect = (suggestion) => {
+    const payload = buildSearchHistoryPayload({
+      query: suggestion.name || suggestion.address,
+      propertyType: suggestion.propertyType,
+      city: suggestion.city,
+    });
+    payload.propertyId = suggestion.propertyId;
+
+    recordSearch(payload);
+    navigate(`/property/${suggestion.propertyId}`);
+  };
+
+  const handleSearch = async (searchTerm = "") => {
     const params = new URLSearchParams();
-    const trimmedAddress = address.trim();
+
+    const trimmedAddress = searchTerm.trim();
+
     if (trimmedAddress) params.append("query", trimmedAddress);
+
     if (propertyType !== "All") params.append("type", propertyType);
+
     if (city !== "All") params.append("city", city);
+
     if (riskLevel !== "All") params.append("risk", riskLevel);
+
     if (status !== "All") params.append("status", status);
 
     await recordSearch(
@@ -78,17 +98,14 @@ function PropertySearch() {
             <h2>Search by Address</h2>
           </div>
           <div className="search-bar">
-            <input
-              type="text"
+            <SmartSearchAutocomplete
+              value={searchTerm}
+              onChange={setSearchTerm}
+              onSelect={handleAutocompleteSelect}
+              onSearch={handleSearch}
               placeholder="Enter property address or name..."
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              autoFocus
             />
-            <button className="search-btn" onClick={handleSearch}>
-              <FiSearch />
-              Search
-            </button>
           </div>
 
           {/* Quick Search */}
@@ -113,12 +130,10 @@ function PropertySearch() {
         </div>
 
         {/* ================= ADVANCED FILTER ================= */}
-        <section className="advanced-section">
-          <button className="advanced-btn" onClick={handleSearch}>
-            <IoFilterOutline />
-            Apply Selected Filters
-          </button>
-        </section>
+        <button className="advanced-btn" onClick={() => handleSearch()}>
+          <IoFilterOutline />
+          Apply Selected Filters
+        </button>
 
         {/* ================= QUICK ACTIONS / FILTERS ================= */}
         <section className="quick-card card">
@@ -197,6 +212,8 @@ function PropertySearch() {
             showStatus={false}
             clickable={true}
             emptyMessage="No recent searches yet."
+            onDelete={removeSearch}
+            onClearAll={clearAll}
           />
         </section>
 

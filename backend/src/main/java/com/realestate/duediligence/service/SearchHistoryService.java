@@ -7,10 +7,14 @@ import com.realestate.duediligence.dto.SearchHistoryRequest;
 
 public interface SearchHistoryService {
 
-    RecentSearchResponse recordSearch(String email, SearchHistoryRequest request);
+RecentSearchResponse recordSearch(String email, SearchHistoryRequest request);
 
     List<RecentSearchResponse> getRecentSearches(String email, int limit);
 
     List<RecentSearchResponse> getRecentSearches(int limit);
+
+    void deleteSearch(String email, Long searchId);
+
+    void clearSearchHistory(String email);
 }
 

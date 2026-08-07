@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { LuDownload, LuMapPin } from "react-icons/lu";
 import Layout from "../../components/Layout/Layout";
 import { api } from "../../services/api";
+import { buildSearchHistoryPayload } from "../../utils/searchUtils";
 import "./PropertyDetails.css";
 import ActivityTimeline from "./components/ActivityTimeline";
 
@@ -61,6 +62,22 @@ export default function PropertyDetails() {
         setTaxSummary(summary);
         setZoning(zoningData);
         setFloodZone(floodZoneData);
+
+        // Record recent search with matched property details
+        if (api.isAuthenticated() && details) {
+          api
+            .saveSearchHistory(
+              buildSearchHistoryPayload({
+                query: details.propertyCode || details.address,
+                propertyId: details.propertyId,
+                propertyName: details.propertyCode,
+                propertyType: details.propertyType,
+                city: details.city,
+                status: details.status,
+              }),
+            )
+            .catch(() => {});
+        }
       })
       .catch((err) =>
         setError(err.message || "Failed to load property details"),

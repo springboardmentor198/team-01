@@ -69,18 +69,51 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
             }
         }
 
-        SearchHistory history = SearchHistory.builder()
-                .user(user)
-                .searchQuery(searchQuery)
-                .propertyType(propertyType)
-                .city(request.getCity())
-                .riskLevel(riskLevel)
-                .status(status)
-                .property(property)
-                .searchedAt(LocalDateTime.now())
-                .build();
+LocalDateTime now = LocalDateTime.now();
+
+        // Dedup: if this property was already searched, update its timestamp
+        // (and refresh metadata) instead of inserting a duplicate row.
+SearchHistory history = null;
+        if (property != null) {
+            history = searchHistoryRepository
+                    .findFirstByUser_UserIdAndProperty_PropertyIdOrderBySearchedAtDesc(
+                            user.getUserId(), property.getPropertyId())
+                    .orElse(null);
+        }
+
+        if (history == null) {
+            history = SearchHistory.builder()
+                    .user(user)
+                    .searchQuery(searchQuery)
+                    .propertyType(propertyType)
+                    .city(request.getCity())
+                    .riskLevel(riskLevel)
+                    .status(status)
+                    .property(property)
+                    .searchedAt(now)
+                    .build();
+        } else {
+            history.setSearchQuery(searchQuery);
+            history.setPropertyType(propertyType);
+            history.setCity(request.getCity());
+            history.setRiskLevel(riskLevel);
+            history.setStatus(status);
+            history.setSearchedAt(now);
+        }
 
         SearchHistory saved = searchHistoryRepository.save(history);
+
+        // Keep only the last 10 recent searches for this user (newest first).
+        List<SearchHistory> allForUser = searchHistoryRepository
+                .findByUser_UserIdOrderBySearchedAtDesc(user.getUserId());
+        if (allForUser.size() > 10) {
+            List<Long> keepIds = allForUser.stream()
+                    .limit(10)
+                    .map(SearchHistory::getSearchId)
+                    .collect(Collectors.toList());
+            searchHistoryRepository.deleteByUser_UserIdAndSearchIdNotIn(
+                    user.getUserId(), keepIds);
+        }
 
         return toResponse(saved);
     }
@@ -104,7 +137,7 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
                 .collect(Collectors.toList());
     }
 
-    @Override
+@Override
     @Transactional(readOnly = true)
     public List<RecentSearchResponse> getRecentSearches(int limit) {
 
@@ -113,6 +146,31 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteSearch(String email, Long searchId) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (searchId == null) {
+            return;
+        }
+
+        searchHistoryRepository.deleteBySearchIdAndUser_UserId(
+                searchId, user.getUserId());
+    }
+
+    @Override
+    @Transactional
+    public void clearSearchHistory(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        searchHistoryRepository.deleteByUser_UserId(user.getUserId());
     }
 
     private RecentSearchResponse toResponse(SearchHistory history) {
@@ -156,21 +214,23 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
 
         User user = history.getUser();
 
-        return RecentSearchResponse.builder()
-                .searchId(history.getSearchId())
-                .userId(user != null ? user.getUserId() : null)
-                .userName(user != null ? user.getName() : null)
-                .userEmail(user != null ? user.getEmail() : null)
-                .property(propertyName)
-                .propertyType(propertyType)
-                .risk(riskLevel != null && !riskLevel.isBlank() ? riskLevel : "Unrated")
-                .status(status)
-                .query(history.getSearchQuery())
-                .city(history.getCity() != null ? history.getCity()
-                        : property != null ? property.getCity() : null)
-                .propertyId(property != null ? property.getPropertyId() : null)
-                .searchedAt(history.getSearchedAt())
-                .build();
+        RecentSearchResponse response = new RecentSearchResponse();
+        response.setSearchId(history.getSearchId());
+        response.setUserId(user != null ? user.getUserId() : null);
+        response.setUserName(user != null ? user.getName() : null);
+        response.setUserEmail(user != null ? user.getEmail() : null);
+        response.setProperty(propertyName);
+        response.setPropertyType(propertyType);
+        response.setRisk(riskLevel != null && !riskLevel.isBlank() ? riskLevel : "Unrated");
+        response.setStatus(status);
+        response.setQuery(history.getSearchQuery());
+        response.setCity(history.getCity() != null ? history.getCity()
+            : property != null ? property.getCity() : null);
+        response.setPropertyId(property != null ? property.getPropertyId() : null);
+        response.setPropertyName(property != null ? property.getPropertyCode() : null);
+        response.setImageUrl(property != null ? property.getImageUrl() : null);
+        response.setSearchedAt(history.getSearchedAt());
+        return response;
     }
 
     private Property resolveMatchingProperty(SearchHistoryRequest request) {
@@ -188,8 +248,8 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
         }
 
         return pickBestMatch(
-                propertyRepository.searchByTerm(term.trim()),
-                request);
+        propertyRepository.searchProperties(term.trim()),
+        request);
     }
 
     private Property pickBestMatch(List<Property> candidates, SearchHistoryRequest request) {

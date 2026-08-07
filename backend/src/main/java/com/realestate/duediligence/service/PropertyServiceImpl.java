@@ -1,5 +1,6 @@
 package com.realestate.duediligence.service;
 
+import com.realestate.duediligence.dto.PropertySuggestion;
 import com.realestate.duediligence.entity.ActivityLog;
 import com.realestate.duediligence.repository.ActivityLogRepository;
 import com.realestate.duediligence.entity.Property;
@@ -7,12 +8,14 @@ import com.realestate.duediligence.repository.PropertyRepository;
 import com.realestate.duediligence.event.NotificationEvents;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PropertyServiceImpl implements PropertyService {
@@ -113,8 +116,44 @@ public Property save(Property property) {
         propertyRepository.deleteById(id);
     }
 
+   @Override
+public List<Property> searchProperties(String keyword) {
+    return propertyRepository.searchProperties(keyword);
+}
+
     @Override
-    public List<Property> searchByCity(String city) {
-        return propertyRepository.findByCity(city);
+    public List<Property> globalSearch(String keyword, int page, int size) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return List.of();
+        }
+
+        String term = keyword.trim();
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+
+        return propertyRepository.globalSearch(
+                term,
+                term,
+                PageRequest.of(safePage, safeSize));
+    }
+
+    @Override
+    public List<PropertySuggestion> autocomplete(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return List.of();
+        }
+
+        String term = keyword.trim();
+
+        return propertyRepository.globalSearch(term, term, PageRequest.of(0, 10))
+                .stream()
+                .map(property -> PropertySuggestion.builder()
+                        .propertyId(property.getPropertyId())
+                        .name(property.getPropertyCode())
+                        .city(property.getCity())
+                        .propertyType(property.getPropertyType())
+                        .address(property.getAddress())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

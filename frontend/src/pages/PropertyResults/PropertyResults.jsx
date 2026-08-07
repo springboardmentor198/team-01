@@ -42,7 +42,15 @@ export default function PropertyResults() {
 
     const fetchProperties = async () => {
       try {
-        const data = await api.getProperties();
+        let data;
+        if (query) {
+          // Use backend ranked global search when a keyword is present
+          const result = await api.searchProperties(query, { size: 50 });
+          data = Array.isArray(result) ? result : result?.content || [];
+        } else {
+          data = await api.getProperties();
+        }
+
         setProperties(data);
         const summaries = await Promise.all(
           data.map((p) => api.getRiskSummary(p.propertyId).catch(() => null)),
@@ -63,7 +71,7 @@ export default function PropertyResults() {
     };
 
     fetchProperties();
-  }, [navigate]);
+  }, [navigate, query]);
 
   if (loading) {
     return (
@@ -302,8 +310,14 @@ export default function PropertyResults() {
                 size={48}
                 style={{ marginBottom: "15px", color: "#F59E0B" }}
               />
-              <h3>No Properties Found</h3>
-              <p>Try clearing some filters or searching for another address.</p>
+              <h3>No matching properties found.</h3>
+              <p>Try searching by:</p>
+              <ul className="no-results-tips">
+                <li>Property Code</li>
+                <li>Address</li>
+                <li>City</li>
+                <li>Owner Name</li>
+              </ul>
             </div>
           )}
         </div>

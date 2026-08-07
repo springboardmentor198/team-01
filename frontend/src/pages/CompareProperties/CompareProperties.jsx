@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "../../components/Layout/Layout";
+import { api } from "../../services/api";
 import "./CompareProperties.css";
 
 import {
@@ -16,76 +17,121 @@ import {
   LuCircleCheck,
 } from "react-icons/lu";
 
-const properties = [
-  {
-    id: 1,
-    name: "3 BHK Luxury Villa",
-    type: "Residential",
-    city: "Bangalore",
-    area: "2450 sq.ft",
-    status: "Available",
-    risk: "Medium",
-    owner: "Satya Prakash",
-    valuation: "₹1.25 Cr",
-    tax: "Paid",
-    flood: "Low",
-    legal: "Verified",
-  },
-  {
-    id: 2,
-    name: "Commercial Office",
-    type: "Commercial",
-    city: "Delhi",
-    area: "3100 sq.ft",
-    status: "Under Review",
-    risk: "High",
-    owner: "Amit Sharma",
-    valuation: "₹2.80 Cr",
-    tax: "Pending",
-    flood: "Medium",
-    legal: "Review Required",
-  },
-  {
-    id: 3,
-    name: "Farm House",
-    type: "Agricultural",
-    city: "Jaipur",
-    area: "5500 sq.ft",
-    status: "Available",
-    risk: "Low",
-    owner: "Rajesh Kumar",
-    valuation: "₹95 L",
-    tax: "Paid",
-    flood: "Low",
-    legal: "Verified",
-  },
-];
-
 export default function CompareProperties() {
+  const [properties, setProperties] = useState([]);
+
   const [property1, setProperty1] = useState("");
   const [property2, setProperty2] = useState("");
 
-  const first = properties.find((p) => p.id === Number(property1));
-  const second = properties.find((p) => p.id === Number(property2));
+  const [firstRisk, setFirstRisk] = useState(null);
+  const [secondRisk, setSecondRisk] = useState(null);
+
+  const [firstTax, setFirstTax] = useState(null);
+  const [secondTax, setSecondTax] = useState(null);
+
+  const [firstFlood, setFirstFlood] = useState(null);
+  const [secondFlood, setSecondFlood] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    async function loadProperties() {
+      try {
+        const data = await api.getProperties();
+        setProperties(data);
+      } catch (err) {
+        console.error(err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProperties();
+  }, []);
+
+  const first = properties.find((p) => p.propertyId === Number(property1));
+
+  const second = properties.find((p) => p.propertyId === Number(property2));
+
+  useEffect(() => {
+    if (!property1) return;
+
+    async function loadData() {
+      try {
+        const [risk, tax, flood] = await Promise.all([
+          api.getRiskSummary(property1).catch(() => null),
+          api.getPropertyTaxSummary(property1).catch(() => null),
+          api.getFloodZone(property1).catch(() => null),
+        ]);
+
+        setFirstRisk(risk);
+        setFirstTax(tax);
+        setFirstFlood(flood);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    loadData();
+  }, [property1]);
+
+  useEffect(() => {
+    if (!property2) return;
+
+    async function loadData() {
+      try {
+        const [risk, tax, flood] = await Promise.all([
+          api.getRiskSummary(property2).catch(() => null),
+          api.getPropertyTaxSummary(property2).catch(() => null),
+          api.getFloodZone(property2).catch(() => null),
+        ]);
+
+        setSecondRisk(risk);
+        setSecondTax(tax);
+        setSecondFlood(flood);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    loadData();
+  }, [property2]);
+
+  if (loading) {
+    return (
+      <Layout title="Compare Properties">
+        <div className="compare-page">
+          <h2>Loading properties...</h2>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout title="Compare Properties">
+        <div className="compare-page">
+          <h2>Failed to load properties.</h2>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title="Compare Properties">
       <div className="compare-page">
-
         <div className="compare-header">
           <h2>
             <LuArrowLeftRight />
             Compare Properties
           </h2>
 
-          <p>
-            Select two properties to compare their valuation,
-            ownership, legal status and overall risk assessment.
-          </p>
+          <p>Compare two properties using live backend data.</p>
         </div>
 
         <div className="compare-selection">
-
           <div className="select-card">
             <label>Property A</label>
 
@@ -96,8 +142,8 @@ export default function CompareProperties() {
               <option value="">Select Property</option>
 
               {properties.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
+                <option key={item.propertyId} value={item.propertyId}>
+                  {item.propertyCode}
                 </option>
               ))}
             </select>
@@ -115,30 +161,25 @@ export default function CompareProperties() {
               <option value="">Select Property</option>
 
               {properties.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
+                <option key={item.propertyId} value={item.propertyId}>
+                  {item.propertyCode}
                 </option>
               ))}
             </select>
           </div>
-
         </div>
-
         {first && second && (
           <>
-            {/* Property Summary Cards */}
+            {/* Summary Cards */}
 
             <div className="compare-summary">
-
               <div className="summary-card">
-
-                <h3>{first.name}</h3>
+                <h3>{first.propertyCode}</h3>
 
                 <div className="summary-grid">
-
                   <div>
-                    <span>Type</span>
-                    <strong>{first.type}</strong>
+                    <span>Property Type</span>
+                    <strong>{first.propertyType}</strong>
                   </div>
 
                   <div>
@@ -147,29 +188,24 @@ export default function CompareProperties() {
                   </div>
 
                   <div>
-                    <span>Risk</span>
-
-                    <span
-                      className={`risk-badge ${first.risk.toLowerCase()}`}
-                    >
-                      {first.risk}
-                    </span>
-
+                    <span>Owner</span>
+                    <strong>{first.ownerName}</strong>
                   </div>
 
+                  <div>
+                    <span>Status</span>
+                    <strong>{first.status}</strong>
+                  </div>
                 </div>
-
               </div>
 
               <div className="summary-card">
-
-                <h3>{second.name}</h3>
+                <h3>{second.propertyCode}</h3>
 
                 <div className="summary-grid">
-
                   <div>
-                    <span>Type</span>
-                    <strong>{second.type}</strong>
+                    <span>Property Type</span>
+                    <strong>{second.propertyType}</strong>
                   </div>
 
                   <div>
@@ -178,58 +214,55 @@ export default function CompareProperties() {
                   </div>
 
                   <div>
-                    <span>Risk</span>
-
-                    <span
-                      className={`risk-badge ${second.risk.toLowerCase()}`}
-                    >
-                      {second.risk}
-                    </span>
-
+                    <span>Owner</span>
+                    <strong>{second.ownerName}</strong>
                   </div>
 
+                  <div>
+                    <span>Status</span>
+                    <strong>{second.status}</strong>
+                  </div>
                 </div>
-
               </div>
-
             </div>
 
                         {/* Comparison Table */}
 
             <div className="comparison-card">
-
               <table className="comparison-table">
-
                 <thead>
-
                   <tr>
                     <th>Comparison</th>
-                    <th>{first.name}</th>
-                    <th>{second.name}</th>
+                    <th>{first.propertyCode}</th>
+                    <th>{second.propertyCode}</th>
                   </tr>
-
                 </thead>
 
                 <tbody>
-
                   <tr>
                     <td>
-                      <div className="comparison-label">
-                        <LuBuilding2 />
-                        <span>Property Type</span>
-                      </div>
+                      <LuBuilding2 />
+                      Property Type
                     </td>
 
-                    <td>{first.type}</td>
-                    <td>{second.type}</td>
+                    <td>{first.propertyType}</td>
+                    <td>{second.propertyType}</td>
                   </tr>
 
                   <tr>
                     <td>
-                      <div className="comparison-label">
-                        <LuMapPin />
-                        <span>Location</span>
-                      </div>
+                      <LuMapPin />
+                      Address
+                    </td>
+
+                    <td>{first.address}</td>
+                    <td>{second.address}</td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <LuMapPin />
+                      City
                     </td>
 
                     <td>{first.city}</td>
@@ -244,20 +277,22 @@ export default function CompareProperties() {
                       </div>
                     </td>
 
-                    <td>{first.area}</td>
-                    <td>{second.area}</td>
+                    <td>{first.lotSizeSqft} sq.ft</td>
+                    <td>{second.lotSizeSqft} sq.ft</td>
                   </tr>
 
                   <tr>
-                    <td>
-                      <div className="comparison-label">
-                        <LuIndianRupee />
-                        <span>Estimated Value</span>
-                      </div>
-                    </td>
+                    <td>Bedrooms</td>
 
-                    <td>{first.valuation}</td>
-                    <td>{second.valuation}</td>
+                    <td>{first.bedrooms}</td>
+                    <td>{second.bedrooms}</td>
+                  </tr>
+
+                  <tr>
+                    <td>Bathrooms</td>
+
+                    <td>{first.bathrooms}</td>
+                    <td>{second.bathrooms}</td>
                   </tr>
 
                   <tr>
@@ -268,8 +303,36 @@ export default function CompareProperties() {
                       </div>
                     </td>
 
-                    <td>{first.owner}</td>
-                    <td>{second.owner}</td>
+                    <td>{first.ownerName}</td>
+                    <td>{second.ownerName}</td>
+                  </tr>
+
+                  <tr>
+                    <td>Parcel ID</td>
+
+                    <td>{first.parcelId}</td>
+                    <td>{second.parcelId}</td>
+                  </tr>
+
+                  <tr>
+                    <td>Land Use</td>
+
+                    <td>{first.landUse}</td>
+                    <td>{second.landUse}</td>
+                  </tr>
+
+                  <tr>
+                    <td>Year Built</td>
+
+                    <td>{first.yearBuilt}</td>
+                    <td>{second.yearBuilt}</td>
+                  </tr>
+
+                  <tr>
+                    <td>Status</td>
+
+                    <td>{first.status}</td>
+                    <td>{second.status}</td>
                   </tr>
 
                   <tr>
@@ -280,76 +343,68 @@ export default function CompareProperties() {
                       </div>
                     </td>
 
-                    <td>
-                      <span
-                        className={`risk-badge ${first.risk.toLowerCase()}`}
-                      >
-                        {first.risk}
-                      </span>
-                    </td>
+                    <td>{firstRisk?.overallRisk ?? "N/A"}</td>
 
-                    <td>
-                      <span
-                        className={`risk-badge ${second.risk.toLowerCase()}`}
-                      >
-                        {second.risk}
-                      </span>
-                    </td>
-
+                    <td>{secondRisk?.overallRisk ?? "N/A"}</td>
                   </tr>
 
                   <tr>
-                    <td>
-                      <div className="comparison-label">
-                        <LuReceipt />
-                        <span>Tax Status</span>
-                      </div>
-                    </td>
+                    <td>Risk Score</td>
 
-                    <td>{first.tax}</td>
-                    <td>{second.tax}</td>
+                    <td>{firstRisk?.riskScore ?? "N/A"}</td>
+
+                    <td>{secondRisk?.riskScore ?? "N/A"}</td>
                   </tr>
 
                   <tr>
-                    <td>
-                      <div className="comparison-label">
-                        <LuWaves />
-                        <span>Flood Zone</span>
-                      </div>
-                    </td>
+                    <td>Legal Risk</td>
 
-                    <td>{first.flood}</td>
-                    <td>{second.flood}</td>
+                    <td>{firstRisk?.legalRisk ?? "N/A"}</td>
+
+                    <td>{secondRisk?.legalRisk ?? "N/A"}</td>
                   </tr>
 
                   <tr>
-                    <td>
-                      <div className="comparison-label">
-                        <LuBadgeCheck />
-                        <span>Legal Status</span>
-                      </div>
-                    </td>
+                    <td>Flood Risk</td>
 
-                    <td>{first.legal}</td>
-                    <td>{second.legal}</td>
+                    <td>{firstRisk?.floodRisk ?? "N/A"}</td>
+
+                    <td>{secondRisk?.floodRisk ?? "N/A"}</td>
                   </tr>
 
                   <tr>
-                    <td>
-                      <div className="comparison-label">
-                        <LuCircleCheck />
-                        <span>Status</span>
-                      </div>
-                    </td>
+                    <td>Environmental Risk</td>
 
-                    <td>{first.status}</td>
-                    <td>{second.status}</td>
+                    <td>{firstRisk?.environmentalRisk ?? "N/A"}</td>
+
+                    <td>{secondRisk?.environmentalRisk ?? "N/A"}</td>
                   </tr>
 
+                  <tr>
+                    <td>Tax Status</td>
+
+                    <td>
+                      {firstTax?.status ?? firstTax?.paymentStatus ?? "N/A"}
+                    </td>
+
+                    <td>
+                      {secondTax?.status ?? secondTax?.paymentStatus ?? "N/A"}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Flood Zone</td>
+
+                    <td>
+                      {firstFlood?.zone ?? firstFlood?.floodZone ?? "N/A"}
+                    </td>
+
+                    <td>
+                      {secondFlood?.zone ?? secondFlood?.floodZone ?? "N/A"}
+                    </td>
+                  </tr>
                 </tbody>
-
               </table>
-
             </div>
           </>
         )}
