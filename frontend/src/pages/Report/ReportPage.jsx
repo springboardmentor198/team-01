@@ -61,12 +61,7 @@ const triggerDownload = (blob, filename) => {
   URL.revokeObjectURL(url);
 };
 
-/**
- * ReportPage — integrates ExecutiveSummary, ReportDetails,
- * RecommendationPanel, and ReportActions. Handles fetching the due
- * diligence data, generating a report when none exists, and downloading
- * PDF / Excel exports.
- */
+
 export default function ReportPage({ propertyId }) {
   const [data, setData] = useState(null);
   const [report, setReport] = useState(null);
@@ -82,17 +77,26 @@ export default function ReportPage({ propertyId }) {
     setLoading(true);
     setError(false);
     setErrorMessage("");
+    setReport(null);
 
     try {
-      const [property, risk, documents, permits] = await Promise.all([
-        api.getPropertyById(propertyId),
-        api.getRiskSummary(propertyId).catch((err) => {
-          console.warn("Risk summary not found", err);
-          return null;
-        }),
-        api.getDocuments(propertyId).catch(() => []),
-        api.getPermits(propertyId).catch(() => []),
-      ]);
+      const [property, risk, documents, permits, existingReport] =
+        await Promise.all([
+          api.getPropertyById(propertyId),
+          api.getRiskSummary(propertyId).catch((err) => {
+            console.warn("Risk summary not found", err);
+            return null;
+          }),
+          api.getDocuments(propertyId).catch(() => []),
+          api.getPermits(propertyId).catch(() => []),
+          // Load any previously generated report in the same round trip so
+          // returning to this page doesn't force a fresh "Generate" click
+          // (which would otherwise create a duplicate report row every time).
+          api.getReportByProperty(propertyId).catch((err) => {
+            console.warn("Existing report lookup failed", err);
+            return null;
+          }),
+        ]);
 
       if (!property) {
         setError(true);
@@ -106,6 +110,7 @@ export default function ReportPage({ propertyId }) {
         documents: documents || [],
         permits: permits || [],
       });
+      if (existingReport) setReport(existingReport);
     } catch (err) {
       console.error("Load Error:", err);
       setError(true);
@@ -202,13 +207,31 @@ export default function ReportPage({ propertyId }) {
               : "on demand"}
           </p>
         </div>
-        <ReportActions
-          reportId={report?.id}
-          downloading={downloading}
-          error={downloadError}
-          onDownloadPdf={handleDownloadPdf}
-          onDownloadExcel={handleDownloadExcel}
-        />
+        <div className="report-header-actions">
+          {report && (
+            <button
+              type="button"
+              className="report-btn report-btn-regenerate"
+              onClick={generateReport}
+              disabled={generating}
+              title="Re-run the due diligence analysis and refresh this report"
+            >
+              {generating ? (
+                <LuLoader className="report-btn-spinner" />
+              ) : (
+                <LuRefreshCw />
+              )}
+              {generating ? "Regenerating…" : "Regenerate"}
+            </button>
+          )}
+          <ReportActions
+            reportId={report?.id}
+            downloading={downloading}
+            error={downloadError}
+            onDownloadPdf={handleDownloadPdf}
+            onDownloadExcel={handleDownloadExcel}
+          />
+        </div>
       </header>
 
       {!report ? (

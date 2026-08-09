@@ -103,6 +103,7 @@ function getMenuItemsForRole(role) {
   if (role === "ADMIN") {
     return [
       dashboardItem,
+      { name: "Audit Logs", path: "/audit-logs", icon: <FiFileText /> },
       notificationsItem,
       profileItem,
     ];

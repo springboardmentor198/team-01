@@ -1,4 +1,5 @@
 import { LuFileText, LuEye } from "react-icons/lu";
+import { api } from "../../../services/api";
 
 const riskClass = (value) => (value || "unknown").toLowerCase();
 
@@ -219,7 +220,11 @@ export default function ReportDetails({
                           >
                             <LuEye /> View
                           </a>
-                          <a href={doc.fileUrl} download>
+                          <a
+                            href={`http://localhost:8081/api/documents/download/${doc.id}?email=${encodeURIComponent(api.getCurrentUser()?.email || "System")}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
                             <LuFileText /> Download
                           </a>
                         </>

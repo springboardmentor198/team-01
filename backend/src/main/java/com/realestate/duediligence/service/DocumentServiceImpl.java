@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 
 import com.realestate.duediligence.dto.DocumentRequest;
 import com.realestate.duediligence.dto.DocumentResponse;
@@ -116,6 +118,26 @@ public class DocumentServiceImpl implements DocumentService {
 
         repository.deleteById(id);
 
+    }
+
+    @Override
+    public DocumentResponse downloadDocument(Integer id, String email) {
+        Document document = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
+
+        String performedBy = (email != null && !email.trim().isEmpty()) ? email : "Anonymous User";
+
+        activityLogRepository.save(
+            ActivityLog.builder()
+                .property(document.getProperty())
+                .activityType("DOCUMENT_DOWNLOADED")
+                .description("Downloaded " + document.getDocumentName() + " PDF.")
+                .performedBy(performedBy)
+                .createdAt(LocalDateTime.now())
+                .build()
+        );
+
+        return mapToResponse(document);
     }
 
     private DocumentResponse mapToResponse(Document document) {
