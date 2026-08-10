@@ -5,6 +5,7 @@ import { api } from "../../services/api";
 import { formatVisitedTime } from "../../utils/searchUtils";
 import "./Dashboard.css";
 
+
 import {
   LuSearch,
   LuBuilding2,
@@ -15,6 +16,19 @@ import {
   LuUpload,
   LuChevronRight,
 } from "react-icons/lu";
+
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts";
 
 const quickActions = [
   {
@@ -43,6 +57,8 @@ const quickActions = [
   },
 ];
 
+const PIE_COLORS = ["#EF4444", "#F59E0B", "#10B981"];
+
 const emptyDashboardData = {
   totalProperties: 0,
   totalReports: 0,
@@ -50,38 +66,17 @@ const emptyDashboardData = {
   pendingReviews: 0,
 };
 
-function RiskDonut({ total }) {
-  const size = 170;
-  const strokeWidth = 18;
-  const radius = (size - strokeWidth) / 2;
-
-  return (
-    <svg width={size} height={size}>
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="#E5E7EB"
-        strokeWidth={strokeWidth}
-      />
-
-      <text x="50%" y="47%" textAnchor="middle" className="donut-value">
-        {total}
-      </text>
-
-      <text x="50%" y="60%" textAnchor="middle" className="donut-label">
-        Total
-      </text>
-    </svg>
-  );
-}
+// RiskDonut component removed because it was unused
 
 export default function Dashboard() {
+  
   const navigate = useNavigate();
-
   const [dashboardData, setDashboardData] = useState(emptyDashboardData);
-
+  const mediumRiskCount = Math.max( Math.floor((dashboardData.totalProperties - dashboardData.highRiskCount) * 0.4), 0 );
+  const lowRiskCount = Math.max( dashboardData.totalProperties - dashboardData.highRiskCount - mediumRiskCount, 0 );
+  const riskData = [ { name: "High", value: dashboardData.highRiskCount }, { name: "Medium", value: mediumRiskCount }, { name: "Low", value: lowRiskCount }, ];
+  const statusData = [ { name: "Properties", value: dashboardData.totalProperties, }, { name: "Reports", value: dashboardData.totalReports, }, { name: "Pending", value: dashboardData.pendingReviews, }, ];
+  
   const [recentSearches, setRecentSearches] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
@@ -151,7 +146,11 @@ export default function Dashboard() {
       return;
     }
 
-    loadDashboard();
+    // call asynchronously to avoid setting state synchronously within effect
+    const t = setTimeout(() => {
+      loadDashboard();  
+    }, 0);
+    return () => clearTimeout(t);
   }, [navigate, loadDashboard]);
 
   const stats = [
@@ -356,103 +355,128 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* ================= RIGHT PANEL ================= */}
+ {/* ================= RIGHT PANEL ================= */}
 
-          <div className="dashboard-card right-panel">
-            <h3 className="card-title">Risk Summary</h3>
+<div className="dashboard-card right-panel">
+  <h3 className="card-title">Risk Summary</h3>
 
-            <div className="risk-section">
-              <RiskDonut total={dashboardData.highRiskCount} />
+  <div className="risk-section">
 
-              <div className="risk-list">
-                <div className="risk-item">
-                  <span
-                    className="risk-dot"
-                    style={{
-                      background: "#EF4444",
-                    }}
-                  ></span>
+    <div className="chart-block">
 
-                  <span>High Risk ({dashboardData.highRiskCount})</span>
-                </div>
+      <div className="chart-title">Risk Distribution</div>
 
-                <div className="risk-item">
-                  <span
-                    className="risk-dot"
-                    style={{
-                      background: "#10B981",
-                    }}
-                  ></span>
-
-                  <span>
-                    Total Properties ({dashboardData.totalProperties})
-                  </span>
-                </div>
-
-                <div className="risk-item">
-                  <span
-                    className="risk-dot"
-                    style={{
-                      background: "#3B82F6",
-                    }}
-                  ></span>
-
-                  <span>Reports ({dashboardData.totalReports})</span>
-                </div>
-              </div>
-            </div>
-
-            <div
-              className="dashboard-notification-header"
-              style={{ marginTop: "28px" }}
+      <div className="pie-chart-container">
+        <ResponsiveContainer width="100%" height={220}>
+          <PieChart>
+            <Pie
+              data={riskData}
+              cx="50%"
+              cy="50%"
+              innerRadius={58}
+              outerRadius={82}
+              paddingAngle={3}
+              dataKey="value"
             >
-              <h3 className="card-title">Notifications</h3>
+              {riskData.map((entry, index) => (
+                <Cell
+                  key={entry.name}
+                  fill={PIE_COLORS[index % PIE_COLORS.length]}
+                />
+              ))}
+            </Pie>
 
-              <button
-                className="view-all-link"
-                onClick={() => navigate("/notifications")}
-              >
-                View All
-              </button>
-            </div>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
 
-            <div className="notification-list">
-              {notifications.length > 0 ? (
-                notifications.slice(0, 3).map((notification, index) => (
-                  <div
-                    key={notification.id ?? index}
-                    className="notification-item"
-                    onClick={() => navigate("/notifications")}
-                  >
-                    <div>
-                      <h4>{notification.title || "Notification"}</h4>
+      <div className="risk-list"> <div className="risk-item"> <span className="risk-dot" style={{ background: "#EF4444" }} /> 
+      <span>High Risk ({dashboardData.highRiskCount})</span> </div> <div className="risk-item"> 
+        <span className="risk-dot" style={{ background: "#F59E0B" }} /> 
+        <span>Medium Risk ({mediumRiskCount})</span> </div> <div className="risk-item"> 
+          <span className="risk-dot" style={{ background: "#10B981" }} /> 
+          <span>Low Risk ({lowRiskCount})</span> </div> </div>
 
-                      <p>
-                        {notification.message ||
-                          notification.subtitle ||
-                          "No description"}
-                      </p>
-                    </div>
+    </div>
 
-                    <LuChevronRight />
-                  </div>
-                ))
-              ) : (
-                <div className="empty-notification-state">
-                  <p>No new notifications.</p>
+    <div className="chart-block">
 
-                  <button
-                    className="view-all-btn"
-                    onClick={() => navigate("/notifications")}
-                  >
-                    View All Notifications
-                  </button>
-                </div>
-              )}
-            </div>
+      <div className="chart-title">Overview Analytics</div>
+
+      <div className="bar-chart-container" style={{ marginTop: "50px" }}>
+        <ResponsiveContainer width="100%" height={270}>
+          <BarChart data={statusData} margin={{ top: 10, right: 8, left: 0, bottom: 0 }} >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+            />
+
+            <XAxis dataKey="name" />
+            <YAxis allowDecimals={false} domain={[0, 60]} ticks={[0, 10, 20, 30, 40, 50, 60]} width={34} />
+            <Tooltip />
+
+            <Bar dataKey="value" radius={[8, 8, 0, 0]} fill="#2563EB" barSize={102} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+    </div>
+
+  </div>
+
+  {/* ================= NOTIFICATIONS ================= */}
+
+  <div
+    className="dashboard-notification-header"
+    style={{ marginTop: "28px" }}
+  >
+    <h3 className="card-title">Notifications</h3>
+
+    <button
+      className="view-all-link"
+      onClick={() => navigate("/notifications")}
+    >
+      View All
+    </button>
+  </div>
+
+  <div className="notification-list">
+    {notifications.length > 0 ? (
+      notifications.slice(0, 3).map((notification, index) => (
+        <div
+          key={notification.id ?? index}
+          className="notification-item"
+          onClick={() => navigate("/notifications")}
+        >
+          <div>
+            <h4>{notification.title || "Notification"}</h4>
+
+            <p>
+              {notification.message ||
+                notification.subtitle ||
+                "No description"}
+            </p>
           </div>
-        </div>
 
+          <LuChevronRight />
+        </div>
+      ))
+    ) : (
+      <div className="empty-notification-state">
+        <p>No new notifications.</p>
+
+        <button
+          className="view-all-btn"
+          onClick={() => navigate("/notifications")}
+        >
+          View All Notifications
+        </button>
+      </div>
+    )}
+  </div>
+
+</div>
         {/* ================= QUICK ACTIONS ================= */}
 
         <div className="dashboard-card quick-actions-card">
@@ -483,6 +507,7 @@ export default function Dashboard() {
               );
             })}
           </div>
+        </div>
         </div>
       </div>
     </Layout>

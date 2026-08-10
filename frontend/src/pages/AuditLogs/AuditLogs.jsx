@@ -1,104 +1,215 @@
+import { useEffect, useMemo, useState } from "react";
 import Layout from "../../components/Layout/Layout";
 import { api } from "../../services/api";
 import "./AuditLogs.css";
 
-import { LuActivity } from "react-icons/lu";
+import {
+  LuActivity,
+  LuSearch,
+  LuFilter,
+  LuRefreshCw,
+  LuShieldCheck,
+  LuClock3,
+  LuUser,
+  LuFileText,
+} from "react-icons/lu";
 
 function AuditLogs() {
-  const currentUser = api.getCurrentUser();
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [actionFilter, setActionFilter] = useState("ALL");
 
-  const mockLogs = [
-    {
-      id: "LOG-9824",
-      user: currentUser.email,
-      action: "USER_LOGIN",
-      actionClass: "login",
-      table: "users",
-      time: "Just now",
-      status: "SUCCESS"
-    },
-    {
-      id: "LOG-9823",
-      user: currentUser.email,
-      action: "VIEW_DASHBOARD",
-      actionClass: "view",
-      table: "properties",
-      time: "2 mins ago",
-      status: "SUCCESS"
-    },
-    {
-      id: "LOG-9819",
-      user: "postgres",
-      action: "CONNECT_DATABASE",
-      actionClass: "db",
-      table: "postgres_db",
-      time: "15 mins ago",
-      status: "SUCCESS"
-    },
-    {
-      id: "LOG-9818",
-      user: "system",
-      action: "RUN_MIGRATIONS",
-      actionClass: "sys",
-      table: "schema_version",
-      time: "16 mins ago",
-      status: "SUCCESS"
-    },
-    {
-      id: "LOG-9812",
-      user: "mithun@gmail.com",
-      action: "REPLACE_BACKEND",
-      actionClass: "sys",
-      table: "spring_boot_api",
-      time: "Yesterday",
-      status: "SUCCESS"
+  useEffect(() => {
+    loadLogs();
+  }, []);
+
+  const loadLogs = async () => {
+    setLoading(true);
+
+    try {
+      // TODO: Replace propertyId when dynamic selection is added
+      const data = await api.getActivityLogs(1);
+
+      setLogs(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to load audit logs", error);
+      setLogs([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const actions = useMemo(() => {
+    return [
+      "ALL",
+      ...new Set(logs.map((log) => log.action).filter(Boolean)),
+    ];
+  }, [logs]);
+
+  const filteredLogs = useMemo(() => {
+    return logs.filter((log) => {
+      const searchable = JSON.stringify(log).toLowerCase();
+
+      const matchesQuery = searchable.includes(query.toLowerCase());
+
+      const matchesAction =
+        actionFilter === "ALL" ||
+        log.action === actionFilter;
+
+      return matchesQuery && matchesAction;
+    });
+  }, [logs, query, actionFilter]);
 
   return (
     <Layout title="Audit Logs">
       <div className="audit-page">
+
         <div className="audit-header">
-          <h2>Security Audit Logs</h2>
-          <span>{mockLogs.length} Records Logged</span>
+
+          <div className="audit-title">
+            <div className="audit-icon">
+              <LuActivity />
+            </div>
+
+            <div>
+              <h2>Security Audit Logs</h2>
+              <p>
+                Track property activities, document updates,
+                ownership changes and system actions.
+              </p>
+            </div>
+          </div>
+
+          <button className="refresh-btn" onClick={loadLogs}>
+            <LuRefreshCw />
+            Refresh
+          </button>
+
         </div>
 
-        <div className="audit-card">
-          <div className="audit-table-wrapper">
-            <table className="audit-table">
-              <thead>
-                <tr>
-                  <th>Log ID</th>
-                  <th>User / Operator</th>
-                  <th>Action</th>
-                  <th>Resource Table</th>
-                  <th>Timestamp</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockLogs.map((log) => (
-                  <tr key={log.id}>
-                    <td style={{ fontWeight: "700", color: "#64748b" }}>{log.id}</td>
-                    <td>{log.user}</td>
-                    <td>
-                      <span className={`action-badge ${log.actionClass}`}>
-                        {log.action}
-                      </span>
-                    </td>
-                    <td style={{ fontFamily: "monospace", color: "#475569" }}>
-                      {log.table}
-                    </td>
-                    <td>{log.time}</td>
-                    <td>
-                      <span className="status-indicator">{log.status}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="audit-toolbar">
+
+          <div className="audit-search">
+            <LuSearch />
+
+            <input
+              type="text"
+              placeholder="Search logs, users or actions..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
           </div>
+
+          <div className="audit-filter">
+            <LuFilter />
+
+            <select
+              value={actionFilter}
+              onChange={(e) => setActionFilter(e.target.value)}
+            >
+              {actions.map((action) => (
+                <option key={action} value={action}>
+                  {action}
+                </option>
+              ))}
+            </select>
+          </div>
+
         </div>
+
+        <div className="audit-meta">
+          <span>{filteredLogs.length} Records Logged</span>
+        </div>
+
+        {loading ? (
+          <div className="audit-loading">
+            Loading activity logs...
+          </div>
+        ) : filteredLogs.length === 0 ? (
+          <div className="audit-empty">
+
+            <LuFileText />
+
+            <h3>No activity found</h3>
+
+            <p>
+              There are no audit records matching your filters.
+            </p>
+
+          </div>
+        ) : (
+          <div className="audit-card">
+
+            <div className="audit-table-wrapper">
+
+              <table className="audit-table">
+
+                <thead>
+                  <tr>
+                    <th>Action</th>
+                    <th>User</th>
+                    <th>Property</th>
+                    <th>Timestamp</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredLogs.map((log, index) => (
+                    <tr key={log.id || index}>
+
+                      <td>
+                        <div className="cell-action">
+                          <LuShieldCheck />
+
+                          <span className="action-badge">
+                            {log.action || "N/A"}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div className="cell-user">
+                          <LuUser />
+                          <span>{log.userName || "System"}</span>
+                        </div>
+                      </td>
+
+                      <td>
+                        {log.propertyName ||
+                          log.propertyId ||
+                          "N/A"}
+                      </td>
+
+                      <td>
+                        <div className="cell-time">
+                          <LuClock3 />
+
+                          <span>
+                            {log.createdAt
+                              ? new Date(log.createdAt).toLocaleString("en-IN")
+                              : "N/A"}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="details-cell">
+                        {log.details ||
+                          log.description ||
+                          "—"}
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
+        )}
       </div>
     </Layout>
   );
