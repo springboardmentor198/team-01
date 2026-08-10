@@ -424,6 +424,24 @@
   gap: 10px;
 }
 
+.report-header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.report-btn-regenerate {
+  background: #fff;
+  color: #1e2b4d;
+  border: 1px solid #d6dce8;
+}
+
+.report-btn-regenerate:hover:not(:disabled) {
+  background: #f3f5f9;
+  opacity: 1;
+}
+
 .report-actions-error {
   color: #dc2626;
   font-size: 13px;

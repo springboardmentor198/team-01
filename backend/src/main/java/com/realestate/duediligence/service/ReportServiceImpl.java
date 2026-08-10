@@ -80,6 +80,14 @@ private final ObjectMapper objectMapper;
                 .orElseThrow(() -> new IllegalArgumentException("Report not found: " + reportId));
     }
 
+    @Override
+    public Report getLatestReportByProperty(Integer propertyId) {
+        return reportRepository.findByPropertyIdOrderByCreatedAtDesc(propertyId)
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
     /**
      * Builds a short executive summary from the aggregated risk data.
      * Field names confirmed against the real RiskSummary entity.

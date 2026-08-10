@@ -1,17 +1,24 @@
 package com.realestate.duediligence.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Date;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY =
-            "InfosysVirtualInternshipRealEstateDueDiligenceSecretKey2026";
+    private final SecretKey key;
+
+    public JwtService(@Value("${jwt.secret}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     public String generateToken(String email) {
 
@@ -19,18 +26,30 @@ public class JwtService {
                 .subject(email)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 86400000))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(key)
                 .compact();
     }
 
     public String extractUsername(String token) {
 
         Claims claims = Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+                .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
 
         return claims.getSubject();
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

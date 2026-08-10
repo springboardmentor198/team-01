@@ -22,7 +22,6 @@ export default function Report() {
         .catch(() => setPropertiesError(true))
         .finally(() => setPropertiesLoading(false));
   }, [propertyId]);
-
   if (!propertyId)
     return (
       <Layout title="Reports">

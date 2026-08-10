@@ -19,6 +19,7 @@ function AuditLogs() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadLogs();
@@ -26,6 +27,7 @@ function AuditLogs() {
 
   const loadLogs = async () => {
     setLoading(true);
+    setError(null);
 
     try {
       // TODO: Replace propertyId when dynamic selection is added
@@ -34,6 +36,7 @@ function AuditLogs() {
       setLogs(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Failed to load audit logs", error);
+      setError(error.message || "Failed to load audit logs");
       setLogs([]);
     } finally {
       setLoading(false);
@@ -121,6 +124,8 @@ function AuditLogs() {
         <div className="audit-meta">
           <span>{filteredLogs.length} Records Logged</span>
         </div>
+
+        {error && <div className="error-message" style={{ marginBottom: "20px" }}>{error}</div>}
 
         {loading ? (
           <div className="audit-loading">
