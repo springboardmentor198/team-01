@@ -426,6 +426,17 @@ export const api = {
     return response.json();
   },
 
+  getDashboardRiskDistribution: async () => {
+    const response = await fetch(`${BASE_URL}/dashboard/risk-distribution`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load dashboard risk distribution",
+      );
+    return response.json();
+  },
+
   getRecentSearches: async () => {
     const response = await fetch(`${BASE_URL}/dashboard/recent-searches`, {
       headers: getHeaders(true),
@@ -784,6 +795,33 @@ export const api = {
     return response.json();
   },
 
+  getRiskAssessment: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/risk/${propertyId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to load risk assessment");
+    return response.json();
+  },
+
+  getComparableProperties: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/comparison/${propertyId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to load comparable properties");
+    return response.json();
+  },
+
+  getPropertyValuation: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/valuation/${propertyId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to load property valuation");
+    return response.json();
+  },
+
+  recordPropertyView: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/activity-log/${propertyId}/view`, {
+      method: "POST",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to record property view");
+  },
+
   updateUserProfile: async (profileData) => {
     const response = await fetch(`${BASE_URL}/users/profile`, {
       method: "PUT",
@@ -842,6 +880,17 @@ export const api = {
   },
 
   // Report Engine APIs
+  getReportByProperty: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/report/latest/${propertyId}`, {
+      headers: getHeaders(true),
+    });
+    if (response.status === 404) return null;
+    if (!response.ok) {
+      throw new Error((await response.text()) || "Failed to load report");
+    }
+    return response.json();
+  },
+
   generateReport: async (propertyId) => {
     const response = await fetch(`${BASE_URL}/report/generate`, {
       method: "POST",

@@ -27,14 +27,14 @@ export default function PropertyValuation({ valuation }) {
         <div className="rd-confidence">
           <LuGauge className="rd-confidence-icon" />
           <div>
-            <strong>{valuation.confidence}%</strong>
-            <span className="rd-muted">Confidence</span>
+            <strong>{valuation.comparableCount}</strong>
+            <span className="rd-muted">Comparables</span>
           </div>
         </div>
       </div>
 
       <div className="rd-chart-box">
-        <ValuationTrendChart points={valuation.trend} />
+        <ValuationTrendChart points={valuation.comparableValues || []} />
       </div>
 
       {valuation.pricePerSqft && (

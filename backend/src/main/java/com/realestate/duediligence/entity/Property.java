@@ -39,6 +39,9 @@ public class Property {
     @Column(name = "area_sqft")
     private BigDecimal lotSizeSqft;
 
+    @Column(name = "estimated_price")
+    private BigDecimal estimatedPrice;
+
     @Column(name = "year_built")
     private Integer yearBuilt;
 

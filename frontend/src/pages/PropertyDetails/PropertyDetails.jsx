@@ -63,6 +63,8 @@ export default function PropertyDetails() {
         setZoning(zoningData);
         setFloodZone(floodZoneData);
 
+        api.recordPropertyView(details.propertyId).catch(() => {});
+
         // Record recent search with matched property details
         if (api.isAuthenticated() && details) {
           api

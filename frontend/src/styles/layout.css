@@ -1,6 +1,9 @@
 .page-container {
   display: flex;
-  min-height: 100vh;
+  width: 100%;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
   background: var(--background);
 }
 
@@ -9,11 +12,15 @@
 .main-content {
   flex: 1;
   margin-left: var(--sidebar-width);
+  min-width: 0;
+  width: calc(100% - var(--sidebar-width));
 
   display: flex;
   flex-direction: column;
 
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
 
   background: var(--background);
 }
@@ -22,7 +29,10 @@
 
 .page-wrapper {
   flex: 1;
-  padding: 28px;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 28px 28px;
 }
 
 /* ---------- Common Card ---------- */
@@ -95,6 +105,7 @@
 
   .main-content {
     margin-left: 0;
+    width: 100%;
   }
 
   .page-wrapper {

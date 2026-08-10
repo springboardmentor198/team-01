@@ -55,6 +55,11 @@ public interface PropertyRepository extends JpaRepository<Property, Integer> {
             """)
     List<Property> findByCityIgnoreCase(@Param("city") String city);
 
+    List<Property> findByCityIgnoreCaseAndPropertyTypeIgnoreCase(
+            String city,
+            String propertyType
+    );
+
     List<Property> findByPropertyType(String propertyType);
     List<Property> findAllByOrderByLastUpdatedDesc(Pageable pageable);
     long countByStatusIgnoreCase(String status);

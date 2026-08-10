@@ -10,4 +10,5 @@ public interface ActivityLogService {
 
     List<ActivityLogResponse> getAllActivityLogs();
 
+    void recordPropertyView(Integer propertyId, String performedBy);
 }
