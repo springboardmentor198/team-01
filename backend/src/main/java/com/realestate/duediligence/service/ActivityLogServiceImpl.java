@@ -51,6 +51,12 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                         )
                 );
 
+        var latestView = activityLogRepository
+                .findFirstByProperty_PropertyIdAndPerformedByAndActivityTypeOrderByCreatedAtDesc(propertyId, performedBy, "PROPERTY_VIEW");
+        if (latestView.isPresent() && latestView.get().getCreatedAt().isAfter(LocalDateTime.now().minusMinutes(30))) {
+            return;
+        }
+
         ActivityLog activityLog = ActivityLog.builder()
                 .property(property)
                 .activityType("PROPERTY_VIEW")
@@ -69,6 +75,8 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                 .activityType(log.getActivityType())
                 .description(log.getDescription())
                 .performedBy(log.getPerformedBy())
+                .propertyId(log.getProperty() != null ? log.getProperty().getPropertyId() : null)
+                .propertyCode(log.getProperty() != null ? log.getProperty().getPropertyCode() : null)
                 .createdAt(log.getCreatedAt())
                 .build();
     }

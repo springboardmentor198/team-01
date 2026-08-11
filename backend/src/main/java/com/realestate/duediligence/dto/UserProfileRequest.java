@@ -14,4 +14,5 @@ public class UserProfileRequest {
     private String phoneNumber;
     private String bio;
     private String avatarUrl;
+    private String location;
 }

@@ -781,6 +781,35 @@ export const api = {
 
     return await response.json();
   },
+  getPopularProperties: async (limit = 6) => {
+    const response = await fetch(`${BASE_URL}/properties/popular?limit=${limit}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to load popular properties");
+    return response.json();
+  },
+  getSavedSearches: async () => {
+    const response = await fetch(`${BASE_URL}/saved-searches`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to load saved searches");
+    return response.json();
+  },
+  createSavedSearch: async (payload) => {
+    const response = await fetch(`${BASE_URL}/saved-searches`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(payload) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to save search");
+    return response.json();
+  },
+  deleteSavedSearch: async (id) => {
+    const response = await fetch(`${BASE_URL}/saved-searches/${id}`, { method: "DELETE", headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to delete saved search");
+  },
+  getProfileDashboard: async () => {
+    const response = await fetch(`${BASE_URL}/users/profile/dashboard`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+    if (!response.ok) {
+      throw new Error((await response.text()) || "Failed to load profile dashboard");
+    }
+    return response.json();
+  },
   getActivityLogs: async (propertyId) => {
     const response = await fetch(`${BASE_URL}/activity-log/${propertyId}`, {
       headers: getHeaders(true),

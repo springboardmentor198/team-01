@@ -23,5 +23,9 @@ public class ActivityLogResponse {
 
     private String performedBy;
 
+    private Integer propertyId;
+
+    private String propertyCode;
+
     private LocalDateTime createdAt;
 }

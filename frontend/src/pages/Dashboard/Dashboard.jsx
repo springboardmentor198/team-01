@@ -119,18 +119,19 @@ export default function Dashboard() {
       setLoading(true);
       setError("");
 
-      const [summary, searches, notificationResponse, risks] = await Promise.all([
-        api.getDashboardSummary(),
+      const [summary, searches, notificationResponse, risks] =
+        await Promise.all([
+          api.getDashboardSummary(),
 
-        api.getRecentSearches(),
+          api.getRecentSearches(),
 
-        api.getNotifications({
-          page: 0,
-          size: 5,
-        }),
+          api.getNotifications({
+            page: 0,
+            size: 5,
+          }),
 
-        api.getDashboardRiskDistribution(),
-      ]);
+          api.getDashboardRiskDistribution(),
+        ]);
 
       /* -----------------------------------------------
          DASHBOARD SUMMARY
@@ -268,9 +269,17 @@ export default function Dashboard() {
 
   const riskData = [
     { name: "Low", value: riskDistribution.low, color: RISK_COLORS.LOW },
-    { name: "Medium", value: riskDistribution.medium, color: RISK_COLORS.MEDIUM },
+    {
+      name: "Medium",
+      value: riskDistribution.medium,
+      color: RISK_COLORS.MEDIUM,
+    },
     { name: "High", value: riskDistribution.high, color: RISK_COLORS.HIGH },
-    { name: "Critical", value: riskDistribution.critical, color: RISK_COLORS.CRITICAL },
+    {
+      name: "Critical",
+      value: riskDistribution.critical,
+      color: RISK_COLORS.CRITICAL,
+    },
   ];
 
   /* =======================================================
@@ -357,11 +366,11 @@ export default function Dashboard() {
             onClick={() => navigate("/notifications")}
             aria-label="Open notifications"
           >
-            <LuBell size={21} />
+            {/* <LuBell size={21} />
 
             {notifications.length > 0 && (
               <span className="notification-count">{notifications.length}</span>
-            )}
+            )} */}
           </button>
         </section>
 
@@ -475,7 +484,10 @@ export default function Dashboard() {
                 <div className="risk-list">
                   {riskData.map((risk) => (
                     <div className="risk-item" key={risk.name}>
-                      <span className="risk-dot" style={{ background: risk.color }} />
+                      <span
+                        className="risk-dot"
+                        style={{ background: risk.color }}
+                      />
                       <span>{risk.name}</span>
                       <strong>{risk.value}</strong>
                     </div>
@@ -708,9 +720,9 @@ export default function Dashboard() {
                     className="notification-item"
                     onClick={() => navigate("/notifications")}
                   >
-                    <div className="notification-icon">
+                    {/* <div className="notification-icon">
                       <LuBell size={17} />
-                    </div>
+                    </div> */}
 
                     <div className="notification-content">
                       <h4>{notification.title || "Notification"}</h4>
@@ -725,7 +737,7 @@ export default function Dashboard() {
                 ))
               ) : (
                 <div className="notification-empty">
-                  <LuBell size={25} />
+                  {/* <LuBell size={25} /> */}
 
                   <p>No new notifications.</p>
 

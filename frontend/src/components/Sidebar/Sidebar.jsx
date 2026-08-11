@@ -157,10 +157,17 @@ function Sidebar() {
         </nav>
       </div>
 
-      <button className="logout" onClick={handleLogoutClick}>
-        <FiLogOut />
-        <span>Logout</span>
-      </button>
+      <div className="sidebar-bottom">
+        <div className="support-card">
+          <strong>Need help?</strong>
+          <p>We're here to help with any queries.</p>
+          <button type="button">Contact Support</button>
+        </div>
+        <button className="logout" onClick={handleLogoutClick}>
+          <FiLogOut />
+          <span>Logout</span>
+        </button>
+      </div>
 
       {showLogoutConfirm && (
         <div className="logout-overlay" onClick={cancelLogout}>

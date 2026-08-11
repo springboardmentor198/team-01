@@ -55,15 +55,14 @@ public class DocumentServiceImpl implements DocumentService {
 
         repository.save(document);
 
-        activityLogRepository.save(
-    ActivityLog.builder()
-        .property(document.getProperty())
-        .activityType("DOCUMENT_UPLOADED")
-        .description(document.getDocumentType() + " uploaded.")
-        .performedBy("Samridhi Prakash")
-        .createdAt(LocalDateTime.now())
-        .build()
-);
+        String performedBy = getAuthenticatedUser();
+        activityLogRepository.save(ActivityLog.builder()
+                .property(document.getProperty())
+                .activityType("DOCUMENT_UPLOADED")
+                .description(document.getDocumentName() + " uploaded.")
+                .performedBy(performedBy)
+                .createdAt(LocalDateTime.now())
+                .build());
 
         eventPublisher.publishEvent(new NotificationEvents.DocumentUploadedEvent(
                 property.getPropertyId(),
@@ -150,5 +149,11 @@ public class DocumentServiceImpl implements DocumentService {
                 .fileUrl(document.getFileUrl())
                 .uploadedAt(document.getUploadedAt())
                 .build();
+    }
+
+    private String getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.isAuthenticated()
+                ? authentication.getName() : "Anonymous User";
     }
 }

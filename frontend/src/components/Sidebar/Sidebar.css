@@ -172,6 +172,22 @@
 
 }
 
+.sidebar-bottom { margin-top: 24px; }
+
+.support-card {
+    margin-bottom: 12px;
+    padding: 14px;
+    border: 1px solid rgba(255,255,255,.13);
+    border-radius: 12px;
+    background: rgba(255,255,255,.06);
+    color: #fff;
+}
+
+.support-card strong { font-size: 13px; }
+.support-card p { margin: 5px 0 10px; color: #cbd5e1; font-size: 11px; line-height: 1.4; }
+.support-card button { width: 100%; padding: 8px; border: 0; border-radius: 7px; background: #fff; color: #1e2b4d; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
+.support-card button:hover { background: #dbeafe; }
+
 /* ---------------- SCROLL ---------------- */
 
 .sidebar::-webkit-scrollbar{
