@@ -28,6 +28,8 @@ public class Property {
 
     private String city;
 
+    private String state;
+
     private String country;
 
     @Column(name = "property_type")

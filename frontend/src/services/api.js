@@ -696,14 +696,20 @@ export const api = {
       );
     return response.json();
   },
-  getRiskSummary: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/risk-summary/${propertyId}`, {
-      headers: getHeaders(true),
-    });
-    if (!response.ok)
-      throw new Error((await response.text()) || "Failed to load risk summary");
-    return response.json();
-  },
+getRiskSummary: async (propertyId) => {
+  const response = await fetch(`${BASE_URL}/risk/${propertyId}`, {
+    method: "GET",
+    headers: getHeaders(true),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      (await response.text()) || "Failed to load risk assessment"
+    );
+  }
+
+  return response.json();
+},
   getDocuments: async (propertyId) => {
     const response = await fetch(`${BASE_URL}/documents/${propertyId}`, {
       headers: getHeaders(true),
