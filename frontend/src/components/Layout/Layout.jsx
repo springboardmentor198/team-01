@@ -1,11 +1,18 @@
 import Sidebar from "../Sidebar/Sidebar";
 import Navbar from "../Navbar/Navbar";
+import { useState } from "react";
+import SupportDrawer from "../SupportDrawer/SupportDrawer";
+import AdminSidebar from "../AdminSidebar/AdminSidebar";
+import { api } from "../../services/api";
 
-function Layout({ title, showSearch = false, children }) {
+function Layout({ title, showSearch = false, variant, children }) {
+  const [isSupportDrawerOpen, setIsSupportDrawerOpen] = useState(false);
+  const isAdmin = variant === "admin" || api.getCurrentUser()?.role === "ADMIN";
+
   return (
-    <div className="page-container">
+    <div className={`page-container${isAdmin ? " admin-page-container" : ""}`}>
 
-      <Sidebar />
+      {isAdmin ? <AdminSidebar /> : <Sidebar onContactSupport={() => setIsSupportDrawerOpen(true)} />}
 
       <main className="main-content">
 
@@ -18,6 +25,11 @@ function Layout({ title, showSearch = false, children }) {
         </div>
 
       </main>
+
+      {!isAdmin && <SupportDrawer
+        isOpen={isSupportDrawerOpen}
+        onClose={() => setIsSupportDrawerOpen(false)}
+      />}
 
     </div>
   );
