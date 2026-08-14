@@ -113,7 +113,7 @@ function getMenuItemsForRole(role) {
   return [dashboardItem, notificationsItem, profileItem];
 }
 
-function Sidebar() {
+function Sidebar({ onContactSupport }) {
   const navigate = useNavigate();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
@@ -161,7 +161,7 @@ function Sidebar() {
         <div className="support-card">
           <strong>Need help?</strong>
           <p>We're here to help with any queries.</p>
-          <button type="button">Contact Support</button>
+          <button type="button" onClick={onContactSupport}>Contact Support</button>
         </div>
         <button className="logout" onClick={handleLogoutClick}>
           <FiLogOut />

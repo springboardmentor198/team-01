@@ -1,251 +1,149 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  LuBadgeCheck,
-  LuCircleX,
-  LuClipboardList,
-  LuUsers,
-  LuChevronDown,
-  LuCheck,
-} from "react-icons/lu";
+import { LuShieldCheck } from "react-icons/lu";
+
 import Layout from "../../components/Layout/Layout";
 import { api } from "../../services/api";
-import "../Dashboard/Dashboard.css";
 
-const roleLabels = {
-  AGENT: "Property Agent",
-  LEGAL_REVIEWER: "Legal Professional",
-  BANK: "Financial Institution",
-};
+import AdminDashboardHeader from "./AdminDashboardHeader";
+import AdminStatCard from "./AdminStatCard";
+import PlatformActivityChart from "./PlatformActivityChart";
+import VerificationSummary from "./VerificationSummary";
+import RecentActivity from "./RecentActivity";
+import ProfessionalDistribution from "./ProfessionalDistribution";
+import RecentPropertyApprovals from "./RecentPropertyApprovals";
+import SupportOverview from "./SupportOverview";
+import SystemMetrics from "./SystemMetrics";
 
-const statusOptions = [
-  { value: "", label: "All statuses" },
-  { value: "PENDING", label: "Pending" },
-  { value: "ACTIVE", label: "Approved" },
-  { value: "REJECTED", label: "Rejected" },
-];
+import "./AdminDashboard.css";
 
-const roleOptions = [
-  { value: "", label: "All professional roles" },
-  { value: "AGENT", label: "Property Agent" },
-  { value: "LEGAL_REVIEWER", label: "Legal Professional" },
-  { value: "BANK", label: "Financial Institution" },
-];
-
-// Small local dropdown, defined right here so no new files are needed.
-// Native <select> option lists can't be restyled (rendered by the browser/OS),
-// so this re-implements the same behavior with fully CSS-controllable markup.
-function InlineDropdown({ options, value, onChange }) {
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const selected = options.find((opt) => opt.value === value);
-
-  return (
-    <div className="inline-dropdown" ref={containerRef}>
-      <button
-        type="button"
-        className={`inline-dropdown-trigger ${open ? "open" : ""}`}
-        onClick={() => setOpen((prev) => !prev)}
-      >
-        <span>{selected ? selected.label : "Select..."}</span>
-        <LuChevronDown className="inline-dropdown-arrow" size={16} />
-      </button>
-
-      {open && (
-        <div className="inline-dropdown-list" role="listbox">
-          {options.map((option) => (
-            <div
-              key={option.value}
-              role="option"
-              aria-selected={option.value === value}
-              className={`inline-dropdown-option ${option.value === value ? "selected" : ""}`}
-              onClick={() => {
-                onChange(option.value);
-                setOpen(false);
-              }}
-            >
-              <span>{option.label}</span>
-              {option.value === value && <LuCheck size={15} />}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+import { dashboardStats } from "../../data/adminDashboardMockData";
 
 function AdminDashboard() {
   const navigate = useNavigate();
-  const [requests, setRequests] = useState([]);
-  const [status, setStatus] = useState("PENDING");
-  const [requestedRole, setRequestedRole] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [actionId, setActionId] = useState(null);
-  const [error, setError] = useState("");
 
-  const loadRequests = useCallback(async () => {
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await api.getAdminRoleRequests({ status, requestedRole });
-      setRequests(response);
-    } catch (requestError) {
-      setError(requestError.message || "Unable to load verification requests");
-    } finally {
-      setLoading(false);
-    }
-  }, [requestedRole, status]);
-
+  /*
+   * ---------------------------------------------------------
+   * ADMIN AUTHENTICATION
+   * ---------------------------------------------------------
+   *
+   * Keep the existing protection from your old dashboard.
+   *
+   * Only authenticated ADMIN users can access this page.
+   */
   useEffect(() => {
     if (!api.isAuthenticated()) {
-      navigate("/login", { replace: true });
+      navigate("/login", {
+        replace: true,
+      });
+
       return;
     }
 
-    if (api.getCurrentUser().role !== "ADMIN") {
-      navigate("/dashboard", { replace: true });
-      return;
+    const currentUser = api.getCurrentUser();
+
+    if (!currentUser || currentUser.role !== "ADMIN") {
+      navigate("/dashboard", {
+        replace: true,
+      });
     }
-
-    Promise.resolve().then(() => {
-      loadRequests();
-    });
-  }, [loadRequests, navigate]);
-
-  const updateRequest = async (id, action) => {
-    setActionId(id);
-    setError("");
-
-    try {
-      if (action === "approve") {
-        await api.approveAdminRoleRequest(id);
-      } else {
-        await api.rejectAdminRoleRequest(id);
-      }
-      await loadRequests();
-    } catch (requestError) {
-      setError(requestError.message || `Unable to ${action} role request`);
-    } finally {
-      setActionId(null);
-    }
-  };
-
-  const pendingCount = requests.filter((request) => request.status === "PENDING").length;
+  }, [navigate]);
 
   return (
-    <Layout title="Admin Dashboard">
-      <div className="dashboard-page">
-        <section className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: "#DBEAFE", color: "#2563EB" }}>
-              <LuClipboardList size={20} />
-            </div>
-            <div>
-              <p className="stat-label">Visible Requests</p>
-              <h2 className="stat-value">{requests.length}</h2>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: "#FEF3C7", color: "#B45309" }}>
-              <LuUsers size={20} />
-            </div>
-            <div>
-              <p className="stat-label">Pending Review</p>
-              <h2 className="stat-value">{pendingCount}</h2>
-            </div>
-          </div>
+    <Layout title="Admin Dashboard" variant="admin">
+      <main className="admin-dashboard">
+        {/* ===================================================
+            HEADER
+        ==================================================== */}
+        <AdminDashboardHeader />
+
+        {/* ===================================================
+            STATISTICS
+        ==================================================== */}
+        <section className="admin-stats-grid" aria-label="Platform statistics">
+          {dashboardStats.map((stat) => (
+            <AdminStatCard
+              key={stat.id}
+              title={stat.title}
+              value={stat.value}
+              trend={stat.trend}
+              trendType={stat.trendType}
+              subtitle={stat.subtitle}
+              icon={stat.icon}
+              iconClass={stat.iconClass}
+            />
+          ))}
         </section>
 
-        <section className="dashboard-card recent-search-card">
-          <h3 className="card-title">Professional Verification Requests</h3>
-          {error && <div className="demo-data-notice" role="alert">{error}</div>}
+        {/* ===================================================
+            MAIN DASHBOARD GRID
+        ==================================================== */}
+        <section className="admin-dashboard-grid">
+          {/* Platform activity */}
+          <PlatformActivityChart />
 
-          <div className="verification-filters">
-            <InlineDropdown
-              options={statusOptions}
-              value={status}
-              onChange={setStatus}
-            />
-            <InlineDropdown
-              options={roleOptions}
-              value={requestedRole}
-              onChange={setRequestedRole}
-            />
-            <button type="button" className="admin-apply-btn" onClick={loadRequests}>
-              Apply filters
-            </button>
-          </div>
-
-          <div className="table-wrapper">
-            <table className="recent-table">
-              <thead>
-                <tr>
-                  <th>Applicant</th>
-                  <th>Requested Role</th>
-                  <th>Company</th>
-                  <th>Submitted</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading && (
-                  <tr><td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>Loading requests...</td></tr>
-                )}
-                {!loading && requests.length === 0 && (
-                  <tr><td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>No verification requests found.</td></tr>
-                )}
-                {!loading && requests.map((request) => (
-                  <tr key={request.requestId}>
-                    <td>
-                      <strong>{request.userName}</strong><br />
-                      <span>{request.email}</span>
-                    </td>
-                    <td>{roleLabels[request.requestedRole] || request.requestedRole}</td>
-                    <td>{request.companyName}</td>
-                    <td>{request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "—"}</td>
-                    <td><span className={`risk-badge ${request.status.toLowerCase()}`}>{request.status}</span></td>
-                    <td>
-                      {request.status === "PENDING" ? (
-                        <div className="admin-request-actions">
-                          <button
-                            type="button"
-                            className="admin-action-btn approve"
-                            disabled={actionId === request.requestId}
-                            onClick={() => updateRequest(request.requestId, "approve")}
-                          >
-                            <LuBadgeCheck size={16} /> Approve
-                          </button>
-                          <button
-                            type="button"
-                            className="admin-action-btn reject"
-                            disabled={actionId === request.requestId}
-                            onClick={() => updateRequest(request.requestId, "reject")}
-                          >
-                            <LuCircleX size={16} /> Reject
-                          </button>
-                        </div>
-                      ) : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* Verification summary */}
+          <VerificationSummary />
         </section>
-      </div>
+
+        {/* ===================================================
+            ACTIVITY + PROFESSIONAL DISTRIBUTION
+        ==================================================== */}
+        <section className="admin-dashboard-grid">
+          {/* Recent activity */}
+          <RecentActivity />
+
+          {/* Professional distribution */}
+          <ProfessionalDistribution />
+        </section>
+
+        {/* ===================================================
+            PROPERTY APPROVALS + SUPPORT
+        ==================================================== */}
+        <section className="admin-dashboard-grid">
+          {/* Recent property approvals */}
+          <RecentPropertyApprovals />
+
+          {/* Support overview */}
+          <SupportOverview />
+        </section>
+
+        {/* ===================================================
+            SYSTEM METRICS
+        ==================================================== */}
+        <section
+          className="admin-dashboard-card"
+          style={{
+            marginBottom: "20px",
+          }}
+        >
+          <div className="admin-dashboard-card-header">
+            <div>
+              <h2 className="admin-dashboard-card-title">System Overview</h2>
+
+              <p className="admin-dashboard-card-subtitle">
+                Current platform infrastructure and security status
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                color: "#16A34A",
+                fontSize: "11px",
+                fontWeight: 600,
+              }}
+            >
+              <LuShieldCheck size={15} />
+              All systems operational
+            </div>
+          </div>
+
+          <SystemMetrics />
+        </section>
+      </main>
     </Layout>
   );
 }
