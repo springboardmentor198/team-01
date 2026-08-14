@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.realestate.duediligence.dto.ComparablePropertyResponse;
 import com.realestate.duediligence.dto.PropertyValuationResponse;
+import com.realestate.duediligence.dto.RiskAssessmentResponse;
 import com.realestate.duediligence.service.PropertyAnalyticsService;
+import com.realestate.duediligence.service.RiskAssessmentService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +21,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PropertyAnalyticsController {
 
+    private final RiskAssessmentService riskAssessmentService;
     private final PropertyAnalyticsService analyticsService;
+
+    @GetMapping("/api/risk/{propertyId}")
+    public ResponseEntity<RiskAssessmentResponse> risk(
+            @PathVariable Integer propertyId) {
+
+        return ResponseEntity.ok(
+                riskAssessmentService.calculateRisk(propertyId));
+    }
 
     @GetMapping("/api/comparison/{propertyId}")
     public ResponseEntity<List<ComparablePropertyResponse>> comparison(

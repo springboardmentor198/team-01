@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LuShieldAlert } from "react-icons/lu";
 import Layout from "../../components/Layout/Layout";
@@ -10,12 +10,188 @@ import "./RiskDashboard.css";
 
 export default function RiskDashboard() {
   const navigate = useNavigate();
-  const [properties, setProperties] = useState([]), [selectedId, setSelectedId] = useState("");
-  const [risk, setRisk] = useState(null), [comparables, setComparables] = useState([]), [valuation, setValuation] = useState(null);
-  const [loading, setLoading] = useState(true), [error, setError] = useState("");
-  useEffect(() => { if (!api.isAuthenticated()) { navigate("/login"); return; } api.getProperties().then((items) => { const data = Array.isArray(items) ? items : []; setProperties(data); setSelectedId(data[0]?.propertyId ? String(data[0].propertyId) : ""); }).catch((err) => setError(err.message || "Unable to load properties.")).finally(() => setLoading(false)); }, [navigate]);
-  useEffect(() => { if (!selectedId) return; setLoading(true); setError(""); Promise.all([api.getRiskAssessment(selectedId), api.getComparableProperties(selectedId), api.getPropertyValuation(selectedId)]).then(([assessment, comparison, value]) => { setRisk(assessment); setComparables(comparison.map((item) => ({ ...item, id: item.propertyId, name: item.propertyCode, area: item.areaSqft, price: item.estimatedPrice, risk: item.overallRisk, distanceKm: "N/A" }))); setValuation(value); }).catch((err) => setError(err.message || "Unable to load property analytics.")).finally(() => setLoading(false)); }, [selectedId]);
-  const selectedProperty = useMemo(() => properties.find((p) => String(p.propertyId) === selectedId), [properties, selectedId]);
-  if (!api.isAuthenticated()) return null;
-  return <Layout title="Risk Dashboard"><div className="rd-page"><div className="rd-header rd-card"><h2><LuShieldAlert />Risk Dashboard</h2><p>Review persisted risk, comparable properties, and valuation data.</p></div><div className="rd-card rd-selector"><label htmlFor="rd-property-select">Property</label><select id="rd-property-select" value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>{properties.map((p) => <option key={p.propertyId} value={p.propertyId}>{p.propertyCode || p.address}{p.city ? `, ${p.city}` : ""}</option>)}</select></div>{!properties.length && !loading ? <div className="rd-card">No properties are available for analysis.</div> : <><RiskOverview risk={risk} loading={loading} error={error} />{!loading && !error && <div className="rd-grid"><ComparableProperties items={comparables} /><PropertyValuation valuation={valuation} property={selectedProperty} /></div>}</>}</div></Layout>;
+
+  const [properties, setProperties] = useState([]);
+  const [propertiesLoading, setPropertiesLoading] = useState(true);
+  const [propertiesError, setPropertiesError] = useState("");
+
+  const [selectedId, setSelectedId] = useState("");
+
+  const [risk, setRisk] = useState(null);
+  const [riskLoading, setRiskLoading] = useState(false);
+  const [riskError, setRiskError] = useState("");
+
+  const [comparables, setComparables] = useState([]);
+  const [comparablesLoading, setComparablesLoading] = useState(false);
+  const [comparablesError, setComparablesError] = useState("");
+
+  const [valuation, setValuation] = useState(null);
+  const [valuationLoading, setValuationLoading] = useState(false);
+  const [valuationError, setValuationError] = useState("");
+
+  useEffect(() => {
+    if (!api.isAuthenticated()) {
+      navigate("/login");
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadProperties() {
+      try {
+        const data = await api.getProperties();
+        if (cancelled) return;
+        const list = Array.isArray(data) ? data : [];
+        setProperties(list);
+        if (list.length) setSelectedId(String(list[0].id));
+      } catch (err) {
+        if (!cancelled) setPropertiesError(err.message || "Failed to load properties");
+      } finally {
+        if (!cancelled) setPropertiesLoading(false);
+      }
+    }
+
+    loadProperties();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+
+    let cancelled = false;
+
+    async function loadRisk() {
+      setRiskLoading(true);
+      setRiskError("");
+      setRisk(null);
+
+      try {
+        const data = await api.getRiskSummary(selectedId);
+        if (!cancelled) setRisk(data);
+      } catch (err) {
+        if (!cancelled) setRiskError(err.message || "Failed to load risk summary");
+      } finally {
+        if (!cancelled) setRiskLoading(false);
+      }
+    }
+
+    loadRisk();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+
+    let cancelled = false;
+
+    async function loadComparables() {
+      setComparablesLoading(true);
+      setComparablesError("");
+      setComparables([]);
+
+      try {
+        const data = await api.getComparableProperties(selectedId);
+        if (!cancelled) setComparables(Array.isArray(data) ? data : []);
+      } catch (err) {
+        if (!cancelled) setComparablesError(err.message || "Failed to load comparable properties");
+      } finally {
+        if (!cancelled) setComparablesLoading(false);
+      }
+    }
+
+    loadComparables();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+
+    let cancelled = false;
+
+    async function loadValuation() {
+      setValuationLoading(true);
+      setValuationError("");
+      setValuation(null);
+
+      try {
+        const data = await api.getPropertyValuation(selectedId);
+        if (!cancelled) setValuation(data);
+      } catch (err) {
+        if (!cancelled) setValuationError(err.message || "Failed to load property valuation");
+      } finally {
+        if (!cancelled) setValuationLoading(false);
+      }
+    }
+
+    loadValuation();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
+  return (
+    <Layout title="Risk Dashboard">
+      <div className="rd-page">
+        <div className="rd-header rd-card">
+          <h2>
+            <LuShieldAlert />
+            Risk Dashboard
+          </h2>
+          <p>Review risk score, comparable properties, and estimated valuation for any property.</p>
+        </div>
+
+        <div className="rd-card rd-selector">
+          <label htmlFor="rd-property-select">Property</label>
+
+          {propertiesLoading ? (
+            <p className="rd-muted">Loading properties…</p>
+          ) : propertiesError ? (
+            <p className="rd-error">{propertiesError}</p>
+          ) : properties.length === 0 ? (
+            <p className="rd-muted">No properties available yet.</p>
+          ) : (
+            <select
+              id="rd-property-select"
+              value={selectedId}
+              onChange={(e) => setSelectedId(e.target.value)}
+            >
+              {properties.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.address ? `${p.address}, ${p.city}` : `Property #${p.id}`}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        {selectedId && (
+          <>
+            <RiskOverview risk={risk} loading={riskLoading} error={riskError} />
+
+            <div className="rd-grid">
+              <ComparableProperties
+                items={comparables}
+                loading={comparablesLoading}
+                error={comparablesError}
+              />
+              <PropertyValuation
+                valuation={valuation}
+                loading={valuationLoading}
+                error={valuationError}
+              />
+            </div>
+          </>
+        )}
+      </div>
+    </Layout>
+  );
 }

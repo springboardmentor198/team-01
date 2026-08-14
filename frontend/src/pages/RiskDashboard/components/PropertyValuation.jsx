@@ -1,9 +1,45 @@
-import { LuTrendingUp, LuGauge } from "react-icons/lu";
+import { LuTrendingUp, LuLayers } from "react-icons/lu";
 import { ValuationTrendChart } from "./RiskCharts";
 import { formatCurrency } from "../riskDashboardService";
 
-export default function PropertyValuation({ valuation }) {
-  if (!valuation) return null;
+export default function PropertyValuation({ valuation, loading, error }) {
+  if (loading) {
+    return (
+      <div className="rd-card">
+        <h3>
+          <LuTrendingUp style={{ marginRight: 8, verticalAlign: "middle" }} />
+          Property Valuation
+        </h3>
+        <p className="rd-muted">Loading valuation…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rd-card">
+        <h3>
+          <LuTrendingUp style={{ marginRight: 8, verticalAlign: "middle" }} />
+          Property Valuation
+        </h3>
+        <p className="rd-error">{error}</p>
+      </div>
+    );
+  }
+
+  if (!valuation) {
+    return (
+      <div className="rd-card">
+        <h3>
+          <LuTrendingUp style={{ marginRight: 8, verticalAlign: "middle" }} />
+          Property Valuation
+        </h3>
+        <p className="rd-muted">No valuation data available for this property yet.</p>
+      </div>
+    );
+  }
+
+  const trendPoints = (valuation.comparableValues || []).map((v) => Number(v));
 
   return (
     <div className="rd-card">
@@ -25,21 +61,23 @@ export default function PropertyValuation({ valuation }) {
         </div>
 
         <div className="rd-confidence">
-          <LuGauge className="rd-confidence-icon" />
+          <LuLayers className="rd-confidence-icon" />
           <div>
-            <strong>{valuation.comparableCount}</strong>
-            <span className="rd-muted">Comparables</span>
+            <strong>{valuation.comparableCount ?? 0}</strong>
+            <span className="rd-muted">Comparables Used</span>
           </div>
         </div>
       </div>
 
-      <div className="rd-chart-box">
-        <ValuationTrendChart points={valuation.comparableValues || []} />
-      </div>
+      {trendPoints.length > 1 && (
+        <div className="rd-chart-box">
+          <ValuationTrendChart points={trendPoints} />
+        </div>
+      )}
 
       {valuation.pricePerSqft && (
         <div className="rd-valuation-footnote rd-muted">
-          ≈ ₹{valuation.pricePerSqft.toLocaleString("en-IN")} per sq.ft
+          ≈ ₹{Number(valuation.pricePerSqft).toLocaleString("en-IN")} per sq.ft
         </div>
       )}
     </div>
