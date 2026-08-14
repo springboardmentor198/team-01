@@ -993,4 +993,29 @@ getRiskSummary: async (propertyId) => {
     const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}/reply`, { method: "POST", headers: getHeaders(true), body: JSON.stringify({ message }) });
     if (!response.ok) throw new Error((await response.text()) || "Unable to send reply"); return response.json();
   },
+  getAdminSystemHealth: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/health`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load system health");
+    return response.json();
+  },
+  getAdminSystemMetrics: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/metrics`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load system metrics");
+    return response.json();
+  },
+  getAdminApiPerformance: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/api-performance`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load API performance");
+    return response.json();
+  },
+  getAdminSystemLogs: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/logs`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load application logs");
+    return response.json();
+  },
+  getAdminCacheMetrics: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/cache`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load cache metrics");
+    return response.json();
+  },
 };

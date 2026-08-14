@@ -138,6 +138,7 @@ const sections = [
       },
       {
         label: "System Logs",
+        path: "/admin/system-monitoring",
         icon: FiKey,
       },
       {
