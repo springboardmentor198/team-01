@@ -12,6 +12,8 @@ import ProfessionalVerification from "./pages/ProfessionalVerification/Professio
 import PendingVerification from "./pages/PendingVerification/PendingVerification";
 import RoleDashboard from "./pages/RoleDashboard/RoleDashboard";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
+import AdminSupportTickets from "./pages/AdminSupportTickets/AdminSupportTickets";
+import AdminRoleRequests from "./pages/AdminRoleRequests/AdminRoleRequests";
 
 import Notifications from "./pages/Notifications/Notifications";
 import AuditLogs from "./pages/AuditLogs/AuditLogs";
@@ -46,6 +48,8 @@ function App() {
       <Route path="/legal/dashboard" element={<RoleDashboard role="LEGAL_REVIEWER" />} />
       <Route path="/bank/dashboard" element={<RoleDashboard role="BANK" />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/admin/support-tickets" element={<AdminSupportTickets />} />
+      <Route path="/admin/role-requests" element={<AdminRoleRequests />} />
       <Route path="/property-search" element={<PropertySearch />} />
       <Route path="/property-results" element={<PropertyResults />} />
       <Route path="/property-details/:id" element={<PropertyDetails />} />

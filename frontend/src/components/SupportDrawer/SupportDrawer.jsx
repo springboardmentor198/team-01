@@ -38,13 +38,24 @@ function SupportDrawer({ isOpen, onClose }) {
     const accepted = Array.from(incoming).filter((file) => file.size <= 10 * 1024 * 1024 && ["application/pdf", "image/jpeg", "image/png"].includes(file.type));
     setFiles((current) => [...current, ...accepted].slice(0, 5));
   };
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
     const nextErrors = { subject: !form.subject.trim() ? "Subject is required" : "", description: !form.description.trim() ? "Please describe your issue" : "", priority: !form.priority ? "Priority is required" : "" };
     setErrors(nextErrors);
     if (Object.values(nextErrors).some(Boolean)) return;
     setIsSubmitting(true);
-    window.setTimeout(() => { setTicket(`SUP-${Math.floor(10000 + Math.random() * 90000)}`); setIsSubmitting(false); }, 800);
+    try {
+      const createdTicket = await api.createSupportTicket({
+        subject: form.type ? `${form.type}: ${form.subject.trim()}` : form.subject.trim(),
+        description: form.description.trim(),
+        priority: form.priority.toUpperCase(),
+      });
+      setTicket(createdTicket.ticketId);
+    } catch (error) {
+      setErrors((current) => ({ ...current, submit: error.message || "Unable to submit your request. Please try again." }));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;

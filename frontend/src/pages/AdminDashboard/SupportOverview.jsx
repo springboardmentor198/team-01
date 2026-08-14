@@ -4,6 +4,7 @@ import {
   LuClock3,
   LuCircleCheck,
 } from "react-icons/lu";
+import { useNavigate } from "react-router-dom";
 
 const supportData = [
   {
@@ -30,6 +31,7 @@ const supportData = [
 ];
 
 function SupportOverview() {
+  const navigate = useNavigate();
   const totalTickets = supportData.reduce(
     (total, item) => total + item.count,
     0,
@@ -223,7 +225,7 @@ function SupportOverview() {
       {/* =====================================================
           FOOTER
       ====================================================== */}
-      <button type="button" className="admin-support-button">
+      <button type="button" className="admin-support-button" onClick={() => navigate("/admin/support-tickets")}>
         Manage support tickets
       </button>
     </article>

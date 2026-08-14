@@ -20,6 +20,7 @@ import {
 } from "react-icons/fi";
 import { HiOutlineOfficeBuilding } from "react-icons/hi";
 import { RiCustomerService2Line, RiUserSettingsLine } from "react-icons/ri";
+import { api } from "../../services/api";
 import "./AdminSidebar.css";
 
 const sections = [
@@ -39,8 +40,8 @@ const sections = [
     items: [
       {
         label: "Role Requests",
+        path: "/admin/role-requests",
         icon: RiUserSettingsLine,
-        badge: "12",
       },
       {
         label: "Property Approvals",
@@ -98,8 +99,8 @@ const sections = [
     items: [
       {
         label: "Support Tickets",
+        path: "/admin/support-tickets",
         icon: RiCustomerService2Line,
-        badge: "42",
       },
       {
         label: "Security Center",
@@ -150,6 +151,21 @@ const sections = [
 
 function AdminSidebar() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [pendingRoleRequests, setPendingRoleRequests] = useState(0);
+
+  useEffect(() => {
+    const loadPendingRoleRequests = async () => {
+      try {
+        const requests = await api.getAdminRoleRequests({ status: "PENDING" });
+        setPendingRoleRequests(Array.isArray(requests) ? requests.length : 0);
+      } catch {
+        setPendingRoleRequests(0);
+      }
+    };
+    loadPendingRoleRequests();
+    const intervalId = window.setInterval(loadPendingRoleRequests, 30000);
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -201,7 +217,7 @@ function AdminSidebar() {
                 {section.items.map((item) => (
                   <AdminNavItem
                     key={item.label}
-                    item={item}
+                    item={{ ...item, badge: item.label === "Role Requests" && pendingRoleRequests ? pendingRoleRequests : item.badge }}
                     onLogout={() => setShowLogoutModal(true)}
                   />
                 ))}
@@ -287,7 +303,7 @@ function AdminNavItem({ item, onLogout }) {
       <Icon />
       <span>{item.label}</span>
 
-      {item.badge && <b>{item.badge}</b>}
+      {item.badge && <b className={item.label === "Role Requests" ? "admin-nav-alert-badge" : ""}>{item.badge}</b>}
     </>
   );
 
