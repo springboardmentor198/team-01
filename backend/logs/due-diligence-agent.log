@@ -1,0 +1,445 @@
+2026-08-15T01:05:17.836+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Starting DueDiligenceAgentApplication using Java 21.0.11 with PID 8312 (C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend\target\classes started by SAMRIDHI in C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend)
+2026-08-15T01:05:17.838+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : The following 1 profile is active: "local"
+2026-08-15T01:05:20.879+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-15T01:05:21.042+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 155 ms. Found 26 JPA repository interfaces.
+2026-08-15T01:05:21.636+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-08-15T01:05:21.636+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-15T01:05:21.636+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-15T01:05:21.728+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3870 ms
+2026-08-15T01:05:22.011+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Starting...
+2026-08-15T01:05:22.231+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-14 - Added connection org.postgresql.jdbc.PgConnection@5a187845
+2026-08-15T01:05:22.231+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Start completed.
+2026-08-15T01:05:22.247+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/real_estate_dd (PostgreSQL 17.10)
+2026-08-15T01:05:22.334+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.049s)
+2026-08-15T01:05:22.642+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-08-15T01:05:22.651+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-08-15T01:05:22.720+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-15T01:05:22.832+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-15T01:05:22.844+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-15T01:05:22.856+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/real_estate_dd]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.10
+	Default catalog/schema: real_estate_dd/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-15T01:05:23.659+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-15T01:05:23.721+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:05:24.938+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-15T01:05:25.012+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
+2026-08-15T01:05:25.720+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
+2026-08-15T01:05:25.784+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-08-15T01:05:25.784+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@806b07a]]
+2026-08-15T01:05:25.795+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-08-15T01:05:25.805+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-08-15T01:05:25.821+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Started DueDiligenceAgentApplication in 8.779 seconds (process running for 1186.709)
+2026-08-15T01:05:25.900+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-08-15T01:06:12.679+05:30  INFO 8312 --- [due-diligence-agent] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-08-15T01:06:12.761+05:30  INFO 8312 --- [due-diligence-agent] [Thread-52] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-15T01:06:12.791+05:30  INFO 8312 --- [due-diligence-agent] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-08-15T01:06:12.794+05:30  INFO 8312 --- [due-diligence-agent] [Thread-52] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-08-15T01:06:12.794+05:30  INFO 8312 --- [due-diligence-agent] [Thread-52] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@806b07a]]
+2026-08-15T01:06:12.794+05:30  INFO 8312 --- [due-diligence-agent] [Thread-52] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-08-15T01:06:12.810+05:30  INFO 8312 --- [due-diligence-agent] [Thread-52] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:06:12.830+05:30  INFO 8312 --- [due-diligence-agent] [Thread-52] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Shutdown initiated...
+2026-08-15T01:06:12.844+05:30  INFO 8312 --- [due-diligence-agent] [Thread-52] com.zaxxer.hikari.HikariDataSource       : HikariPool-14 - Shutdown completed.
+2026-08-15T01:06:14.944+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Starting DueDiligenceAgentApplication using Java 21.0.11 with PID 8312 (C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend\target\classes started by SAMRIDHI in C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend)
+2026-08-15T01:06:14.945+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : The following 1 profile is active: "local"
+2026-08-15T01:06:16.336+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-15T01:06:16.724+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 383 ms. Found 26 JPA repository interfaces.
+2026-08-15T01:06:17.413+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-08-15T01:06:17.415+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-15T01:06:17.415+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-15T01:06:17.511+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2561 ms
+2026-08-15T01:06:17.910+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Starting...
+2026-08-15T01:06:18.196+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-15 - Added connection org.postgresql.jdbc.PgConnection@e73e9ce
+2026-08-15T01:06:18.196+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Start completed.
+2026-08-15T01:06:18.203+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/real_estate_dd (PostgreSQL 17.10)
+2026-08-15T01:06:18.302+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.046s)
+2026-08-15T01:06:18.878+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-08-15T01:06:18.881+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-08-15T01:06:19.197+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-15T01:06:19.345+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-15T01:06:19.362+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-15T01:06:19.377+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/real_estate_dd]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.10
+	Default catalog/schema: real_estate_dd/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-15T01:06:20.246+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-15T01:06:20.295+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:06:21.355+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-15T01:06:21.437+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
+2026-08-15T01:06:22.107+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
+2026-08-15T01:06:22.148+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-08-15T01:06:22.150+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@383e0cfc]]
+2026-08-15T01:06:22.152+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-08-15T01:06:22.163+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-08-15T01:06:22.169+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Started DueDiligenceAgentApplication in 7.32 seconds (process running for 1243.057)
+2026-08-15T01:06:22.249+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-08-15T01:07:20.199+05:30  INFO 8312 --- [due-diligence-agent] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-08-15T01:07:21.655+05:30  INFO 8312 --- [due-diligence-agent] [Thread-56] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-15T01:07:22.150+05:30  INFO 8312 --- [due-diligence-agent] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-08-15T01:07:22.521+05:30  INFO 8312 --- [due-diligence-agent] [Thread-56] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-08-15T01:07:22.523+05:30  INFO 8312 --- [due-diligence-agent] [Thread-56] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@383e0cfc]]
+2026-08-15T01:07:22.527+05:30  INFO 8312 --- [due-diligence-agent] [Thread-56] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-08-15T01:07:23.302+05:30  INFO 8312 --- [due-diligence-agent] [Thread-56] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:07:23.566+05:30  INFO 8312 --- [due-diligence-agent] [Thread-56] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Shutdown initiated...
+2026-08-15T01:07:23.746+05:30  INFO 8312 --- [due-diligence-agent] [Thread-56] com.zaxxer.hikari.HikariDataSource       : HikariPool-15 - Shutdown completed.
+2026-08-15T01:07:28.086+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Starting DueDiligenceAgentApplication using Java 21.0.11 with PID 8312 (C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend\target\classes started by SAMRIDHI in C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend)
+2026-08-15T01:07:28.088+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : The following 1 profile is active: "local"
+2026-08-15T01:07:29.261+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-15T01:07:29.450+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 193 ms. Found 26 JPA repository interfaces.
+2026-08-15T01:07:30.194+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-08-15T01:07:30.195+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-15T01:07:30.195+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-15T01:07:30.232+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2115 ms
+2026-08-15T01:07:30.336+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Starting...
+2026-08-15T01:07:30.524+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-16 - Added connection org.postgresql.jdbc.PgConnection@1079e03
+2026-08-15T01:07:30.525+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Start completed.
+2026-08-15T01:07:30.527+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/real_estate_dd (PostgreSQL 17.10)
+2026-08-15T01:07:30.564+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.022s)
+2026-08-15T01:07:30.769+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-08-15T01:07:30.770+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-08-15T01:07:30.817+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-15T01:07:30.888+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-15T01:07:30.901+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-15T01:07:30.909+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/real_estate_dd]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.10
+	Default catalog/schema: real_estate_dd/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-15T01:07:32.339+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-15T01:07:32.375+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:07:34.051+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-15T01:07:34.114+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
+2026-08-15T01:07:34.687+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
+2026-08-15T01:07:34.749+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-08-15T01:07:34.750+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@73451ea6]]
+2026-08-15T01:07:34.750+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-08-15T01:07:34.757+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-08-15T01:07:34.765+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Started DueDiligenceAgentApplication in 7.274 seconds (process running for 1315.653)
+2026-08-15T01:07:34.834+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-08-15T01:07:39.466+05:30  INFO 8312 --- [due-diligence-agent] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-08-15T01:07:39.516+05:30  INFO 8312 --- [due-diligence-agent] [Thread-60] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-15T01:07:39.563+05:30  INFO 8312 --- [due-diligence-agent] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-08-15T01:07:39.566+05:30  INFO 8312 --- [due-diligence-agent] [Thread-60] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-08-15T01:07:39.566+05:30  INFO 8312 --- [due-diligence-agent] [Thread-60] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@73451ea6]]
+2026-08-15T01:07:39.567+05:30  INFO 8312 --- [due-diligence-agent] [Thread-60] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-08-15T01:07:39.577+05:30  INFO 8312 --- [due-diligence-agent] [Thread-60] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:07:39.580+05:30  INFO 8312 --- [due-diligence-agent] [Thread-60] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Shutdown initiated...
+2026-08-15T01:07:39.608+05:30  INFO 8312 --- [due-diligence-agent] [Thread-60] com.zaxxer.hikari.HikariDataSource       : HikariPool-16 - Shutdown completed.
+2026-08-15T01:07:39.860+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Starting DueDiligenceAgentApplication using Java 21.0.11 with PID 8312 (C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend\target\classes started by SAMRIDHI in C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend)
+2026-08-15T01:07:39.861+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : The following 1 profile is active: "local"
+2026-08-15T01:07:40.488+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-15T01:07:40.629+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 139 ms. Found 26 JPA repository interfaces.
+2026-08-15T01:07:40.830+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-08-15T01:07:40.831+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-15T01:07:40.832+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-15T01:07:40.860+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 992 ms
+2026-08-15T01:07:40.920+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Starting...
+2026-08-15T01:07:47.721+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-17 - Added connection org.postgresql.jdbc.PgConnection@1774f163
+2026-08-15T01:07:47.722+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Start completed.
+2026-08-15T01:07:47.723+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/real_estate_dd (PostgreSQL 17.10)
+2026-08-15T01:07:48.204+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.468s)
+2026-08-15T01:07:48.273+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-08-15T01:07:48.275+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-08-15T01:07:48.364+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-15T01:07:48.448+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-15T01:07:48.455+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-15T01:07:48.464+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/real_estate_dd]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.10
+	Default catalog/schema: real_estate_dd/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-15T01:07:48.923+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-15T01:07:48.963+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:07:49.103+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'adminSystemController': Lookup method resolution failed
+2026-08-15T01:07:49.104+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:07:49.105+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Shutdown initiated...
+2026-08-15T01:07:49.202+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-17 - Shutdown completed.
+2026-08-15T01:07:49.204+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-08-15T01:07:49.212+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-08-15T01:07:49.216+05:30 ERROR 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'adminSystemController': Lookup method resolution failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.checkLookupMethods(AutowiredAnnotationBeanPostProcessor.java:482) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.determineCandidateConstructors(AutowiredAnnotationBeanPostProcessor.java:352) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.determineConstructorsFromBeanPostProcessors(AbstractAutowireCapableBeanFactory.java:1319) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1216) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:565) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121) ~[spring-beans-7.0.8.jar:7.0.8]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.1.0.jar:4.1.0]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.1.0.jar:4.1.0]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.1.0.jar:4.1.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.1.0.jar:4.1.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.1.0.jar:4.1.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.1.0.jar:4.1.0]
+	at com.realestate.duediligence.DueDiligenceAgentApplication.main(DueDiligenceAgentApplication.java:19) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.1.0.jar:4.1.0]
+Caused by: java.lang.IllegalStateException: Failed to introspect Class [com.realestate.duediligence.controller.AdminSystemController] from ClassLoader [org.springframework.boot.devtools.restart.classloader.RestartClassLoader@3f0d9a9a]
+	at org.springframework.util.ReflectionUtils.getDeclaredMethods(ReflectionUtils.java:483) ~[spring-core-7.0.8.jar:7.0.8]
+	at org.springframework.util.ReflectionUtils.doWithLocalMethods(ReflectionUtils.java:320) ~[spring-core-7.0.8.jar:7.0.8]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.checkLookupMethods(AutowiredAnnotationBeanPostProcessor.java:460) ~[spring-beans-7.0.8.jar:7.0.8]
+	... 24 common frames omitted
+Caused by: java.lang.NoClassDefFoundError: List
+	at java.base/java.lang.Class.getDeclaredMethods0(Native Method) ~[na:na]
+	at java.base/java.lang.Class.privateGetDeclaredMethods(Class.java:3580) ~[na:na]
+	at java.base/java.lang.Class.getDeclaredMethods(Class.java:2678) ~[na:na]
+	at org.springframework.util.ReflectionUtils.getDeclaredMethods(ReflectionUtils.java:465) ~[spring-core-7.0.8.jar:7.0.8]
+	... 26 common frames omitted
+Caused by: java.lang.ClassNotFoundException: List
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641) ~[na:na]
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188) ~[na:na]
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526) ~[na:na]
+	at java.base/java.lang.Class.forName0(Native Method) ~[na:na]
+	at java.base/java.lang.Class.forName(Class.java:536) ~[na:na]
+	at java.base/java.lang.Class.forName(Class.java:515) ~[na:na]
+	at org.springframework.boot.devtools.restart.classloader.RestartClassLoader.loadClass(RestartClassLoader.java:123) ~[spring-boot-devtools-4.1.0.jar:4.1.0]
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526) ~[na:na]
+	... 30 common frames omitted
+
+2026-08-15T01:08:00.158+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Starting DueDiligenceAgentApplication using Java 21.0.11 with PID 8312 (C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend\target\classes started by SAMRIDHI in C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend)
+2026-08-15T01:08:00.159+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : The following 1 profile is active: "local"
+2026-08-15T01:08:01.640+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-15T01:08:01.794+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 150 ms. Found 26 JPA repository interfaces.
+2026-08-15T01:08:02.179+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-08-15T01:08:02.184+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-15T01:08:02.184+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-15T01:08:02.255+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2091 ms
+2026-08-15T01:08:02.459+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Starting...
+2026-08-15T01:08:02.731+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-18 - Added connection org.postgresql.jdbc.PgConnection@2565e3ed
+2026-08-15T01:08:02.732+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Start completed.
+2026-08-15T01:08:02.743+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/real_estate_dd (PostgreSQL 17.10)
+2026-08-15T01:08:02.844+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.048s)
+2026-08-15T01:08:03.053+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-08-15T01:08:03.054+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-08-15T01:08:03.126+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-15T01:08:04.617+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-15T01:08:05.798+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-15T01:08:05.834+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/real_estate_dd]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.10
+	Default catalog/schema: real_estate_dd/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-15T01:08:17.147+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-15T01:08:17.209+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:08:18.747+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-15T01:08:18.880+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
+2026-08-15T01:08:20.036+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
+2026-08-15T01:08:20.085+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-08-15T01:08:20.085+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@186201a1]]
+2026-08-15T01:08:20.086+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-08-15T01:08:20.092+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-08-15T01:08:20.102+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Started DueDiligenceAgentApplication in 20.047 seconds (process running for 1360.99)
+2026-08-15T01:08:20.162+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-08-15T01:08:54.310+05:30  INFO 8312 --- [due-diligence-agent] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-08-15T01:08:55.129+05:30  INFO 8312 --- [due-diligence-agent] [Thread-64] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-15T01:08:55.243+05:30  INFO 8312 --- [due-diligence-agent] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-08-15T01:08:55.316+05:30  INFO 8312 --- [due-diligence-agent] [Thread-64] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-08-15T01:08:55.321+05:30  INFO 8312 --- [due-diligence-agent] [Thread-64] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@186201a1]]
+2026-08-15T01:08:55.321+05:30  INFO 8312 --- [due-diligence-agent] [Thread-64] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-08-15T01:08:55.609+05:30  INFO 8312 --- [due-diligence-agent] [Thread-64] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:08:55.997+05:30  INFO 8312 --- [due-diligence-agent] [Thread-64] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Shutdown initiated...
+2026-08-15T01:08:56.050+05:30  INFO 8312 --- [due-diligence-agent] [Thread-64] com.zaxxer.hikari.HikariDataSource       : HikariPool-18 - Shutdown completed.
+2026-08-15T01:08:57.480+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Starting DueDiligenceAgentApplication using Java 21.0.11 with PID 8312 (C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend\target\classes started by SAMRIDHI in C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend)
+2026-08-15T01:08:57.480+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : The following 1 profile is active: "local"
+2026-08-15T01:08:58.868+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-15T01:08:59.250+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 373 ms. Found 26 JPA repository interfaces.
+2026-08-15T01:08:59.810+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-08-15T01:08:59.812+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-15T01:08:59.813+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-15T01:08:59.895+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2395 ms
+2026-08-15T01:09:00.163+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-19 - Starting...
+2026-08-15T01:09:00.357+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-19 - Added connection org.postgresql.jdbc.PgConnection@3d04ac31
+2026-08-15T01:09:00.358+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-19 - Start completed.
+2026-08-15T01:09:00.361+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/real_estate_dd (PostgreSQL 17.10)
+2026-08-15T01:09:00.432+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.040s)
+2026-08-15T01:09:00.638+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-08-15T01:09:00.639+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-08-15T01:09:00.721+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-15T01:09:00.841+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-15T01:09:00.865+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-15T01:09:00.876+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/real_estate_dd]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.10
+	Default catalog/schema: real_estate_dd/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-15T01:09:01.963+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-15T01:09:02.021+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:09:03.292+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-15T01:09:03.379+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
+2026-08-15T01:09:04.220+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
+2026-08-15T01:09:04.312+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-08-15T01:09:04.312+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1dbc69d9]]
+2026-08-15T01:09:04.312+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-08-15T01:09:04.319+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-08-15T01:09:04.344+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Started DueDiligenceAgentApplication in 6.983 seconds (process running for 1405.231)
+2026-08-15T01:09:04.428+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-08-15T01:09:25.231+05:30  INFO 8312 --- [due-diligence-agent] [http-nio-8081-exec-2] o.a.c.c.C.[Tomcat-2].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-08-15T01:09:25.232+05:30  INFO 8312 --- [due-diligence-agent] [http-nio-8081-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-08-15T01:09:25.237+05:30  INFO 8312 --- [due-diligence-agent] [http-nio-8081-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-08-15T01:10:04.295+05:30  INFO 8312 --- [due-diligence-agent] [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-08-15T01:10:44.174+05:30  INFO 8312 --- [due-diligence-agent] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-08-15T01:10:44.372+05:30  INFO 8312 --- [due-diligence-agent] [Thread-71] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-15T01:10:45.447+05:30  INFO 8312 --- [due-diligence-agent] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-08-15T01:10:45.934+05:30  INFO 8312 --- [due-diligence-agent] [Thread-71] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-08-15T01:10:46.023+05:30  INFO 8312 --- [due-diligence-agent] [Thread-71] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1dbc69d9]]
+2026-08-15T01:10:46.024+05:30  INFO 8312 --- [due-diligence-agent] [Thread-71] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-08-15T01:10:46.377+05:30  INFO 8312 --- [due-diligence-agent] [Thread-71] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:10:46.606+05:30  INFO 8312 --- [due-diligence-agent] [Thread-71] com.zaxxer.hikari.HikariDataSource       : HikariPool-19 - Shutdown initiated...
+2026-08-15T01:10:46.642+05:30  INFO 8312 --- [due-diligence-agent] [Thread-71] com.zaxxer.hikari.HikariDataSource       : HikariPool-19 - Shutdown completed.
+2026-08-15T01:10:48.338+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Starting DueDiligenceAgentApplication using Java 21.0.11 with PID 8312 (C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend\target\classes started by SAMRIDHI in C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend)
+2026-08-15T01:10:48.340+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : The following 1 profile is active: "local"
+2026-08-15T01:10:52.026+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-15T01:10:52.248+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 213 ms. Found 26 JPA repository interfaces.
+2026-08-15T01:10:52.909+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-08-15T01:10:52.910+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-15T01:10:52.912+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-15T01:10:52.995+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 4641 ms
+2026-08-15T01:10:53.333+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-20 - Starting...
+2026-08-15T01:10:53.613+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-20 - Added connection org.postgresql.jdbc.PgConnection@1a602d15
+2026-08-15T01:10:53.613+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-20 - Start completed.
+2026-08-15T01:10:53.619+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/real_estate_dd (PostgreSQL 17.10)
+2026-08-15T01:10:53.741+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.046s)
+2026-08-15T01:10:53.893+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-08-15T01:10:53.894+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-08-15T01:10:53.973+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-15T01:10:54.087+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-15T01:10:54.097+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-15T01:10:54.110+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/real_estate_dd]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.10
+	Default catalog/schema: real_estate_dd/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-15T01:10:55.345+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-15T01:10:55.396+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:10:56.694+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-15T01:10:56.788+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
+2026-08-15T01:10:57.526+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
+2026-08-15T01:10:57.678+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-08-15T01:10:57.693+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@2fa2c2ea]]
+2026-08-15T01:10:57.698+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-08-15T01:10:57.717+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-08-15T01:10:57.741+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Started DueDiligenceAgentApplication in 9.605 seconds (process running for 1518.629)
+2026-08-15T01:10:57.859+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-08-15T01:11:57.653+05:30  INFO 8312 --- [due-diligence-agent] [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-08-15T01:12:58.461+05:30  INFO 8312 --- [due-diligence-agent] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-08-15T01:12:58.654+05:30  INFO 8312 --- [due-diligence-agent] [Thread-75] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-15T01:12:58.729+05:30  INFO 8312 --- [due-diligence-agent] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-08-15T01:12:58.760+05:30  INFO 8312 --- [due-diligence-agent] [Thread-75] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-08-15T01:12:58.763+05:30  INFO 8312 --- [due-diligence-agent] [Thread-75] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@2fa2c2ea]]
+2026-08-15T01:12:58.764+05:30  INFO 8312 --- [due-diligence-agent] [Thread-75] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-08-15T01:12:58.823+05:30  INFO 8312 --- [due-diligence-agent] [Thread-75] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:12:58.886+05:30  INFO 8312 --- [due-diligence-agent] [Thread-75] com.zaxxer.hikari.HikariDataSource       : HikariPool-20 - Shutdown initiated...
+2026-08-15T01:12:58.949+05:30  INFO 8312 --- [due-diligence-agent] [Thread-75] com.zaxxer.hikari.HikariDataSource       : HikariPool-20 - Shutdown completed.
+2026-08-15T01:13:00.438+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Starting DueDiligenceAgentApplication using Java 21.0.11 with PID 8312 (C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend\target\classes started by SAMRIDHI in C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend)
+2026-08-15T01:13:00.439+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : The following 1 profile is active: "local"
+2026-08-15T01:13:01.377+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-15T01:13:01.567+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 184 ms. Found 26 JPA repository interfaces.
+2026-08-15T01:13:02.394+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-08-15T01:13:02.394+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-15T01:13:02.394+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-15T01:13:02.502+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2058 ms
+2026-08-15T01:13:02.832+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-21 - Starting...
+2026-08-15T01:13:03.087+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-21 - Added connection org.postgresql.jdbc.PgConnection@1e2719c2
+2026-08-15T01:13:03.087+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-21 - Start completed.
+2026-08-15T01:13:03.097+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/real_estate_dd (PostgreSQL 17.10)
+2026-08-15T01:13:03.183+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.049s)
+2026-08-15T01:13:03.438+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-08-15T01:13:03.438+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-08-15T01:13:03.603+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-15T01:13:03.719+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-15T01:13:03.741+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-15T01:13:03.752+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/real_estate_dd]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.10
+	Default catalog/schema: real_estate_dd/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-15T01:13:05.431+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-15T01:13:05.516+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:13:06.926+05:30  WARN 8312 --- [due-diligence-agent] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-15T01:13:06.997+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
+2026-08-15T01:13:07.415+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
+2026-08-15T01:13:07.452+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-08-15T01:13:07.453+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@92d609c]]
+2026-08-15T01:13:07.453+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-08-15T01:13:07.457+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-08-15T01:13:07.461+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Started DueDiligenceAgentApplication in 7.109 seconds (process running for 1648.349)
+2026-08-15T01:13:07.511+05:30  INFO 8312 --- [due-diligence-agent] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-08-15T01:13:10.131+05:30  INFO 8312 --- [due-diligence-agent] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-08-15T01:13:10.137+05:30  INFO 8312 --- [due-diligence-agent] [Thread-79] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-15T01:13:10.148+05:30  INFO 8312 --- [due-diligence-agent] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-08-15T01:13:10.150+05:30  INFO 8312 --- [due-diligence-agent] [Thread-79] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-08-15T01:13:10.152+05:30  INFO 8312 --- [due-diligence-agent] [Thread-79] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@92d609c]]
+2026-08-15T01:13:10.153+05:30  INFO 8312 --- [due-diligence-agent] [Thread-79] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-08-15T01:13:10.161+05:30  INFO 8312 --- [due-diligence-agent] [Thread-79] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-15T01:13:10.163+05:30  INFO 8312 --- [due-diligence-agent] [Thread-79] com.zaxxer.hikari.HikariDataSource       : HikariPool-21 - Shutdown initiated...
+2026-08-15T01:13:10.177+05:30  INFO 8312 --- [due-diligence-agent] [Thread-79] com.zaxxer.hikari.HikariDataSource       : HikariPool-21 - Shutdown completed.
