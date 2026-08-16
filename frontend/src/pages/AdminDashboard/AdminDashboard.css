@@ -5,7 +5,7 @@
 .admin-dashboard {
   width: 100%;
   min-height: calc(100vh - 70px);
-  padding: 28px 32px 40px;
+  padding: 20px 24px 28px;
   background: #f6f8fc;
   box-sizing: border-box;
 }
@@ -164,23 +164,23 @@
 .admin-stats-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .admin-stat-card {
-  min-height: 116px;
+  min-height: 104px;
 
-  padding: 19px;
+  padding: 16px;
 
   background: #ffffff;
 
   border: 1px solid #e5eaf1;
-  border-radius: 13px;
+  border-radius: 10px;
 
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 12px;
 
   box-sizing: border-box;
 
@@ -190,17 +190,16 @@
 }
 
 .admin-stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  border-color: #d8deea;
 }
 
 .admin-stat-icon {
-  width: 47px;
-  height: 47px;
+  width: 42px;
+  height: 42px;
 
   flex-shrink: 0;
 
-  border-radius: 12px;
+  border-radius: 10px;
 
   display: flex;
   align-items: center;
@@ -248,7 +247,7 @@
   margin: 5px 0 4px;
 
   color: #172554;
-  font-size: 24px;
+  font-size: 23px;
   font-weight: 700;
   line-height: 1.1;
 }
@@ -284,9 +283,9 @@
 .admin-dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(330px, 1fr);
-  gap: 20px;
+  gap: 16px;
 
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 /* =========================================================
@@ -297,9 +296,9 @@
   background: #ffffff;
 
   border: 1px solid #e5eaf1;
-  border-radius: 14px;
+  border-radius: 10px;
 
-  padding: 20px;
+  padding: 18px;
 
   box-sizing: border-box;
 }
@@ -308,9 +307,9 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 15px;
+  gap: 12px;
 
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .admin-dashboard-card-title {
@@ -370,7 +369,7 @@
 
 .admin-activity-chart {
   width: 100%;
-  min-height: 320px;
+  min-height: 230px;
 }
 
 .admin-chart-legend {
@@ -402,19 +401,19 @@
    ========================================================= */
 
 .admin-verification-content {
-  min-height: 300px;
+  min-height: 230px;
 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
+  gap: 20px;
 }
 
 .admin-verification-chart {
   position: relative;
 
-  width: 170px;
-  height: 170px;
+  width: 145px;
+  height: 145px;
 
   flex-shrink: 0;
 }
@@ -447,7 +446,7 @@
 .admin-verification-legend {
   display: flex;
   flex-direction: column;
-  gap: 17px;
+  gap: 12px;
 }
 
 .admin-verification-legend-item {
@@ -692,19 +691,19 @@
    ========================================================= */
 
 .admin-support-content {
-  min-height: 270px;
+  min-height: 220px;
 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 30px;
+  gap: 20px;
 }
 
 .admin-support-chart {
   position: relative;
 
-  width: 155px;
-  height: 155px;
+  width: 135px;
+  height: 135px;
 
   flex-shrink: 0;
 }
@@ -768,8 +767,8 @@
 .admin-support-button {
   width: 100%;
 
-  margin-top: 18px;
-  padding: 10px 14px;
+  margin-top: 12px;
+  padding: 9px 12px;
 
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -807,7 +806,7 @@
   background: #ffffff;
 
   border: 1px solid #e5eaf1;
-  border-radius: 14px;
+  border-radius: 10px;
 
   overflow: hidden;
 }
@@ -815,7 +814,7 @@
 .admin-system-metric {
   min-height: 85px;
 
-  padding: 17px 20px;
+  padding: 14px 16px;
 
   display: flex;
   align-items: center;
@@ -898,7 +897,7 @@
    RESPONSIVE
    ========================================================= */
 
-@media (max-width: 1400px) {
+@media (max-width: 1200px) {
   .admin-stats-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -934,6 +933,12 @@
     grid-template-columns: 1fr;
   }
 
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 880px) {
   .admin-stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

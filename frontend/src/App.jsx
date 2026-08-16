@@ -15,6 +15,8 @@ import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import AdminSupportTickets from "./pages/AdminSupportTickets/AdminSupportTickets";
 import AdminRoleRequests from "./pages/AdminRoleRequests/AdminRoleRequests";
 import AdminSystemMonitoring from "./pages/AdminSystemMonitoring/AdminSystemMonitoring";
+import AdminWorkspace from "./pages/AdminWorkspace/AdminWorkspace";
+import AdminSettings from "./pages/AdminWorkspace/AdminSettings";
 
 import Notifications from "./pages/Notifications/Notifications";
 import AuditLogs from "./pages/AuditLogs/AuditLogs";
@@ -52,6 +54,20 @@ function App() {
       <Route path="/admin/support-tickets" element={<AdminSupportTickets />} />
       <Route path="/admin/role-requests" element={<AdminRoleRequests />} />
       <Route path="/admin/system-monitoring" element={<AdminSystemMonitoring />} />
+      <Route path="/admin/property-approvals" element={<AdminWorkspace pageKey="property-approvals" />} />
+      <Route path="/admin/advisor-verifications" element={<AdminWorkspace pageKey="advisor-verifications" />} />
+      <Route path="/admin/users" element={<AdminWorkspace pageKey="users" />} />
+      <Route path="/admin/agents" element={<AdminWorkspace pageKey="agents" />} />
+      <Route path="/admin/legal-advisors" element={<AdminWorkspace pageKey="legal-advisors" />} />
+      <Route path="/admin/financial-institutions" element={<AdminWorkspace pageKey="financial-institutions" />} />
+      <Route path="/admin/properties" element={<AdminWorkspace pageKey="properties" />} />
+      <Route path="/admin/transactions" element={<AdminWorkspace pageKey="transactions" />} />
+      <Route path="/admin/enquiries" element={<AdminWorkspace pageKey="enquiries" />} />
+      <Route path="/admin/bookings" element={<AdminWorkspace pageKey="bookings" />} />
+      <Route path="/admin/security-center" element={<AdminWorkspace pageKey="security-center" />} />
+      <Route path="/admin/reports" element={<AdminWorkspace pageKey="reports" />} />
+      <Route path="/admin/activity-analytics" element={<AdminWorkspace pageKey="activity-analytics" />} />
+      <Route path="/admin/settings" element={<AdminSettings />} />
       <Route path="/property-search" element={<PropertySearch />} />
       <Route path="/property-results" element={<PropertyResults />} />
       <Route path="/property-details/:id" element={<PropertyDetails />} />

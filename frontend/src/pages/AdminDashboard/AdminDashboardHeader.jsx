@@ -1,6 +1,6 @@
 import { LuArrowLeft, LuBell, LuSearch, LuCircleUser } from "react-icons/lu";
 
-function AdminDashboardHeader() {
+function AdminDashboardHeader({ notificationCount = 0 }) {
   return (
     <header className="admin-dashboard-header">
       {/* =====================================================
@@ -20,7 +20,7 @@ function AdminDashboardHeader() {
         <div className="admin-dashboard-title">
           <h1>Admin Dashboard</h1>
 
-          <p>Welcome back, Admin! Here's what's happening on your platform.</p>
+          <p>Live platform data and operational status.</p>
         </div>
       </div>
 
@@ -56,7 +56,7 @@ function AdminDashboardHeader() {
         >
           <LuBell size={19} />
 
-          <span className="admin-dashboard-notification-count">8</span>
+          {notificationCount > 0 && <span className="admin-dashboard-notification-count">{notificationCount}</span>}
         </button>
 
         {/* =================================================

@@ -45,11 +45,13 @@ const sections = [
       },
       {
         label: "Property Approvals",
+        path: "/admin/property-approvals",
         icon: HiOutlineOfficeBuilding,
         badge: "8",
       },
       {
         label: "Advisor Verifications",
+        path: "/admin/advisor-verifications",
         icon: FiClipboard,
         badge: "5",
       },
@@ -61,34 +63,42 @@ const sections = [
     items: [
       {
         label: "Users",
+        path: "/admin/users",
         icon: FiUsers,
       },
       {
         label: "Agents",
+        path: "/admin/agents",
         icon: FiBriefcase,
       },
       {
         label: "Legal Advisors",
+        path: "/admin/legal-advisors",
         icon: FiBookOpen,
       },
       {
         label: "Financial Institutions",
+        path: "/admin/financial-institutions",
         icon: FiCreditCard,
       },
       {
         label: "Properties",
+        path: "/admin/properties",
         icon: HiOutlineOfficeBuilding,
       },
       {
         label: "Transactions",
+        path: "/admin/transactions",
         icon: FiLayers,
       },
       {
         label: "Enquiries",
+        path: "/admin/enquiries",
         icon: FiHelpCircle,
       },
       {
         label: "Bookings",
+        path: "/admin/bookings",
         icon: FiFileText,
       },
     ],
@@ -104,6 +114,7 @@ const sections = [
       },
       {
         label: "Security Center",
+        path: "/admin/security-center",
         icon: FiShield,
       },
       {
@@ -119,11 +130,12 @@ const sections = [
     items: [
       {
         label: "Reports",
-        path: "/reports",
+        path: "/admin/reports",
         icon: FiBarChart2,
       },
       {
         label: "Activity Analytics",
+        path: "/admin/activity-analytics",
         icon: FiActivity,
       },
     ],
@@ -134,6 +146,7 @@ const sections = [
     items: [
       {
         label: "Settings",
+        path: "/admin/settings",
         icon: FiSettings,
       },
       {

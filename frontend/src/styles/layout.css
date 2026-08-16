@@ -8,7 +8,16 @@
 }
 
 .page-container.admin-page-container {
-  --sidebar-width: 272px;
+  --sidebar-width: 240px;
+}
+
+.admin-page-container .navbar {
+  height: 56px;
+  padding: 0 20px;
+}
+
+.admin-page-container .page-wrapper {
+  padding: 0;
 }
 
 /* ---------- Main Content ---------- */
@@ -114,6 +123,15 @@
 
   .page-wrapper {
     padding: 20px;
+  }
+
+  .admin-page-container .main-content {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+  }
+
+  .admin-page-container .page-wrapper {
+    padding: 0;
   }
 
   .grid-4,

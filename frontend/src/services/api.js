@@ -981,6 +981,16 @@ getRiskSummary: async (propertyId) => {
     if (!response.ok) throw new Error((await response.text()) || "Unable to load support tickets");
     return response.json();
   },
+  getAdminDashboard: async () => {
+    const response = await fetch(`${BASE_URL}/admin/dashboard`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load the admin dashboard");
+    return response.json();
+  },
+  getAdminWorkspace: async (pageKey) => {
+    const response = await fetch(`${BASE_URL}/admin/dashboard/workspace/${pageKey}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load admin page data");
+    return response.json();
+  },
   getAdminSupportTicket: async (ticketId) => {
     const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}`, { headers: getHeaders(true) });
     if (!response.ok) throw new Error((await response.text()) || "Unable to load support ticket"); return response.json();

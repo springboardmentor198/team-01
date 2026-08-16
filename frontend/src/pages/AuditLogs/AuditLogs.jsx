@@ -65,7 +65,7 @@ function AuditLogs() {
   }, [logs, query, actionFilter]);
 
   return (
-    <Layout title="Audit Logs">
+    <Layout title="Audit Logs" variant="admin">
       <div className="audit-page">
 
         <div className="audit-header">
