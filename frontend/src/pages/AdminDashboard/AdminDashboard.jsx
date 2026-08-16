@@ -11,8 +11,10 @@ import {
 import Layout from "../../components/Layout/Layout";
 import { api } from "../../services/api";
 import "../Dashboard/Dashboard.css";
+import "./AdminDashboard.css";
 
 const roleLabels = {
+  BUYER: "Buyer",
   AGENT: "Property Agent",
   LEGAL_REVIEWER: "Legal Professional",
   BANK: "Financial Institution",
@@ -26,7 +28,8 @@ const statusOptions = [
 ];
 
 const roleOptions = [
-  { value: "", label: "All professional roles" },
+  { value: "", label: "All roles" },
+  { value: "BUYER", label: "Buyer" },
   { value: "AGENT", label: "Property Agent" },
   { value: "LEGAL_REVIEWER", label: "Legal Professional" },
   { value: "BANK", label: "Financial Institution" },
@@ -93,6 +96,9 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState(null);
   const [error, setError] = useState("");
+  const [tab, setTab] = useState("verifications");
+  const [pendingProperties, setPendingProperties] = useState([]);
+  const [propertiesLoading, setPropertiesLoading] = useState(true);
 
   const loadRequests = useCallback(async () => {
     setLoading(true);
@@ -108,6 +114,18 @@ function AdminDashboard() {
     }
   }, [requestedRole, status]);
 
+  const loadPendingProperties = useCallback(async () => {
+    setPropertiesLoading(true);
+    try {
+      const response = await api.getAdminProperties({ status: "UNDER_REVIEW" });
+      setPendingProperties(response);
+    } catch (err) {
+      console.warn("Failed to load pending properties:", err);
+    } finally {
+      setPropertiesLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!api.isAuthenticated()) {
       navigate("/login", { replace: true });
@@ -121,8 +139,9 @@ function AdminDashboard() {
 
     Promise.resolve().then(() => {
       loadRequests();
+      loadPendingProperties();
     });
-  }, [loadRequests, navigate]);
+  }, [loadRequests, loadPendingProperties, navigate]);
 
   const updateRequest = async (id, action) => {
     setActionId(id);
@@ -142,7 +161,31 @@ function AdminDashboard() {
     }
   };
 
-  const pendingCount = requests.filter((request) => request.status === "PENDING").length;
+  const handleApproveProperty = async (propertyId) => {
+    setActionId(propertyId);
+    setError("");
+    try {
+      await api.approveAdminProperty(propertyId);
+      await loadPendingProperties();
+    } catch (err) {
+      setError(err.message || "Failed to approve property");
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const handleRejectProperty = async (propertyId) => {
+    setActionId(propertyId);
+    setError("");
+    try {
+      await api.rejectAdminProperty(propertyId);
+      await loadPendingProperties();
+    } catch (err) {
+      setError(err.message || "Failed to reject property");
+    } finally {
+      setActionId(null);
+    }
+  };
 
   return (
     <Layout title="Admin Dashboard">
@@ -163,88 +206,165 @@ function AdminDashboard() {
             </div>
             <div>
               <p className="stat-label">Pending Review</p>
-              <h2 className="stat-value">{pendingCount}</h2>
+              <h2 className="stat-value">{pendingProperties.length}</h2>
             </div>
           </div>
         </section>
 
-        <section className="dashboard-card recent-search-card">
-          <h3 className="card-title">Professional Verification Requests</h3>
-          {error && <div className="demo-data-notice" role="alert">{error}</div>}
+        <div className="admin-tabs">
+          <button
+            className={`admin-tab-btn ${tab === "verifications" ? "active" : ""}`}
+            onClick={() => setTab("verifications")}
+          >
+            Professional Verifications
+          </button>
+          <button
+            className={`admin-tab-btn ${tab === "properties" ? "active" : ""}`}
+            onClick={() => setTab("properties")}
+          >
+            Property Reviews ({pendingProperties.length})
+          </button>
+        </div>
 
-          <div className="verification-filters">
-            <InlineDropdown
-              options={statusOptions}
-              value={status}
-              onChange={setStatus}
-            />
-            <InlineDropdown
-              options={roleOptions}
-              value={requestedRole}
-              onChange={setRequestedRole}
-            />
-            <button type="button" className="admin-apply-btn" onClick={loadRequests}>
-              Apply filters
-            </button>
-          </div>
+        {tab === "verifications" && (
+          <section className="dashboard-card recent-search-card">
+            <h3 className="card-title">Professional Verification Requests</h3>
+            {error && <div className="demo-data-notice" role="alert">{error}</div>}
 
-          <div className="table-wrapper">
-            <table className="recent-table">
-              <thead>
-                <tr>
-                  <th>Applicant</th>
-                  <th>Requested Role</th>
-                  <th>Company</th>
-                  <th>Submitted</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading && (
-                  <tr><td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>Loading requests...</td></tr>
-                )}
-                {!loading && requests.length === 0 && (
-                  <tr><td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>No verification requests found.</td></tr>
-                )}
-                {!loading && requests.map((request) => (
-                  <tr key={request.requestId}>
-                    <td>
-                      <strong>{request.userName}</strong><br />
-                      <span>{request.email}</span>
-                    </td>
-                    <td>{roleLabels[request.requestedRole] || request.requestedRole}</td>
-                    <td>{request.companyName}</td>
-                    <td>{request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "—"}</td>
-                    <td><span className={`risk-badge ${request.status.toLowerCase()}`}>{request.status}</span></td>
-                    <td>
-                      {request.status === "PENDING" ? (
+            <div className="verification-filters">
+              <InlineDropdown
+                options={statusOptions}
+                value={status}
+                onChange={setStatus}
+              />
+              <InlineDropdown
+                options={roleOptions}
+                value={requestedRole}
+                onChange={setRequestedRole}
+              />
+              <button type="button" className="admin-apply-btn" onClick={loadRequests}>
+                Apply filters
+              </button>
+            </div>
+
+            <div className="table-wrapper">
+              <table className="recent-table">
+                <thead>
+                  <tr>
+                    <th>Applicant</th>
+                    <th>Requested Role</th>
+                    <th>Company</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading && (
+                    <tr><td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>Loading requests...</td></tr>
+                  )}
+                  {!loading && requests.length === 0 && (
+                    <tr><td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>No verification requests found.</td></tr>
+                  )}
+                  {!loading && requests.map((request) => (
+                    <tr key={request.requestId}>
+                      <td>
+                        <strong>{request.userName}</strong><br />
+                        <span>{request.email}</span>
+                      </td>
+                      <td>{roleLabels[request.requestedRole] || request.requestedRole}</td>
+                      <td>{request.companyName}</td>
+                      <td>{request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "—"}</td>
+                      <td><span className={`risk-badge ${request.status.toLowerCase()}`}>{request.status}</span></td>
+                      <td>
+                        {request.status === "PENDING" ? (
+                          <div className="admin-request-actions">
+                            <button
+                              type="button"
+                              className="admin-action-btn approve"
+                              disabled={actionId === request.requestId}
+                              onClick={() => updateRequest(request.requestId, "approve")}
+                            >
+                              <LuBadgeCheck size={16} /> Approve
+                            </button>
+                            <button
+                              type="button"
+                              className="admin-action-btn reject"
+                              disabled={actionId === request.requestId}
+                              onClick={() => updateRequest(request.requestId, "reject")}
+                            >
+                              <LuCircleX size={16} /> Reject
+                            </button>
+                          </div>
+                        ) : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {tab === "properties" && (
+          <section className="dashboard-card recent-search-card">
+            <h3 className="card-title">Properties Pending Review</h3>
+            {error && <div className="demo-data-notice" role="alert">{error}</div>}
+
+            <div className="table-wrapper">
+              <table className="recent-table">
+                <thead>
+                  <tr>
+                    <th>Property</th>
+                    <th>Address</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {propertiesLoading && (
+                    <tr><td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>Loading properties...</td></tr>
+                  )}
+                  {!propertiesLoading && pendingProperties.length === 0 && (
+                    <tr><td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>No properties pending review.</td></tr>
+                  )}
+                  {!propertiesLoading && pendingProperties.map((p) => (
+                    <tr key={p.propertyId}>
+                      <td>
+                        <strong>{p.propertyCode}</strong><br />
+                        <span>{p.propertyType || "—"}</span>
+                      </td>
+                      <td>{p.address}</td>
+                      <td>{p.ownerName || "—"}</td>
+                      <td><span className="risk-badge pending">Under Review</span></td>
+                      <td>
                         <div className="admin-request-actions">
                           <button
                             type="button"
                             className="admin-action-btn approve"
-                            disabled={actionId === request.requestId}
-                            onClick={() => updateRequest(request.requestId, "approve")}
+                            disabled={actionId === p.propertyId}
+                            onClick={() => handleApproveProperty(p.propertyId)}
                           >
                             <LuBadgeCheck size={16} /> Approve
                           </button>
                           <button
                             type="button"
                             className="admin-action-btn reject"
-                            disabled={actionId === request.requestId}
-                            onClick={() => updateRequest(request.requestId, "reject")}
+                            disabled={actionId === p.propertyId}
+                            onClick={() => handleRejectProperty(p.propertyId)}
                           >
                             <LuCircleX size={16} /> Reject
                           </button>
                         </div>
-                      ) : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
       </div>
     </Layout>
   );

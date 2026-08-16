@@ -9,9 +9,13 @@ import "./Login.css";
 import logo from "../../assets/images/logo.png";
 
 
-const getPostLoginPath = ({ profileCompleted, role }) => {
+const getPostLoginPath = ({ profileCompleted, role, status }) => {
   if (role === "ADMIN") {
     return "/admin/dashboard";
+  }
+
+  if (status === "PENDING") {
+    return "/pending";
   }
 
   if (profileCompleted === false) {

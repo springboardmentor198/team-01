@@ -39,7 +39,7 @@ class OnboardingServiceImplTest {
                 .userId(1)
                 .email("buyer@example.com")
                 .role(Role.BUYER)
-                .status(AccountStatus.ACTIVE)
+                .status(AccountStatus.PENDING)
                 .profileCompleted(false)
                 .build();
         ProfileCompletionRequest request = new ProfileCompletionRequest();
@@ -51,7 +51,7 @@ class OnboardingServiceImplTest {
         ProfileCompletionResponse response = onboardingService.completeProfile(user.getEmail(), request);
 
         assertTrue(user.getProfileCompleted());
-        assertEquals(AccountStatus.ACTIVE, user.getStatus());
+        assertEquals(AccountStatus.PENDING, user.getStatus());
         assertEquals("Open Buyer Dashboard", response.getNextStep());
     }
 }

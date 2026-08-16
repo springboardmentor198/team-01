@@ -52,7 +52,9 @@ export default function Admin() {
   const [propLoading, setPropLoading] = useState(true);
   const [propError, setPropError] = useState("");
 
-  const [users, setUsers] = useState(initialMockUsers);
+  const [users, setUsers] = useState([]);
+  const [userLoading, setUserLoading] = useState(true);
+  const [userError, setUserError] = useState("");
 
   const [propModalOpen, setPropModalOpen] = useState(false);
   const [editingPropertyId, setEditingPropertyId] = useState(null);
@@ -62,7 +64,7 @@ export default function Admin() {
   const [editingUserId, setEditingUserId] = useState(null);
   const [userForm, setUserForm] = useState(emptyUserForm);
 
-  // ---- Data loading (defined before the useEffect that calls it) ----
+  // ---- Data loading ----
   const loadProperties = async () => {
     setPropLoading(true);
     setPropError("");
@@ -76,6 +78,19 @@ export default function Admin() {
     }
   };
 
+  const loadUsers = async () => {
+    setUserLoading(true);
+    setUserError("");
+    try {
+      const data = await api.getAdminUsers();
+      setUsers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setUserError(err.message || "Failed to load users");
+    } finally {
+      setUserLoading(false);
+    }
+  };
+
   // ---- Auth / role guard ----
   useEffect(() => {
     if (!api.isAuthenticated()) {
@@ -86,8 +101,8 @@ export default function Admin() {
       navigate("/dashboard", { replace: true });
       return;
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProperties();
+    loadUsers();
 
   }, [navigate]);
 
@@ -153,7 +168,7 @@ export default function Admin() {
     }
   };
 
-  // ---- Mock user CRUD (local state only) ----
+  // ---- User Management operations ----
   const openAddUser = () => {
     setEditingUserId(null);
     setUserForm(emptyUserForm);
@@ -161,26 +176,30 @@ export default function Admin() {
   };
 
   const openEditUser = (user) => {
-    setEditingUserId(user.id);
+    setEditingUserId(user.userId);
     setUserForm({ name: user.name, email: user.email, role: user.role, status: user.status });
     setUserModalOpen(true);
   };
 
-  const handleUserSubmit = (e) => {
+  const handleUserSubmit = async (e) => {
     e.preventDefault();
-    if (editingUserId) {
-      setUsers((prev) =>
-        prev.map((u) => (u.id === editingUserId ? { ...u, ...userForm } : u))
-      );
-    } else {
-      setUsers((prev) => [...prev, { id: Date.now(), ...userForm }]);
+    setUserError("");
+    try {
+      if (editingUserId) {
+        const statusValue = userForm.status.toUpperCase();
+        await api.updateAdminUserStatus(editingUserId, statusValue);
+        setUserModalOpen(false);
+        loadUsers();
+      } else {
+        setUserError("Creating new users directly is not supported. Users must register.");
+      }
+    } catch (err) {
+      setUserError(err.message || "Failed to save user status");
     }
-    setUserModalOpen(false);
   };
 
   const handleDeleteUser = (id) => {
-    if (!window.confirm("Remove this user?")) return;
-    setUsers((prev) => prev.filter((u) => u.id !== id));
+    alert("User deletion is not supported. Please edit status to change it to INACTIVE or REJECTED.");
   };
 
   // ---- Stats ----
@@ -189,14 +208,14 @@ export default function Admin() {
     { label: "Total Properties", value: properties.length, icon: LuBuilding2, color: "#10B981", bg: "#D1FAE5" },
     {
       label: "Active Users",
-      value: users.filter((u) => u.status === "Active").length,
+      value: users.filter((u) => (u.status || "").toUpperCase() === "ACTIVE").length,
       icon: LuUserCheck,
       color: "#F59E0B",
       bg: "#FEF3C7",
     },
     {
       label: "Inactive/Flagged",
-      value: users.filter((u) => u.status !== "Active").length,
+      value: users.filter((u) => (u.status || "").toUpperCase() !== "ACTIVE").length,
       icon: LuTriangleAlert,
       color: "#EF4444",
       bg: "#FEE2E2",
@@ -319,6 +338,8 @@ export default function Admin() {
               </button>
             </div>
 
+            {userError && <div className="admin-error">{userError}</div>}
+
             <div className="table-wrapper">
               <table className="admin-table">
                 <thead>
@@ -331,33 +352,41 @@ export default function Admin() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.length === 0 && (
+                  {userLoading && (
+                    <tr>
+                      <td colSpan="5" className="admin-empty-row">Loading users...</td>
+                    </tr>
+                  )}
+                  {!userLoading && users.length === 0 && (
                     <tr>
                       <td colSpan="5" className="admin-empty-row">No users found.</td>
                     </tr>
                   )}
-                  {users.map((u) => (
-                    <tr key={u.id}>
-                      <td>{u.name}</td>
-                      <td>{u.email}</td>
-                      <td>{u.role}</td>
-                      <td>
-                        <span className={`status-badge ${u.status.toLowerCase()}`}>{u.status}</span>
-                      </td>
-                      <td className="admin-actions">
-                        <button className="icon-btn" onClick={() => openEditUser(u)} aria-label="Edit">
-                          <LuPencil size={16} />
-                        </button>
-                        <button
-                          className="icon-btn danger"
-                          onClick={() => handleDeleteUser(u.id)}
-                          aria-label="Delete"
-                        >
-                          <LuTrash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {!userLoading &&
+                    users.map((u) => (
+                      <tr key={u.userId}>
+                        <td>{u.name}</td>
+                        <td>{u.email}</td>
+                        <td>{u.role}</td>
+                        <td>
+                          <span className={`status-badge ${(u.status || "").toLowerCase()}`}>
+                            {u.status}
+                          </span>
+                        </td>
+                        <td className="admin-actions">
+                          <button className="icon-btn" onClick={() => openEditUser(u)} aria-label="Edit">
+                            <LuPencil size={16} />
+                          </button>
+                          <button
+                            className="icon-btn danger"
+                            onClick={() => handleDeleteUser(u.userId)}
+                            aria-label="Delete"
+                          >
+                            <LuTrash2 size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -474,9 +503,10 @@ export default function Admin() {
                     value={propForm.status}
                     onChange={(e) => setPropForm({ ...propForm, status: e.target.value })}
                   >
-                    <option value="Active">Active</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Inactive">Inactive</option>
+                    <option value="AVAILABLE">Available</option>
+                    <option value="UNDER_REVIEW">Under Review</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REJECTED">Rejected</option>
                   </select>
                 </label>
               </div>
@@ -493,12 +523,12 @@ export default function Admin() {
         </div>
       )}
 
-      {/* ---- User Modal (mock) ---- */}
+      {/* ---- User Modal ---- */}
       {userModalOpen && (
         <div className="admin-modal-overlay" onClick={() => setUserModalOpen(false)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
             <div className="admin-modal-header">
-              <h3>{editingUserId ? "Edit User" : "Add User"}</h3>
+              <h3>{editingUserId ? "Edit User Status" : "Add User"}</h3>
               <button className="icon-btn" onClick={() => setUserModalOpen(false)}>
                 <LuX size={18} />
               </button>
@@ -509,8 +539,8 @@ export default function Admin() {
                   Name
                   <input
                     value={userForm.name}
-                    onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-                    required
+                    disabled
+                    readOnly
                   />
                 </label>
                 <label className="span-2">
@@ -518,22 +548,17 @@ export default function Admin() {
                   <input
                     type="email"
                     value={userForm.email}
-                    onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                    required
+                    disabled
+                    readOnly
                   />
                 </label>
                 <label>
                   Role
-                  <select
+                  <input
                     value={userForm.role}
-                    onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                  >
-                    <option value="ADMIN">Admin</option>
-                    <option value="BUYER">Buyer</option>
-                    <option value="AGENT">Agent</option>
-                    <option value="LEGAL_REVIEWER">Legal Reviewer</option>
-                    <option value="BANK">Bank</option>
-                  </select>
+                    disabled
+                    readOnly
+                  />
                 </label>
                 <label>
                   Status
@@ -541,8 +566,9 @@ export default function Admin() {
                     value={userForm.status}
                     onChange={(e) => setUserForm({ ...userForm, status: e.target.value })}
                   >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                    <option value="ACTIVE">Active / Approved</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="REJECTED">Rejected</option>
                   </select>
                 </label>
               </div>
@@ -551,7 +577,7 @@ export default function Admin() {
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary">
-                  {editingUserId ? "Save Changes" : "Add User"}
+                  Save Changes
                 </button>
               </div>
             </form>

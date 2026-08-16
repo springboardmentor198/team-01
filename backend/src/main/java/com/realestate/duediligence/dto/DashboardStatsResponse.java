@@ -15,6 +15,8 @@ public class DashboardStatsResponse {
 
     private long viewedProperties;
 
+    private long totalProperties;
+
     private long reportsGenerated;
 
     private long highRiskProperties;

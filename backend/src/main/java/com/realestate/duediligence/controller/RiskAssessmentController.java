@@ -7,7 +7,7 @@ import com.realestate.duediligence.dto.RiskAssessmentResponse;
 import com.realestate.duediligence.service.RiskAssessmentService;
 
 @RestController
-@RequestMapping("/api/risk")
+@RequestMapping("/api/risk-assessment")
 @CrossOrigin(origins = "*")
 public class RiskAssessmentController {
 

@@ -138,7 +138,7 @@ export default function PropertyResults() {
 
   const totalResults = enriched.length;
   const verifiedCount = enriched.filter(
-    (p) => p.status === "AVAILABLE" || p.status === "VERIFIED",
+    (p) => p.status === "AVAILABLE" || p.status === "VERIFIED" || p.status === "APPROVED",
   ).length;
   const pendingCount = enriched.filter(
     (p) => p.status === "UNDER_REVIEW",

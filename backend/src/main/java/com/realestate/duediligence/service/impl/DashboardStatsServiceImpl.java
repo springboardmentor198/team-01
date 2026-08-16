@@ -52,38 +52,16 @@ public class DashboardStatsServiceImpl
     public DashboardStatsResponse getDashboardStats(
             String buyerEmail
     ) {
-
-        /*
-         * Count only UNIQUE properties viewed by this buyer.
-         *
-         * Example:
-         *
-         * Buyer views property 3
-         * Buyer views property 3 again
-         * Buyer views property 8
-         *
-         * Result = 2 viewed properties
-         */
-
-        List<Property> viewedProperties = getViewedProperties(buyerEmail);
-
-        long reportsGenerated = reportRepository
-                .countDistinctPropertiesByCreatedBy(buyerEmail);
-
-        long highRiskProperties = viewedProperties.stream()
-                .filter(property -> riskRepository
-                        .findByProperty_PropertyId(property.getPropertyId())
-                        .map(risk -> isHighRisk(risk.getOverallRisk()))
-                        .orElse(false))
-                .count();
-
-        long pendingReviews = viewedProperties.stream()
-                .filter(property -> "PENDING".equalsIgnoreCase(property.getStatus()))
-                .count();
-
+        long viewedPropertiesCount = getViewedProperties(buyerEmail).size();
+        long totalProperties = propertyRepository.count();
+        long reportsGenerated = reportRepository.count();
+        long highRiskProperties = riskRepository.countByOverallRiskIgnoreCase("HIGH")
+                + riskRepository.countByOverallRiskIgnoreCase("CRITICAL");
+        long pendingReviews = propertyRepository.countByStatusIgnoreCase("UNDER_REVIEW");
 
         return DashboardStatsResponse.builder()
-                .viewedProperties(viewedProperties.size())
+                .viewedProperties(viewedPropertiesCount)
+                .totalProperties(totalProperties)
                 .reportsGenerated(reportsGenerated)
                 .highRiskProperties(highRiskProperties)
                 .pendingReviews(pendingReviews)
@@ -125,23 +103,10 @@ public class DashboardStatsServiceImpl
 
     @Override
     public RiskDistributionResponse getRiskDistribution(String buyerEmail) {
-        long low = 0;
-        long medium = 0;
-        long high = 0;
-        long critical = 0;
-
-        for (Property property : getViewedProperties(buyerEmail)) {
-            String overallRisk = riskRepository
-                    .findByProperty_PropertyId(property.getPropertyId())
-                    .map(risk -> risk.getOverallRisk())
-                    .orElse(null);
-
-            if ("LOW".equalsIgnoreCase(overallRisk)) low++;
-            else if ("MEDIUM".equalsIgnoreCase(overallRisk)) medium++;
-            else if ("HIGH".equalsIgnoreCase(overallRisk)) high++;
-            else if ("CRITICAL".equalsIgnoreCase(overallRisk)) critical++;
-        }
-
+        long low = riskRepository.countByOverallRiskIgnoreCase("LOW");
+        long medium = riskRepository.countByOverallRiskIgnoreCase("MEDIUM");
+        long high = riskRepository.countByOverallRiskIgnoreCase("HIGH");
+        long critical = riskRepository.countByOverallRiskIgnoreCase("CRITICAL");
 
         return RiskDistributionResponse.builder()
                 .low(low)
