@@ -11,6 +11,8 @@ public interface RiskSummaryService {
 
     RiskSummaryResponse updateRiskSummary(Integer id, RiskSummaryRequest request);
 
+   
+
     void deleteRiskSummary(Integer id);
 
 }

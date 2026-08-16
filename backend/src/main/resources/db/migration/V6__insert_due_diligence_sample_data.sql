@@ -1,25 +1,2 @@
-INSERT INTO risk_summary
-(
-    legal_risk,
-    environmental_risk,
-    flood_risk,
-    overall_risk,
-    remarks,
-    risk_score,
-    created_at,
-    updated_at,
-    property_id
-)
-VALUES
-(
-    'LOW',
-    'LOW',
-    'LOW',
-    'LOW',
-    'Property has minimal legal and environmental concerns.',
-    25,
-    NOW(),
-    NOW(),
-    4
-)
-ON CONFLICT (property_id) DO NOTHING;
+-- V6 sample data is intentionally skipped.
+-- Real due-diligence data will be created through the application APIs.

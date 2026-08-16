@@ -375,7 +375,8 @@ export const api = {
       );
     }
 
-    return response.json();
+    const data = await response.json();
+    return Array.isArray(data) ? data : (data?.content || []);
   },
 
   approveAdminRoleRequest: async (id) => {
@@ -414,6 +415,61 @@ export const api = {
     return response.json();
   },
 
+  getAdminProperties: async (params = {}) => {
+    const searchParams = new URLSearchParams(params);
+    const response = await fetch(
+      `${BASE_URL}/admin/properties?${searchParams.toString()}`,
+      {
+        headers: getHeaders(true),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Unable to load admin properties",
+      );
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : (data?.content || []);
+  },
+
+  approveAdminProperty: async (id) => {
+    const response = await fetch(
+      `${BASE_URL}/admin/properties/${id}/approve`,
+      {
+        method: "PATCH",
+        headers: getHeaders(true),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Unable to approve property",
+      );
+    }
+
+    return response.json();
+  },
+
+  rejectAdminProperty: async (id) => {
+    const response = await fetch(
+      `${BASE_URL}/admin/properties/${id}/reject`,
+      {
+        method: "PATCH",
+        headers: getHeaders(true),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Unable to reject property",
+      );
+    }
+
+    return response.json();
+  },
+
   // Dashboard API
   getDashboardSummary: async () => {
     const response = await fetch(`${BASE_URL}/dashboard/stats`, {
@@ -422,6 +478,17 @@ export const api = {
     if (!response.ok)
       throw new Error(
         (await response.text()) || "Failed to load dashboard statistics",
+      );
+    return response.json();
+  },
+
+  getDashboardRiskDistribution: async () => {
+    const response = await fetch(`${BASE_URL}/dashboard/risk-distribution`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load dashboard risk distribution",
       );
     return response.json();
   },
@@ -685,14 +752,20 @@ export const api = {
       );
     return response.json();
   },
-  getRiskSummary: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/risk-summary/${propertyId}`, {
-      headers: getHeaders(true),
-    });
-    if (!response.ok)
-      throw new Error((await response.text()) || "Failed to load risk summary");
-    return response.json();
-  },
+getRiskSummary: async (propertyId) => {
+  const response = await fetch(`${BASE_URL}/risk/${propertyId}`, {
+    method: "GET",
+    headers: getHeaders(true),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      (await response.text()) || "Failed to load risk assessment"
+    );
+  }
+
+  return response.json();
+},
   getDocuments: async (propertyId) => {
     const response = await fetch(`${BASE_URL}/documents/${propertyId}`, {
       headers: getHeaders(true),
@@ -770,6 +843,35 @@ export const api = {
 
     return await response.json();
   },
+  getPopularProperties: async (limit = 6) => {
+    const response = await fetch(`${BASE_URL}/properties/popular?limit=${limit}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to load popular properties");
+    return response.json();
+  },
+  getSavedSearches: async () => {
+    const response = await fetch(`${BASE_URL}/saved-searches`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to load saved searches");
+    return response.json();
+  },
+  createSavedSearch: async (payload) => {
+    const response = await fetch(`${BASE_URL}/saved-searches`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(payload) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to save search");
+    return response.json();
+  },
+  deleteSavedSearch: async (id) => {
+    const response = await fetch(`${BASE_URL}/saved-searches/${id}`, { method: "DELETE", headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to delete saved search");
+  },
+  getProfileDashboard: async () => {
+    const response = await fetch(`${BASE_URL}/users/profile/dashboard`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
+    if (!response.ok) {
+      throw new Error((await response.text()) || "Failed to load profile dashboard");
+    }
+    return response.json();
+  },
   getActivityLogs: async (propertyId) => {
     const response = await fetch(`${BASE_URL}/activity-log/${propertyId}`, {
       headers: getHeaders(true),
@@ -782,6 +884,33 @@ export const api = {
     }
 
     return response.json();
+  },
+
+  getRiskAssessment: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/risk/${propertyId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to load risk assessment");
+    return response.json();
+  },
+
+  getComparableProperties: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/comparison/${propertyId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to load comparable properties");
+    return response.json();
+  },
+
+  getPropertyValuation: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/valuation/${propertyId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Failed to load property valuation");
+    return response.json();
+  },
+
+  recordPropertyView: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/activity-log/${propertyId}/view`, {
+      method: "POST",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to record property view");
   },
 
   updateUserProfile: async (profileData) => {
@@ -842,6 +971,17 @@ export const api = {
   },
 
   // Report Engine APIs
+  getReportByProperty: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/report/latest/${propertyId}`, {
+      headers: getHeaders(true),
+    });
+    if (response.status === 404) return null;
+    if (!response.ok) {
+      throw new Error((await response.text()) || "Failed to load report");
+    }
+    return response.json();
+  },
+
   generateReport: async (propertyId) => {
     const response = await fetch(`${BASE_URL}/report/generate`, {
       method: "POST",
@@ -883,5 +1023,94 @@ export const api = {
     }
 
     return await response.blob();
+  },
+
+  getAdminUsers: async () => {
+    const response = await fetch(`${BASE_URL}/admin/users`, {
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      throw new Error((await response.text()) || "Failed to load users");
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : (data?.content || []);
+  },
+
+  updateAdminUserStatus: async (id, status) => {
+    const response = await fetch(`${BASE_URL}/admin/users/${id}/status`, {
+      method: "PATCH",
+      headers: getHeaders(true),
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Unable to update user status",
+      );
+    }
+
+    return response.json();
+  },
+
+  createSupportTicket: async ({ subject, description, priority }) => {
+    const response = await fetch(`${BASE_URL}/support/tickets`, { method: "POST", headers: getHeaders(true), body: JSON.stringify({ subject, description, priority }) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to submit support ticket");
+    return response.json();
+  },
+  getAdminSupportTickets: async ({ search, status, priority, page = 0, size = 20 } = {}) => {
+    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    if (search) params.set("search", search); if (status) params.set("status", status); if (priority) params.set("priority", priority);
+    const response = await fetch(`${BASE_URL}/admin/support/tickets?${params}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load support tickets");
+    return response.json();
+  },
+  getAdminDashboard: async () => {
+    const response = await fetch(`${BASE_URL}/admin/dashboard`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load the admin dashboard");
+    return response.json();
+  },
+  getAdminWorkspace: async (pageKey) => {
+    const response = await fetch(`${BASE_URL}/admin/dashboard/workspace/${pageKey}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load admin page data");
+    return response.json();
+  },
+  getAdminSupportTicket: async (ticketId) => {
+    const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load support ticket"); return response.json();
+  },
+  updateSupportTicketStatus: async (ticketId, status) => {
+    const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}/status`, { method: "PATCH", headers: getHeaders(true), body: JSON.stringify({ status }) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to update ticket status"); return response.json();
+  },
+  replyToSupportTicket: async (ticketId, message) => {
+    const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}/reply`, { method: "POST", headers: getHeaders(true), body: JSON.stringify({ message }) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to send reply"); return response.json();
+  },
+  getAdminSystemHealth: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/health`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load system health");
+    return response.json();
+  },
+  getAdminSystemMetrics: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/metrics`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load system metrics");
+    return response.json();
+  },
+  getAdminApiPerformance: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/api-performance`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load API performance");
+    return response.json();
+  },
+  getAdminSystemLogs: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/logs`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load application logs");
+    return response.json();
+  },
+  getAdminCacheMetrics: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/cache`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load cache metrics");
+    return response.json();
   },
 };

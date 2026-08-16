@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LuShieldAlert } from "react-icons/lu";
 import Layout from "../../components/Layout/Layout";
@@ -6,107 +6,138 @@ import { api } from "../../services/api";
 import RiskOverview from "./components/RiskOverview";
 import ComparableProperties from "./components/ComparableProperties";
 import PropertyValuation from "./components/PropertyValuation";
-import { getComparableProperties, getPropertyValuation } from "./riskDashboardService";
 import "./RiskDashboard.css";
-
-// ---- TEMPORARY MOCK DATA ----
-// Backend risk-summary endpoint/DB setup is not yet stable in all environments.
-// Using mock properties + mock risk data here so this page is demoable and
-// doesn't break for anyone testing before the backend is fully wired up.
-// TODO: once api.getProperties() / api.getRiskSummary() are confirmed working,
-// delete this block and restore the real fetch logic (see git history /
-// ask Member 1 for the original version).
-
-const MOCK_PROPERTIES = [
-  { id: 1, address: "12 Palm Residency", city: "Bangalore", area: 1450 },
-  { id: 2, address: "45 Riverside Apartments", city: "Mumbai", area: 1800 },
-  { id: 3, address: "Green Valley Farmhouse", city: "Jaipur", area: 3200 },
-];
-
-const MOCK_RISK = {
-  1: {
-    overallRisk: "Medium",
-    riskScore: 58,
-    remarks: "Moderate risk due to pending tax verification and nearby flood zone history.",
-    floodRisk: "Medium",
-    legalRisk: "Low",
-    environmentalRisk: "Medium",
-    financialRisk: "Low",
-    marketRisk: "Medium",
-    ownershipRisk: "Low",
-    reviewedBy: "Agent Priya Sharma",
-    reviewedAt: "2026-07-28T10:00:00",
-    complianceStatus: "Under Review",
-    criticalIssues: "Property tax records for 2025 not yet verified.",
-    recommendation: "Proceed with caution; request updated tax clearance certificate before closing.",
-    riskTrend: "Stable",
-  },
-  2: {
-    overallRisk: "Low",
-    riskScore: 22,
-    remarks: "Clean legal history, low flood exposure, verified ownership chain.",
-    floodRisk: "Low",
-    legalRisk: "Low",
-    environmentalRisk: "Low",
-    financialRisk: "Low",
-    marketRisk: "Low",
-    ownershipRisk: "Low",
-    reviewedBy: "Agent Rohan Mehta",
-    reviewedAt: "2026-07-30T14:00:00",
-    complianceStatus: "Approved",
-    criticalIssues: "",
-    recommendation: "No blockers identified; safe to proceed.",
-    riskTrend: "Improving",
-  },
-  3: {
-    overallRisk: "High",
-    riskScore: 81,
-    remarks: "Disputed boundary lines and unresolved zoning classification.",
-    floodRisk: "High",
-    legalRisk: "High",
-    environmentalRisk: "Medium",
-    financialRisk: "Medium",
-    marketRisk: "High",
-    ownershipRisk: "High",
-    reviewedBy: "Legal Reviewer Anita Rao",
-    reviewedAt: "2026-08-01T09:30:00",
-    complianceStatus: "Rejected",
-    criticalIssues: "Boundary dispute with adjacent landowner is unresolved. Zoning reclassification pending.",
-    recommendation: "Do not proceed until legal dispute is resolved and zoning is confirmed.",
-    riskTrend: "Worsening",
-  },
-};
-// ---- END TEMPORARY MOCK DATA ----
 
 export default function RiskDashboard() {
   const navigate = useNavigate();
-  const [selectedId, setSelectedId] = useState(String(MOCK_PROPERTIES[0].id));
+
+  const [properties, setProperties] = useState([]);
+  const [propertiesLoading, setPropertiesLoading] = useState(true);
+  const [propertiesError, setPropertiesError] = useState("");
+
+  const [selectedId, setSelectedId] = useState("");
+
+  const [risk, setRisk] = useState(null);
+  const [riskLoading, setRiskLoading] = useState(false);
+  const [riskError, setRiskError] = useState("");
+
+  const [comparables, setComparables] = useState([]);
+  const [comparablesLoading, setComparablesLoading] = useState(false);
+  const [comparablesError, setComparablesError] = useState("");
+
+  const [valuation, setValuation] = useState(null);
+  const [valuationLoading, setValuationLoading] = useState(false);
+  const [valuationError, setValuationError] = useState("");
 
   useEffect(() => {
     if (!api.isAuthenticated()) {
       navigate("/login");
+      return;
     }
+
+    let cancelled = false;
+
+    async function loadProperties() {
+      try {
+        const data = await api.getProperties();
+        if (cancelled) return;
+        const list = Array.isArray(data) ? data : [];
+        setProperties(list);
+        if (list.length) setSelectedId(String(list[0].id));
+      } catch (err) {
+        if (!cancelled) setPropertiesError(err.message || "Failed to load properties");
+      } finally {
+        if (!cancelled) setPropertiesLoading(false);
+      }
+    }
+
+    loadProperties();
+
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
-  const selectedProperty = useMemo(
-    () => MOCK_PROPERTIES.find((p) => String(p.id) === String(selectedId)),
-    [selectedId],
-  );
+  useEffect(() => {
+    if (!selectedId) return;
 
-  const risk = MOCK_RISK[selectedId];
+    let cancelled = false;
 
-  const comparables = useMemo(
-    () => getComparableProperties(selectedProperty),
-    [selectedProperty],
-  );
+    async function loadRisk() {
+      setRiskLoading(true);
+      setRiskError("");
+      setRisk(null);
 
-  const valuation = useMemo(
-    () => getPropertyValuation(selectedProperty, risk?.riskScore),
-    [selectedProperty, risk],
-  );
+      try {
+        const data = await api.getRiskSummary(selectedId);
+        if (!cancelled) setRisk(data);
+      } catch (err) {
+        if (!cancelled) setRiskError(err.message || "Failed to load risk summary");
+      } finally {
+        if (!cancelled) setRiskLoading(false);
+      }
+    }
 
-  if (!api.isAuthenticated()) return null;
+    loadRisk();
 
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+
+    let cancelled = false;
+
+    async function loadComparables() {
+      setComparablesLoading(true);
+      setComparablesError("");
+      setComparables([]);
+
+      try {
+        const data = await api.getComparableProperties(selectedId);
+        if (!cancelled) setComparables(Array.isArray(data) ? data : []);
+      } catch (err) {
+        if (!cancelled) setComparablesError(err.message || "Failed to load comparable properties");
+      } finally {
+        if (!cancelled) setComparablesLoading(false);
+      }
+    }
+
+    loadComparables();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+
+    let cancelled = false;
+
+    async function loadValuation() {
+      setValuationLoading(true);
+      setValuationError("");
+      setValuation(null);
+
+      try {
+        const data = await api.getPropertyValuation(selectedId);
+        if (!cancelled) setValuation(data);
+      } catch (err) {
+        if (!cancelled) setValuationError(err.message || "Failed to load property valuation");
+      } finally {
+        if (!cancelled) setValuationLoading(false);
+      }
+    }
+
+    loadValuation();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
   return (
     <Layout title="Risk Dashboard">
       <div className="rd-page">
@@ -120,25 +151,46 @@ export default function RiskDashboard() {
 
         <div className="rd-card rd-selector">
           <label htmlFor="rd-property-select">Property</label>
-          <select
-            id="rd-property-select"
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
-          >
-            {MOCK_PROPERTIES.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.address}, {p.city}
-              </option>
-            ))}
-          </select>
+
+          {propertiesLoading ? (
+            <p className="rd-muted">Loading properties…</p>
+          ) : propertiesError ? (
+            <p className="rd-error">{propertiesError}</p>
+          ) : properties.length === 0 ? (
+            <p className="rd-muted">No properties available yet.</p>
+          ) : (
+            <select
+              id="rd-property-select"
+              value={selectedId}
+              onChange={(e) => setSelectedId(e.target.value)}
+            >
+              {properties.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.address ? `${p.address}, ${p.city}` : `Property #${p.id}`}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
-        <RiskOverview risk={risk} loading={false} error="" />
+        {selectedId && (
+          <>
+            <RiskOverview risk={risk} loading={riskLoading} error={riskError} />
 
-        <div className="rd-grid">
-          <ComparableProperties items={comparables} />
-          <PropertyValuation valuation={valuation} />
-        </div>
+            <div className="rd-grid">
+              <ComparableProperties
+                items={comparables}
+                loading={comparablesLoading}
+                error={comparablesError}
+              />
+              <PropertyValuation
+                valuation={valuation}
+                loading={valuationLoading}
+                error={valuationError}
+              />
+            </div>
+          </>
+        )}
       </div>
     </Layout>
   );

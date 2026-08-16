@@ -1,7 +1,23 @@
 .page-container {
   display: flex;
-  min-height: 100vh;
+  width: 100%;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
   background: var(--background);
+}
+
+.page-container.admin-page-container {
+  --sidebar-width: 240px;
+}
+
+.admin-page-container .navbar {
+  height: 56px;
+  padding: 0 20px;
+}
+
+.admin-page-container .page-wrapper {
+  padding: 0;
 }
 
 /* ---------- Main Content ---------- */
@@ -9,11 +25,15 @@
 .main-content {
   flex: 1;
   margin-left: var(--sidebar-width);
+  min-width: 0;
+  width: calc(100% - var(--sidebar-width));
 
   display: flex;
   flex-direction: column;
 
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
 
   background: var(--background);
 }
@@ -22,7 +42,10 @@
 
 .page-wrapper {
   flex: 1;
-  padding: 28px;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 28px 28px;
 }
 
 /* ---------- Common Card ---------- */
@@ -95,10 +118,20 @@
 
   .main-content {
     margin-left: 0;
+    width: 100%;
   }
 
   .page-wrapper {
     padding: 20px;
+  }
+
+  .admin-page-container .main-content {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+  }
+
+  .admin-page-container .page-wrapper {
+    padding: 0;
   }
 
   .grid-4,

@@ -103,6 +103,7 @@ function getMenuItemsForRole(role) {
   if (role === "ADMIN") {
     return [
       dashboardItem,
+      { name: "Management", path: "/admin", icon: <FiShield /> },
       { name: "Audit Logs", path: "/audit-logs", icon: <FiFileText /> },
       notificationsItem,
       profileItem,
@@ -113,7 +114,7 @@ function getMenuItemsForRole(role) {
   return [dashboardItem, notificationsItem, profileItem];
 }
 
-function Sidebar() {
+function Sidebar({ onContactSupport }) {
   const navigate = useNavigate();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
@@ -157,10 +158,17 @@ function Sidebar() {
         </nav>
       </div>
 
-      <button className="logout" onClick={handleLogoutClick}>
-        <FiLogOut />
-        <span>Logout</span>
-      </button>
+      <div className="sidebar-bottom">
+        <div className="support-card">
+          <strong>Need help?</strong>
+          <p>We're here to help with any queries.</p>
+          <button type="button" onClick={onContactSupport}>Contact Support</button>
+        </div>
+        <button className="logout" onClick={handleLogoutClick}>
+          <FiLogOut />
+          <span>Logout</span>
+        </button>
+      </div>
 
       {showLogoutConfirm && (
         <div className="logout-overlay" onClick={cancelLogout}>

@@ -30,8 +30,7 @@ function AuditLogs() {
     setError(null);
 
     try {
-      // TODO: Replace propertyId when dynamic selection is added
-      const data = await api.getActivityLogs(1);
+      const data = await api.getAuditLogs();
 
       setLogs(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -64,7 +63,7 @@ function AuditLogs() {
     });
   }, [logs, query, actionFilter]); 
   return (
-    <Layout title="Audit Logs">
+    <Layout title="Audit Logs" variant="admin">
       <div className="audit-page">
 
         <div className="audit-header">

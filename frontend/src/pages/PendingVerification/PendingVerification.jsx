@@ -9,7 +9,36 @@ function PendingVerification() {
   useEffect(() => {
     if (!api.isAuthenticated()) {
       navigate("/login", { replace: true });
+      return;
     }
+
+    const checkStatus = async () => {
+      try {
+        const profile = await api.getUserProfile();
+        if (profile.status === "ACTIVE") {
+          localStorage.setItem("status", profile.status);
+          localStorage.setItem("role", profile.role);
+          localStorage.setItem("profileCompleted", String(profile.profileCompleted));
+
+          const dashboardPaths = {
+            BUYER: "/buyer/dashboard",
+            AGENT: "/agent/dashboard",
+            LEGAL_REVIEWER: "/legal/dashboard",
+            BANK: "/bank/dashboard",
+          };
+          navigate(dashboardPaths[profile.role] || "/dashboard", { replace: true });
+        }
+      } catch (err) {
+        // Ignore errors during polling
+      }
+    };
+
+    // Run check immediately
+    checkStatus();
+
+    // Poll every 3 seconds
+    const interval = setInterval(checkStatus, 3000);
+    return () => clearInterval(interval);
   }, [navigate]);
 
   return (

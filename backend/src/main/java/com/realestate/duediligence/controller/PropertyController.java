@@ -11,6 +11,15 @@ import com.realestate.duediligence.dto.*;
 import com.realestate.duediligence.service.RiskSummaryService;
 import com.realestate.duediligence.service.DocumentService;
 import com.realestate.duediligence.service.PermitService;
+import com.realestate.duediligence.repository.ActivityLogRepository;
+import com.realestate.duediligence.repository.PropertyRepository;
+import com.realestate.duediligence.repository.RiskSummaryRepository;
+import com.realestate.duediligence.dto.PopularPropertyResponse;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 
 @RestController
@@ -23,6 +32,9 @@ public class PropertyController {
     @Autowired private RiskSummaryService riskSummaryService;
     @Autowired private DocumentService documentService;
     @Autowired private PermitService permitService;
+    @Autowired private ActivityLogRepository activityLogRepository;
+    @Autowired private PropertyRepository propertyRepository;
+    @Autowired private RiskSummaryRepository riskSummaryRepository;
 
     @PostMapping
     public ResponseEntity<Property> createProperty(@RequestBody Property property) {
@@ -32,6 +44,34 @@ public class PropertyController {
     @GetMapping
     public ResponseEntity<List<Property>> getAllProperties() {
         return ResponseEntity.ok(propertyService.getAll());
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<List<PopularPropertyResponse>> popularProperties(
+            @RequestParam(defaultValue = "6") int limit) {
+        int safeLimit = Math.max(1, Math.min(limit, 12));
+        LocalDateTime now = LocalDateTime.now();
+        List<Object[]> metrics = activityLogRepository.findPopularPropertyMetrics(
+                now.minusDays(7), now.minusDays(30), PageRequest.of(0, safeLimit));
+        Map<Integer, Object[]> byPropertyId = metrics.stream().collect(Collectors.toMap(
+                row -> (Integer) row[0], row -> row));
+        List<Property> properties = byPropertyId.isEmpty()
+                ? propertyRepository.findAll(PageRequest.of(0, safeLimit, Sort.by(Sort.Direction.DESC, "createdAt"))).getContent()
+                : propertyRepository.findAllById(byPropertyId.keySet()).stream()
+                        .sorted((left, right) -> Long.compare(score(byPropertyId.get(right.getPropertyId())), score(byPropertyId.get(left.getPropertyId())))).toList();
+        return ResponseEntity.ok(properties.stream().map(property -> {
+            Object[] row = byPropertyId.get(property.getPropertyId());
+            long views = row == null ? 0 : ((Number) row[1]).longValue();
+            long uniqueViewers = row == null ? 0 : ((Number) row[2]).longValue();
+            long popularity = row == null ? 0 : score(row);
+            String risk = riskSummaryRepository.findByProperty_PropertyId(property.getPropertyId()).map(item -> item.getOverallRisk()).orElse("Unrated");
+            return PopularPropertyResponse.builder().propertyId(property.getPropertyId()).propertyCode(property.getPropertyCode()).address(property.getAddress()).city(property.getCity()).propertyType(property.getPropertyType()).status(property.getStatus()).imageUrl(property.getImageUrl()).riskLevel(risk).viewCount(views).uniqueViewerCount(uniqueViewers).popularityScore(popularity).trending(views >= 3).build();
+        }).toList());
+    }
+
+    private static long score(Object[] row) {
+        if (row == null) return 0;
+        return ((Number) row[3]).longValue() * 3L + ((Number) row[1]).longValue() + ((Number) row[2]).longValue() * 2L;
     }
 
     @GetMapping("/{id}")

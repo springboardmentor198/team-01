@@ -33,6 +33,8 @@ export default function SmartSearchAutocomplete({
   placeholder = "Search properties by name, city, address...",
   className = "",
   autoFocus = false,
+  showSubmitButton = false,
+  submitLabel = "Search",
 }) {
   const navigate = useNavigate();
 
@@ -211,6 +213,11 @@ export default function SmartSearchAutocomplete({
           autoFocus={autoFocus}
         />
         {loading && <span className="smart-search-loader" />}
+        {showSubmitButton && (
+          <button type="submit" className="smart-search-submit">
+            {submitLabel}
+          </button>
+        )}
       </form>
 
       {open && suggestions.length > 0 && (

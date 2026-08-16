@@ -28,6 +28,8 @@ public class Property {
 
     private String city;
 
+    private String state;
+
     private String country;
 
     @Column(name = "property_type")
@@ -38,6 +40,9 @@ public class Property {
 
     @Column(name = "area_sqft")
     private BigDecimal lotSizeSqft;
+
+    @Column(name = "estimated_price")
+    private BigDecimal estimatedPrice;
 
     @Column(name = "year_built")
     private Integer yearBuilt;

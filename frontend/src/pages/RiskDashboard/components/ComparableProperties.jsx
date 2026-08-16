@@ -1,15 +1,50 @@
-import { LuBuilding2, LuMapPin } from "react-icons/lu";
+import { LuBuilding2 } from "react-icons/lu";
 import { ComparablePriceBars } from "./RiskCharts";
 import { formatCurrency } from "../riskDashboardService";
 
 const RISK_BADGE_CLASS = {
-  Low: "low",
-  Medium: "medium",
-  High: "high",
+  low: "low",
+  medium: "medium",
+  high: "high",
+  critical: "high",
 };
 
-export default function ComparableProperties({ items }) {
-  if (!items || !items.length) return null;
+export default function ComparableProperties({ items, loading, error }) {
+  if (loading) {
+    return (
+      <div className="rd-card">
+        <h3>
+          <LuBuilding2 style={{ marginRight: 8, verticalAlign: "middle" }} />
+          Comparable Properties
+        </h3>
+        <p className="rd-muted">Loading comparable properties…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rd-card">
+        <h3>
+          <LuBuilding2 style={{ marginRight: 8, verticalAlign: "middle" }} />
+          Comparable Properties
+        </h3>
+        <p className="rd-error">{error}</p>
+      </div>
+    );
+  }
+
+  if (!items || !items.length) {
+    return (
+      <div className="rd-card">
+        <h3>
+          <LuBuilding2 style={{ marginRight: 8, verticalAlign: "middle" }} />
+          Comparable Properties
+        </h3>
+        <p className="rd-muted">No comparable properties found for this property yet.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="rd-card">
@@ -26,29 +61,33 @@ export default function ComparableProperties({ items }) {
       </div>
 
       <div className="rd-comp-list">
-        {items.map((item) => (
-          <div key={item.id} className="rd-comp-item">
-            <div className="rd-comp-item-header">
-              <strong>{item.name}</strong>
-              <span className={`risk-badge ${RISK_BADGE_CLASS[item.risk] || "medium"}`}>
-                {item.risk}
-              </span>
-            </div>
+        {items.map((item) => {
+          const riskKey = (item.overallRisk || "medium").toLowerCase();
+          return (
+            <div key={item.propertyId} className="rd-comp-item">
+              <div className="rd-comp-item-header">
+                <strong>{item.propertyCode || `Property #${item.propertyId}`}</strong>
+                <span className={`risk-badge ${RISK_BADGE_CLASS[riskKey] || "medium"}`}>
+                  {item.overallRisk || "—"}
+                </span>
+              </div>
 
-            <div className="rd-comp-item-meta">
-              <span>
-                <LuMapPin style={{ verticalAlign: "middle", marginRight: 4 }} />
-                {item.city} · {item.distanceKm} km away
-              </span>
-              <span>{item.area.toLocaleString("en-IN")} sq.ft</span>
-            </div>
+              <div className="rd-comp-item-meta">
+                <span>{item.city || "—"}</span>
+                <span>
+                  {item.areaSqft ? `${Number(item.areaSqft).toLocaleString("en-IN")} sq.ft` : "—"}
+                </span>
+              </div>
 
-            <div className="rd-comp-item-price">
-              <strong>{formatCurrency(item.price)}</strong>
-              <span className="rd-muted"> · ₹{item.pricePerSqft.toLocaleString("en-IN")}/sq.ft</span>
+              <div className="rd-comp-item-price">
+                <strong>{formatCurrency(item.estimatedPrice)}</strong>
+                {item.pricePerSqft && (
+                  <span className="rd-muted"> · ₹{Number(item.pricePerSqft).toLocaleString("en-IN")}/sq.ft</span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

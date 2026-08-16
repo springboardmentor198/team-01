@@ -1,0 +1,20 @@
+package com.realestate.duediligence.dto.admin;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class UserDistributionResponse {
+    private Long buyer;
+    private Long agent;
+    private Long legalReviewer;
+    private Long bank;
+    private Long admin;
+}

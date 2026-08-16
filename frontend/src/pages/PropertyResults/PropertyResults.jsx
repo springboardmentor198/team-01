@@ -11,10 +11,10 @@ import {
   LuTriangleAlert,
   LuEye,
   LuSearch,
-  LuWallet,
-  LuLayers,
-  LuMap,
-  LuCircleCheck,
+  LuListChecks,
+  LuBadgeCheck,
+  LuClock3,
+  LuShieldAlert,
 } from "react-icons/lu";
 
 export default function PropertyResults() {
@@ -138,7 +138,7 @@ export default function PropertyResults() {
 
   const totalResults = enriched.length;
   const verifiedCount = enriched.filter(
-    (p) => p.status === "AVAILABLE" || p.status === "VERIFIED",
+    (p) => p.status === "AVAILABLE" || p.status === "VERIFIED" || p.status === "APPROVED",
   ).length;
   const pendingCount = enriched.filter(
     (p) => p.status === "UNDER_REVIEW",
@@ -147,48 +147,34 @@ export default function PropertyResults() {
     (p) => p.riskLvl === "High" || p.riskLvl === "Critical",
   ).length;
 
-  // ---- Additional summary stats (distinct from the top summary-grid) ----
-  const prices = enriched.map((p) => p.estimatedPrice);
-  const avgPrice = prices.length
-    ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length)
-    : 0;
-  const minPrice = prices.length ? Math.min(...prices) : 0;
-  const maxPrice = prices.length ? Math.max(...prices) : 0;
-
-  const typeBreakdown = enriched.reduce((acc, p) => {
-    const t = p.propertyType || "Residential";
-    acc[t] = (acc[t] || 0) + 1;
-    return acc;
-  }, {});
-  const topType = Object.entries(typeBreakdown).sort((a, b) => b[1] - a[1])[0];
-
-  const cityBreakdown = enriched.reduce((acc, p) => {
-    const c = p.city || "Unknown";
-    acc[c] = (acc[c] || 0) + 1;
-    return acc;
-  }, {});
-  const citiesCovered = Object.keys(cityBreakdown).length;
-
-  const verificationRate = totalResults
-    ? Math.round((verifiedCount / totalResults) * 100)
-    : 0;
-
   const formatINR = (n) => `₹${n.toLocaleString("en-IN")}`;
+
+  const summaryCards = [
+    { label: "Total Results", value: totalResults, icon: LuListChecks, tone: "total" },
+    { label: "Verified", value: verifiedCount, icon: LuBadgeCheck, tone: "verified" },
+    { label: "Pending", value: pendingCount, icon: LuClock3, tone: "pending" },
+    { label: "High Risk", value: highRiskCount, icon: LuShieldAlert, tone: "high-risk" },
+  ];
 
   return (
     <Layout title="Search Results">
       <div className="results-page">
         <div className="results-header">
-          <div>
-            <h2>Property Search Results</h2>
-            <p>
-              Showing <strong>{totalResults}</strong> matching properties{" "}
-              {query && (
-                <>
-                  for <strong>"{query}"</strong>
-                </>
-              )}
-            </p>
+          <div className="results-header-content">
+            <span className="results-header-icon" aria-hidden="true">
+              <LuBuilding2 />
+            </span>
+            <div>
+              <h2>Property Search Results</h2>
+              <p>
+                Showing <strong>{totalResults}</strong> matching properties{" "}
+                {query && (
+                  <>
+                    for <strong>"{query}"</strong>
+                  </>
+                )}
+              </p>
+            </div>
           </div>
 
           <button
@@ -201,25 +187,12 @@ export default function PropertyResults() {
         </div>
 
         <div className="summary-grid">
-          <div className="summary-card">
-            <h3>{totalResults}</h3>
-            <p>Total Results</p>
-          </div>
-
-          <div className="summary-card">
-            <h3>{verifiedCount}</h3>
-            <p>Verified</p>
-          </div>
-
-          <div className="summary-card">
-            <h3>{pendingCount}</h3>
-            <p>Pending</p>
-          </div>
-
-          <div className="summary-card">
-            <h3>{highRiskCount}</h3>
-            <p>High Risk</p>
-          </div>
+          {summaryCards.map(({ label, value, icon: Icon, tone }) => (
+            <div key={label} className={`summary-card ${tone}`}>
+              <span className="summary-icon" aria-hidden="true"><Icon /></span>
+              <div><h3>{value}</h3><p>{label}</p></div>
+            </div>
+          ))}
         </div>
 
         <div className="properties-grid">
@@ -322,50 +295,6 @@ export default function PropertyResults() {
           )}
         </div>
 
-        {/* ================= SEARCH SUMMARY (now distinct from top stats) ================= */}
-        {totalResults > 0 && (
-          <div className="results-summary">
-            <h3>Search Summary</h3>
-            <div className="summary-details">
-              <div className="summary-item">
-                <LuWallet className="summary-item-icon" />
-                <span>Average Estimated Price</span>
-                <strong>{formatINR(avgPrice)}</strong>
-                <small>
-                  {formatINR(minPrice)} - {formatINR(maxPrice)} range
-                </small>
-              </div>
-
-              <div className="summary-item">
-                <LuLayers className="summary-item-icon" />
-                <span>Most Common Type</span>
-                <strong>{topType ? topType[0] : "-"}</strong>
-                <small>
-                  {topType ? `${topType[1]} of ${totalResults} properties` : ""}
-                </small>
-              </div>
-
-              <div className="summary-item">
-                <LuMap className="summary-item-icon" />
-                <span>Cities Covered</span>
-                <strong>{citiesCovered}</strong>
-                <small>{Object.keys(cityBreakdown).join(", ")}</small>
-              </div>
-
-              <div className="summary-item">
-                <LuCircleCheck className="summary-item-icon" />
-                <span>Verification Rate</span>
-                <strong>{verificationRate}%</strong>
-                <div className="verification-bar">
-                  <div
-                    className="verification-bar-fill"
-                    style={{ width: `${verificationRate}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </Layout>
   );

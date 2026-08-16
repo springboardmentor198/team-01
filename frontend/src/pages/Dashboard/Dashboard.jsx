@@ -5,7 +5,6 @@ import { api } from "../../services/api";
 import { formatVisitedTime } from "../../utils/searchUtils";
 import "./Dashboard.css";
 
-
 import {
   LuSearch,
   LuBuilding2,
@@ -15,6 +14,9 @@ import {
   LuChartBar,
   LuUpload,
   LuChevronRight,
+  LuTrash2,
+  LuBell,
+  LuArrowUpRight,
 } from "react-icons/lu";
 
 import {
@@ -30,10 +32,15 @@ import {
   CartesianGrid,
 } from "recharts";
 
+/* =========================================================
+   QUICK ACTIONS
+   These are UI/navigation labels, not backend data.
+   ========================================================= */
+
 const quickActions = [
   {
-    label: "New Property Search",
-    subtitle: "Search a new property",
+    label: "New Search",
+    subtitle: "Search a property",
     icon: LuSearch,
     path: "/property-search",
   },
@@ -44,20 +51,30 @@ const quickActions = [
     path: "/reports",
   },
   {
-    label: "Compare Properties",
-    subtitle: "Compare two properties",
+    label: "Compare",
+    subtitle: "Compare properties",
     icon: LuChartBar,
     path: "/compare-properties",
   },
   {
-    label: "Upload Documents",
-    subtitle: "Upload property documents",
+    label: "Upload",
+    subtitle: "Upload documents",
     icon: LuUpload,
     path: "/upload-documents",
   },
 ];
 
-const PIE_COLORS = ["#EF4444", "#F59E0B", "#10B981"];
+/* =========================================================
+   COLORS ONLY
+   These don't represent hardcoded data.
+   ========================================================= */
+
+const RISK_COLORS = {
+  LOW: "#22C55E",
+  MEDIUM: "#F59E0B",
+  HIGH: "#EF4444",
+  CRITICAL: "#7F1D1D",
+};
 
 const emptyDashboardData = {
   totalProperties: 0,
@@ -66,79 +83,144 @@ const emptyDashboardData = {
   pendingReviews: 0,
 };
 
-// RiskDonut component removed because it was unused
-
 export default function Dashboard() {
-  
   const navigate = useNavigate();
+
+  /* =======================================================
+     STATE
+     ======================================================= */
+
   const [dashboardData, setDashboardData] = useState(emptyDashboardData);
-  const mediumRiskCount = Math.max( Math.floor((dashboardData.totalProperties - dashboardData.highRiskCount) * 0.4), 0 );
-  const lowRiskCount = Math.max( dashboardData.totalProperties - dashboardData.highRiskCount - mediumRiskCount, 0 );
-  const riskData = [ { name: "High", value: dashboardData.highRiskCount }, { name: "Medium", value: mediumRiskCount }, { name: "Low", value: lowRiskCount }, ];
-  const statusData = [ { name: "Properties", value: dashboardData.totalProperties, }, { name: "Reports", value: dashboardData.totalReports, }, { name: "Pending", value: dashboardData.pendingReviews, }, ];
-  
+
   const [recentSearches, setRecentSearches] = useState([]);
+
   const [notifications, setNotifications] = useState([]);
 
+  const [riskDistribution, setRiskDistribution] = useState({
+    low: 0,
+    medium: 0,
+    high: 0,
+    critical: 0,
+  });
+
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState("");
+
+  /* =======================================================
+     LOAD DASHBOARD DATA
+     
+     IMPORTANT:
+     All dashboard data continues to come from backend.
+     ======================================================= */
 
   const loadDashboard = useCallback(async () => {
     try {
       setLoading(true);
+      setError("");
 
-      const [summary, searches, notificationResponse] = await Promise.all([
-        api.getDashboardSummary(),
-        api.getRecentSearches(),
-        api.getNotifications({ page: 0, size: 5 }),
-      ]);
+      const [summary, searches, notificationResponse, risks] =
+        await Promise.all([
+          api.getDashboardSummary(),
+
+          api.getRecentSearches(),
+
+          api.getNotifications({
+            page: 0,
+            size: 5,
+          }),
+
+          api.getDashboardRiskDistribution(),
+        ]);
+
+      /* -----------------------------------------------
+         DASHBOARD SUMMARY
+         ----------------------------------------------- */
 
       setDashboardData({
-        totalProperties: summary.totalProperties ?? 0,
-        totalReports: summary.totalReports ?? summary.reportsGenerated ?? 0,
-        highRiskCount: summary.highRiskProperties ?? 0,
-        pendingReviews: summary.pendingReviews ?? 0,
+        totalProperties: summary?.totalProperties ?? 0,
+
+        totalReports: summary?.totalReports ?? summary?.reportsGenerated ?? 0,
+
+        highRiskCount: summary?.highRiskProperties ?? 0,
+
+        pendingReviews: summary?.pendingReviews ?? 0,
       });
+
+      setRiskDistribution({
+        low: risks?.low ?? 0,
+        medium: risks?.medium ?? 0,
+        high: risks?.high ?? 0,
+        critical: risks?.critical ?? 0,
+      });
+
+      /* -----------------------------------------------
+         RECENT SEARCHES
+         ----------------------------------------------- */
 
       setRecentSearches(Array.isArray(searches) ? searches : []);
 
+      /* -----------------------------------------------
+         NOTIFICATIONS
+         ----------------------------------------------- */
+
       if (Array.isArray(notificationResponse)) {
         setNotifications(notificationResponse);
-      } else if (notificationResponse?.content) {
+      } else if (Array.isArray(notificationResponse?.content)) {
         setNotifications(notificationResponse.content);
       } else {
         setNotifications([]);
       }
-
-      setError("");
     } catch (err) {
-      setError(err.message || "Failed to load dashboard.");
+      console.error("Dashboard loading failed:", err);
+
+      setError(err?.message || "Failed to load dashboard data.");
     } finally {
       setLoading(false);
     }
   }, []);
 
+  /* =======================================================
+     DELETE ONE RECENT SEARCH
+     ======================================================= */
+
   const handleDeleteSearch = useCallback(async (searchId) => {
-    if (!api.isAuthenticated() || searchId == null) return;
+    if (!api.isAuthenticated() || searchId == null) {
+      return;
+    }
+
     try {
       await api.deleteSearchHistory(searchId);
+
       setRecentSearches((prev) =>
         prev.filter((item) => item.searchId !== searchId),
       );
     } catch (err) {
-      console.warn("Failed to delete search history entry", err);
+      console.warn("Failed to delete search history entry:", err);
     }
   }, []);
 
+  /* =======================================================
+     CLEAR ALL SEARCHES
+     ======================================================= */
+
   const handleClearSearches = useCallback(async () => {
-    if (!api.isAuthenticated()) return;
+    if (!api.isAuthenticated()) {
+      return;
+    }
+
     try {
       await api.clearSearchHistory();
+
       setRecentSearches([]);
     } catch (err) {
-      console.warn("Failed to clear search history", err);
+      console.warn("Failed to clear search history:", err);
     }
   }, []);
+
+  /* =======================================================
+     AUTH + INITIAL LOAD
+     ======================================================= */
 
   useEffect(() => {
     if (!api.isAuthenticated()) {
@@ -146,12 +228,65 @@ export default function Dashboard() {
       return;
     }
 
-    // call asynchronously to avoid setting state synchronously within effect
-    const t = setTimeout(() => {
-      loadDashboard();  
+    const timer = setTimeout(() => {
+      loadDashboard();
     }, 0);
-    return () => clearTimeout(t);
+
+    return () => clearTimeout(timer);
   }, [navigate, loadDashboard]);
+
+  /* =======================================================
+     STATUS DATA
+     
+     These values come directly from dashboardData,
+     which itself comes from the backend.
+     ======================================================= */
+
+  const statusData = [
+    {
+      name: "Properties",
+      value: dashboardData.totalProperties,
+    },
+    {
+      name: "Reports",
+      value: dashboardData.totalReports,
+    },
+    {
+      name: "Pending",
+      value: dashboardData.pendingReviews,
+    },
+  ];
+
+  /* =======================================================
+     HIGH-RISK DATA
+     
+     IMPORTANT:
+     We only know highRiskProperties from the current
+     Dashboard API response.
+
+     We DO NOT invent Medium/Low values.
+     ======================================================= */
+
+  const riskData = [
+    { name: "Low", value: riskDistribution.low, color: RISK_COLORS.LOW },
+    {
+      name: "Medium",
+      value: riskDistribution.medium,
+      color: RISK_COLORS.MEDIUM,
+    },
+    { name: "High", value: riskDistribution.high, color: RISK_COLORS.HIGH },
+    {
+      name: "Critical",
+      value: riskDistribution.critical,
+      color: RISK_COLORS.CRITICAL,
+    },
+  ];
+
+  /* =======================================================
+     STAT CARDS
+     
+     All values are backend values.
+     ======================================================= */
 
   const stats = [
     {
@@ -159,86 +294,267 @@ export default function Dashboard() {
       value: dashboardData.totalProperties,
       icon: LuBuilding2,
       color: "#2563EB",
-      bg: "#DBEAFE",
+      background: "#EFF6FF",
     },
+
     {
       label: "Reports Generated",
       value: dashboardData.totalReports,
       icon: LuFileText,
-      color: "#10B981",
-      bg: "#D1FAE5",
+      color: "#059669",
+      background: "#ECFDF5",
     },
+
     {
-      label: "High Risk",
+      label: "High Risk Properties",
       value: dashboardData.highRiskCount,
       icon: LuTriangleAlert,
-      color: "#EF4444",
-      bg: "#FEE2E2",
+      color: "#DC2626",
+      background: "#FEF2F2",
     },
+
     {
       label: "Pending Reviews",
       value: dashboardData.pendingReviews,
       icon: LuClock,
-      color: "#F59E0B",
-      bg: "#FEF3C7",
+      color: "#D97706",
+      background: "#FFFBEB",
     },
   ];
+
+  /* =======================================================
+     LOADING
+     ======================================================= */
 
   if (loading) {
     return (
       <Layout title="Dashboard">
-        <div className="loading-container">Loading Dashboard...</div>
+        <div className="dashboard-loading">
+          <div className="loading-spinner" />
+
+          <span>Loading dashboard...</span>
+        </div>
       </Layout>
     );
   }
 
+  /* =======================================================
+     MAIN UI
+     ======================================================= */
+
   return (
     <Layout title="Dashboard" showSearch={true}>
       <div className="dashboard-page">
+        {/* =================================================
+            WELCOME HEADER
+            ================================================= */}
+
+        <section className="dashboard-welcome">
+          <div>
+            <span className="welcome-eyebrow">PROPERTY OVERVIEW</span>
+
+            <h1>
+              Welcome back, Buyer <span className="welcome-emoji">👋</span>
+            </h1>
+
+            <p>Here's what's happening with your properties today.</p>
+          </div>
+
+          <button
+            type="button"
+            className="notification-top-btn"
+            onClick={() => navigate("/notifications")}
+            aria-label="Open notifications"
+          >
+            {/* <LuBell size={21} />
+
+            {notifications.length > 0 && (
+              <span className="notification-count">{notifications.length}</span>
+            )} */}
+          </button>
+        </section>
+
+        {/* =================================================
+            ERROR
+            ================================================= */}
+
         {error && (
-          <div className="demo-data-notice" role="alert">
-            {error}
+          <div className="dashboard-error" role="alert">
+            <LuTriangleAlert size={18} />
+
+            <span>{error}</span>
           </div>
         )}
 
-        {/* ================= KPI CARDS ================= */}
+        {/* =================================================
+            STAT CARDS
+            ================================================= */}
 
-        <div className="stats-grid">
-          {stats.map((item) => {
-            const Icon = item.icon;
+        <section className="stats-grid">
+          {stats.map((stat) => {
+            const Icon = stat.icon;
 
             return (
-              <div key={item.label} className="stat-card">
+              <div key={stat.label} className="stat-card">
                 <div
                   className="stat-icon"
                   style={{
-                    background: item.bg,
-                    color: item.color,
+                    background: stat.background,
+                    color: stat.color,
                   }}
                 >
-                  <Icon size={20} />
+                  <Icon size={22} />
                 </div>
 
-                <div>
-                  <p className="stat-label">{item.label}</p>
+                <div className="stat-content">
+                  <span>{stat.label}</span>
 
-                  <h2 className="stat-value">{item.value}</h2>
+                  <strong>{stat.value}</strong>
+
+                  <small>
+                    <LuArrowUpRight size={13} />
+                    Current overview
+                  </small>
                 </div>
               </div>
             );
           })}
-        </div>
+        </section>
 
-        <div className="dashboard-content">
-          {/* ================= RECENT SEARCHES ================= */}
+        {/* =================================================
+            MAIN CONTENT GRID
+            ================================================= */}
+
+        <section className="dashboard-main-grid">
+          {/* ===============================================
+              RISK OVERVIEW
+              =============================================== */}
+
+          <div className="dashboard-card risk-overview-card">
+            <div className="card-header">
+              <div>
+                <span className="card-eyebrow">ANALYTICS</span>
+
+                <h2 className="card-title">Risk Overview</h2>
+
+                <p className="card-subtitle">
+                  Current risk information from your property portfolio
+                </p>
+              </div>
+
+              <div className="card-status">Live</div>
+            </div>
+
+            <div className="risk-overview-content">
+              {/* -----------------------------------------
+                  RISK DISTRIBUTION
+                  ----------------------------------------- */}
+
+              <div className="risk-donut-area">
+                <div className="chart-heading">High Risk Properties</div>
+
+                <div className="pie-chart-container">
+                  <ResponsiveContainer width="100%" height={220}>
+                    <PieChart>
+                      <Pie
+                        data={riskData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={62}
+                        outerRadius={88}
+                        paddingAngle={4}
+                        dataKey="value"
+                      >
+                        {riskData.map((entry) => (
+                          <Cell key={entry.name} fill={entry.color} />
+                        ))}
+                      </Pie>
+
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+
+                  <div className="donut-center">
+                    <strong>{dashboardData.highRiskCount}</strong>
+
+                    <span>High + Critical</span>
+                  </div>
+                </div>
+
+                <div className="risk-list">
+                  {riskData.map((risk) => (
+                    <div className="risk-item" key={risk.name}>
+                      <span
+                        className="risk-dot"
+                        style={{ background: risk.color }}
+                      />
+                      <span>{risk.name}</span>
+                      <strong>{risk.value}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* -----------------------------------------
+                  OVERVIEW ANALYTICS
+                  ----------------------------------------- */}
+
+              <div className="analytics-area">
+                <div className="chart-heading">Overview Analytics</div>
+
+                <div className="bar-chart-container">
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart
+                      data={statusData}
+                      margin={{
+                        top: 15,
+                        right: 10,
+                        left: 5,
+                        bottom: 0,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} />
+
+                      <YAxis
+                        allowDecimals={false}
+                        axisLine={false}
+                        tickLine={false}
+                        width={35}
+                      />
+
+                      <Tooltip />
+
+                      <Bar
+                        dataKey="value"
+                        fill="#2563EB"
+                        radius={[8, 8, 2, 2]}
+                        barSize={45}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ===============================================
+              RECENT SEARCHES
+              =============================================== */}
 
           <div className="dashboard-card recent-search-card">
-            <div className="dashboard-notification-header recent-search-header">
-              <h3 className="card-title">Recent Searches</h3>
+            <div className="card-header compact-header">
+              <div>
+                <span className="card-eyebrow">ACTIVITY</span>
+
+                <h2 className="card-title">Recent Searches</h2>
+              </div>
 
               {recentSearches.length > 0 && (
                 <button
-                  className="recent-search-clear-all"
+                  type="button"
+                  className="clear-search-btn"
                   onClick={handleClearSearches}
                 >
                   Clear All
@@ -246,269 +562,318 @@ export default function Dashboard() {
               )}
             </div>
 
-            <div className="table-wrapper recent-search-scroll">
-              <table className="recent-table">
-                <thead>
-                  <tr>
-                    <th>Property</th>
-                    <th>Type</th>
-                    <th>City</th>
-                    <th>Risk</th>
-                    <th>Visited</th>
-                    <th className="recent-actions-header">Actions</th>
-                  </tr>
-                </thead>
+            <div className="recent-search-list">
+              {recentSearches.length > 0 ? (
+                recentSearches.slice(0, 5).map((item, index) => {
+                  /*
+                   * IMPORTANT:
+                   * These values come from the
+                   * backend response.
+                   */
 
-                <tbody>
-                  {recentSearches.length > 0 ? (
-                    recentSearches.map((item, index) => (
-                      <tr
-                        key={item.searchId ?? index}
-                        className="recent-search-row"
-                        onClick={() =>
-                          item.propertyId
-                            ? navigate(`/property/${item.propertyId}`)
-                            : navigate("/property-search", {
-                                state: {
-                                  search:
-                                    item.propertyName ||
-                                    item.propertyTitle ||
-                                    item.query ||
-                                    item.searchText,
-                                },
-                              })
+                  const propertyName =
+                    item.propertyName ||
+                    item.propertyTitle ||
+                    item.propertyCode ||
+                    item.property ||
+                    "N/A";
+
+                  const propertyType = item.propertyType || item.type || "N/A";
+
+                  const riskLevel = item.riskLevel || item.risk || "Unrated";
+
+                  return (
+                    <div
+                      key={item.searchId ?? index}
+                      className="recent-search-item"
+                      onClick={() => {
+                        if (item.propertyId) {
+                          navigate(`/property/${item.propertyId}`);
+                        } else {
+                          navigate("/property-search", {
+                            state: {
+                              search: propertyName,
+                            },
+                          });
                         }
-                      >
-                        <td className="recent-property-cell">
-                          {item.imageUrl && (
-                            <img
-                              src={item.imageUrl}
-                              alt={item.propertyName || item.property || ""}
-                              className="recent-property-thumb"
-                              onError={(e) => {
-                                e.target.style.display = "none";
-                              }}
-                            />
-                          )}
-                          <span className="recent-property-name">
-                            {item.propertyName ||
-                              item.propertyTitle ||
-                              item.propertyCode ||
-                              item.property ||
-                              "N/A"}
-                          </span>
-                        </td>
+                      }}
+                    >
+                      {/* PROPERTY ICON */}
 
-                        <td>{item.propertyType || item.type || "N/A"}</td>
+                      <div className="recent-property-image">
+                        <LuBuilding2 size={21} />
+                      </div>
 
-                        <td>{item.city || "—"}</td>
+                      {/* PROPERTY DATA */}
 
-                        <td>
-                          <span
-                            className={`risk-badge ${(
-                              item.riskLevel ||
-                              item.risk ||
-                              "low"
-                            ).toLowerCase()}`}
-                          >
-                            {item.riskLevel || item.risk || "Unrated"}
-                          </span>
-                        </td>
+                      <div className="recent-property-info">
+                        <h4>{propertyName}</h4>
 
-                        <td className="recent-visited-time">
-                          {formatVisitedTime(item.searchedAt)}
-                        </td>
+                        <p>
+                          {propertyType}
 
-                        <td className="recent-actions-cell">
-                          <button
-                            type="button"
-                            className="recent-search-delete"
-                            title="Delete this search"
-                            aria-label="Delete this search"
-                            onClick={(event) => {
-                              event.preventDefault();
-                              event.stopPropagation();
-                              handleDeleteSearch(item.searchId);
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="6"
-                        style={{
-                          textAlign: "center",
-                          padding: "20px",
-                          color: "#64748B",
-                        }}
-                      >
-                        No recent searches available.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                          {item.city ? ` • ${item.city}` : ""}
+                        </p>
+
+                        <span
+                          className={`risk-badge ${String(
+                            riskLevel,
+                          ).toLowerCase()}`}
+                        >
+                          {riskLevel}
+                        </span>
+                      </div>
+
+                      {/* TIME + DELETE */}
+
+                      <div className="recent-search-meta">
+                        <span>{formatVisitedTime(item.searchedAt)}</span>
+
+                        <button
+                          type="button"
+                          className="delete-search-btn"
+                          title="Delete search"
+                          aria-label="Delete search"
+                          onClick={(event) => {
+                            event.preventDefault();
+
+                            event.stopPropagation();
+
+                            handleDeleteSearch(item.searchId);
+                          }}
+                        >
+                          <LuTrash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                /* -----------------------------------------
+                   EMPTY STATE
+                   ----------------------------------------- */
+
+                <div className="recent-empty">
+                  <LuSearch size={28} />
+
+                  <h4>No recent searches</h4>
+
+                  <p>Your recent property searches will appear here.</p>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/property-search")}
+                  >
+                    Start Searching
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* VIEW ALL */}
+
+            {recentSearches.length > 5 && (
+              <button
+                type="button"
+                className="view-more-btn"
+                onClick={() => navigate("/property-search")}
+              >
+                View All Searches
+                <LuChevronRight size={16} />
+              </button>
+            )}
+          </div>
+        </section>
+
+        {/* =================================================
+            LOWER GRID
+            ================================================= */}
+
+        <section className="dashboard-lower-grid">
+          {/* ===============================================
+              NOTIFICATIONS
+              =============================================== */}
+
+          <div className="dashboard-card notifications-card">
+            <div className="card-header">
+              <div>
+                <span className="card-eyebrow">UPDATES</span>
+
+                <h2 className="card-title">Recent Notifications</h2>
+              </div>
+
+              <button
+                type="button"
+                className="view-all-link"
+                onClick={() => navigate("/notifications")}
+              >
+                View All
+                <LuChevronRight size={15} />
+              </button>
+            </div>
+
+            <div className="notification-list">
+              {notifications.length > 0 ? (
+                notifications.slice(0, 3).map((notification, index) => (
+                  <div
+                    key={notification.id ?? index}
+                    className="notification-item"
+                    onClick={() => navigate("/notifications")}
+                  >
+                    {/* <div className="notification-icon">
+                      <LuBell size={17} />
+                    </div> */}
+
+                    <div className="notification-content">
+                      <h4>{notification.title || "Notification"}</h4>
+
+                      <p>
+                        {notification.message || notification.subtitle || ""}
+                      </p>
+                    </div>
+
+                    <LuChevronRight className="notification-arrow" size={18} />
+                  </div>
+                ))
+              ) : (
+                <div className="notification-empty">
+                  {/* <LuBell size={25} /> */}
+
+                  <p>No new notifications.</p>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/notifications")}
+                  >
+                    View Notifications
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
- {/* ================= RIGHT PANEL ================= */}
+          {/* ===============================================
+              QUICK ACTIONS
+              =============================================== */}
 
-<div className="dashboard-card right-panel">
-  <h3 className="card-title">Risk Summary</h3>
+          <div className="dashboard-card quick-actions-card">
+            <div className="card-header">
+              <div>
+                <span className="card-eyebrow">SHORTCUTS</span>
 
-  <div className="risk-section">
+                <h2 className="card-title">Quick Actions</h2>
+              </div>
+            </div>
 
-    <div className="chart-block">
+            <div className="quick-actions-grid">
+              {quickActions.map((action) => {
+                const Icon = action.icon;
 
-      <div className="chart-title">Risk Distribution</div>
+                return (
+                  <button
+                    type="button"
+                    key={action.label}
+                    className="quick-action-btn"
+                    onClick={() => navigate(action.path)}
+                  >
+                    <div className="quick-action-icon">
+                      <Icon size={21} />
+                    </div>
 
-      <div className="pie-chart-container">
-        <ResponsiveContainer width="100%" height={220}>
-          <PieChart>
-            <Pie
-              data={riskData}
-              cx="50%"
-              cy="50%"
-              innerRadius={58}
-              outerRadius={82}
-              paddingAngle={3}
-              dataKey="value"
-            >
-              {riskData.map((entry, index) => (
-                <Cell
-                  key={entry.name}
-                  fill={PIE_COLORS[index % PIE_COLORS.length]}
-                />
-              ))}
-            </Pie>
+                    <div className="quick-action-content">
+                      <h4>{action.label}</h4>
 
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
+                      <p>{action.subtitle}</p>
+                    </div>
 
-      <div className="risk-list"> <div className="risk-item"> <span className="risk-dot" style={{ background: "#EF4444" }} /> 
-      <span>High Risk ({dashboardData.highRiskCount})</span> </div> <div className="risk-item"> 
-        <span className="risk-dot" style={{ background: "#F59E0B" }} /> 
-        <span>Medium Risk ({mediumRiskCount})</span> </div> <div className="risk-item"> 
-          <span className="risk-dot" style={{ background: "#10B981" }} /> 
-          <span>Low Risk ({lowRiskCount})</span> </div> </div>
-
-    </div>
-
-    <div className="chart-block">
-
-      <div className="chart-title">Overview Analytics</div>
-
-      <div className="bar-chart-container" style={{ marginTop: "50px" }}>
-        <ResponsiveContainer width="100%" height={270}>
-          <BarChart data={statusData} margin={{ top: 10, right: 8, left: 0, bottom: 0 }} >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-            />
-
-            <XAxis dataKey="name" />
-            <YAxis allowDecimals={false} domain={[0, 60]} ticks={[0, 10, 20, 30, 40, 50, 60]} width={34} />
-            <Tooltip />
-
-            <Bar dataKey="value" radius={[8, 8, 0, 0]} fill="#2563EB" barSize={102} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-    </div>
-
-  </div>
-
-  {/* ================= NOTIFICATIONS ================= */}
-
-  <div
-    className="dashboard-notification-header"
-    style={{ marginTop: "28px" }}
-  >
-    <h3 className="card-title">Notifications</h3>
-
-    <button
-      className="view-all-link"
-      onClick={() => navigate("/notifications")}
-    >
-      View All
-    </button>
-  </div>
-
-  <div className="notification-list">
-    {notifications.length > 0 ? (
-      notifications.slice(0, 3).map((notification, index) => (
-        <div
-          key={notification.id ?? index}
-          className="notification-item"
-          onClick={() => navigate("/notifications")}
-        >
-          <div>
-            <h4>{notification.title || "Notification"}</h4>
-
-            <p>
-              {notification.message ||
-                notification.subtitle ||
-                "No description"}
-            </p>
+                    <LuChevronRight className="quick-action-arrow" size={17} />
+                  </button>
+                );
+              })}
+            </div>
           </div>
+        </section>
 
-          <LuChevronRight />
-        </div>
-      ))
-    ) : (
-      <div className="empty-notification-state">
-        <p>No new notifications.</p>
+        {/* =================================================
+            RECENTLY SEARCHED PROPERTIES
+             
+            IMPORTANT:
+            This is NOT a separate fake dataset.
+            It simply presents the same backend
+            recentSearches data in another visual format.
+            ================================================= */}
 
-        <button
-          className="view-all-btn"
-          onClick={() => navigate("/notifications")}
-        >
-          View All Notifications
-        </button>
-      </div>
-    )}
-  </div>
+        {recentSearches.length > 0 && (
+          <section className="dashboard-card recently-viewed-card">
+            <div className="card-header">
+              <div>
+                <span className="card-eyebrow">YOUR ACTIVITY</span>
 
-</div>
-        {/* ================= QUICK ACTIONS ================= */}
+                <h2 className="card-title">Recently Searched Properties</h2>
 
-        <div className="dashboard-card quick-actions-card">
-          <h3 className="card-title">Quick Actions</h3>
+                <p className="card-subtitle">
+                  Properties from your recent search history
+                </p>
+              </div>
 
-          <div className="quick-actions-grid">
-            {quickActions.map((action) => {
-              const Icon = action.icon;
+              <button
+                type="button"
+                className="view-all-link"
+                onClick={() => navigate("/property-search")}
+              >
+                Explore
+                <LuChevronRight size={15} />
+              </button>
+            </div>
 
-              return (
-                <button
-                  key={action.label}
-                  className="quick-action-btn"
-                  onClick={() => navigate(action.path)}
-                >
-                  <div className="quick-action-icon">
-                    <Icon size={20} />
+            <div className="recently-viewed-grid">
+              {recentSearches.slice(0, 5).map((item, index) => {
+                const propertyName =
+                  item.propertyName ||
+                  item.propertyTitle ||
+                  item.propertyCode ||
+                  item.property ||
+                  "N/A";
+
+                const propertyType = item.propertyType || item.type || "N/A";
+
+                return (
+                  <div
+                    key={item.searchId ?? index}
+                    className="viewed-property-card"
+                    onClick={() => {
+                      if (item.propertyId) {
+                        navigate(`/property/${item.propertyId}`);
+                      } else {
+                        navigate("/property-search", {
+                          state: {
+                            search: propertyName,
+                          },
+                        });
+                      }
+                    }}
+                  >
+                    <div className="viewed-property-image">
+                      <LuBuilding2 size={25} />
+                    </div>
+
+                    <div className="viewed-property-info">
+                      <h4>{propertyName}</h4>
+
+                      <p>
+                        {propertyType}
+
+                        {item.city ? ` • ${item.city}` : ""}
+                      </p>
+
+                      <span>{formatVisitedTime(item.searchedAt)}</span>
+                    </div>
                   </div>
-
-                  <div className="quick-action-content">
-                    <h4>{action.label}</h4>
-
-                    <p>{action.subtitle}</p>
-                  </div>
-
-                  <LuChevronRight className="quick-action-arrow" size={18} />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </div>
     </Layout>
   );

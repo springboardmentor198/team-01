@@ -7,6 +7,7 @@ import {
   getSearchDisplayName,
 } from "../../utils/searchUtils";
 import "./RecentSearchesTable.css";
+import { LuClock3, LuTrash2 } from "react-icons/lu";
 
 export default function RecentSearchesTable({
   searches = [],
@@ -17,6 +18,7 @@ export default function RecentSearchesTable({
   emptyMessage = "No searches logged.",
   onDelete,
   onClearAll,
+  variant = "table",
 }) {
   const navigate = useNavigate();
   const columnCount = showStatus ? 5 : 4;
@@ -47,6 +49,25 @@ export default function RecentSearchesTable({
       onClearAll();
     }
   };
+
+  if (variant === "compact") {
+    return (
+      <div className="recent-searches-compact">
+        {hasActions && searches.length > 0 && typeof onClearAll === "function" && (
+          <button type="button" className="recent-searches-clear-all" onClick={handleClearAll}>Clear all</button>
+        )}
+        {loading && <p className="recent-searches-empty">Loading recent searches...</p>}
+        {!loading && error && <p className="recent-searches-error">{error}</p>}
+        {!loading && !error && searches.map((item) => (
+          <div className="compact-search-row" key={item.searchId || `${item.query}-${item.searchedAt}`} onClick={() => handleRowClick(item)} role={clickable ? "button" : undefined} tabIndex={clickable ? 0 : undefined} onKeyDown={(event) => { if (clickable && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); handleRowClick(item); } }}>
+            <span className="compact-search-icon"><LuClock3 /></span><div><strong>{getSearchDisplayName(item)}</strong><span>{item.city || formatPropertyType(item.propertyType)}</span></div><time>{formatVisitedTime(item.searchedAt).replace("Visited ", "")}</time>
+            {typeof onDelete === "function" && <button type="button" className="compact-search-delete" aria-label="Delete this search" onClick={(event) => handleDelete(event, item)}><LuTrash2 /></button>}
+          </div>
+        ))}
+        {!loading && !error && searches.length === 0 && <p className="recent-searches-empty">{emptyMessage}</p>}
+      </div>
+    );
+  }
 
   return (
     <div className="recent-searches-table-wrapper">

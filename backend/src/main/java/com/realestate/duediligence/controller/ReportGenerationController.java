@@ -73,6 +73,21 @@ public class ReportGenerationController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/latest/{propertyId}")
+    public ResponseEntity<ReportGenerateResponse> latestReport(
+            @PathVariable Integer propertyId) {
+        Report report = reportService.getLatestReportByProperty(propertyId);
+        if (report == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(new ReportGenerateResponse(
+                report.getId(),
+                report.getPropertyId(),
+                report.getExecutiveSummary(),
+                report.getStatus(),
+                report.getCreatedAt()));
+    }
+
     @GetMapping("/pdf/{id}")
     public ResponseEntity<byte[]> exportPdf(
             @RequestHeader(value = "Authorization", required = false) String authHeader,

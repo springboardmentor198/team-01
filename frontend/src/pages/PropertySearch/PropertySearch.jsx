@@ -1,235 +1,31 @@
-import { useState } from "react";
-import Layout from "../../components/Layout/Layout";
-import RecentSearchesTable from "../../components/RecentSearches/RecentSearchesTable";
-import "./PropertySearch.css";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRecentSearches } from "../../hooks/useRecentSearches";
-import { buildSearchHistoryPayload } from "../../utils/searchUtils";
+import { LuBuilding2, LuChevronDown, LuEye, LuFileSearch, LuMapPin, LuSearch, LuSlidersHorizontal, LuTrash2, LuX } from "react-icons/lu";
+import Layout from "../../components/Layout/Layout";
 import SmartSearchAutocomplete from "../../components/SmartSearch/SmartSearchAutocomplete";
+import { api } from "../../services/api";
+import { buildSearchHistoryPayload } from "../../utils/searchUtils";
+import "./PropertySearch.css";
 
-import { FiSearch, FiMapPin, FiHome, FiClock } from "react-icons/fi";
-
-import { IoFilterOutline, IoLocationOutline } from "react-icons/io5";
-
-import { MdOutlineApartment } from "react-icons/md";
-
+const locations = ["Delhi", "Noida", "Mumbai", "Bangalore", "Hyderabad"];
+const riskClass = (risk) => (risk || "unrated").toLowerCase();
 function PropertySearch() {
-  const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [propertyType, setPropertyType] = useState("All");
-  const [city, setCity] = useState("All");
-  const [riskLevel, setRiskLevel] = useState("All");
-  const [status, setStatus] = useState("All");
-  const {
-    searches: recentSearches,
-    loading: recentSearchesLoading,
-    error: recentSearchesError,
-    recordSearch,
-    removeSearch,
-    clearAll,
-  } = useRecentSearches();
-
-  const handleAutocompleteSelect = (suggestion) => {
-    const payload = buildSearchHistoryPayload({
-      query: suggestion.name || suggestion.address,
-      propertyType: suggestion.propertyType,
-      city: suggestion.city,
-    });
-    payload.propertyId = suggestion.propertyId;
-
-    recordSearch(payload);
-    navigate(`/property/${suggestion.propertyId}`);
-  };
-
-  const handleSearch = async (searchTerm = "") => {
-    const params = new URLSearchParams();
-
-    const trimmedAddress = searchTerm.trim();
-
-    if (trimmedAddress) params.append("query", trimmedAddress);
-
-    if (propertyType !== "All") params.append("type", propertyType);
-
-    if (city !== "All") params.append("city", city);
-
-    if (riskLevel !== "All") params.append("risk", riskLevel);
-
-    if (status !== "All") params.append("status", status);
-
-    await recordSearch(
-      buildSearchHistoryPayload({
-        query: trimmedAddress || undefined,
-        city: city !== "All" ? city : undefined,
-        propertyType: propertyType !== "All" ? propertyType : undefined,
-        risk: riskLevel !== "All" ? riskLevel : undefined,
-        status: status !== "All" ? status : undefined,
-      }),
-    );
-
-    navigate(`/property-results?${params.toString()}`);
-  };
-
-  const handleQuickLocation = async (loc) => {
-    await recordSearch(buildSearchHistoryPayload({ city: loc }));
-    navigate(`/property-results?city=${encodeURIComponent(loc)}`);
-  };
-
-  const quickLocations = ["Delhi", "Noida", "Mumbai", "Bangalore"];
-
-  return (
-    <Layout title="Property Search">
-      <div className="property-search">
-        {/* ================= HERO ================= */}
-        <section className="hero-card card">
-          <div className="hero-icon">
-            <FiSearch />
-          </div>
-          <h1>Find Properties with Confidence</h1>
-          <p>
-            Search properties by address or use advanced filters for detailed
-            due diligence.
-          </p>
-        </section>
-
-        {/* ================= SEARCH ================= */}
-        <section className="search-card card">
-          <div className="card-heading">
-            <FiMapPin />
-            <h2>Search by Address</h2>
-          </div>
-          <div className="search-bar">
-            <SmartSearchAutocomplete
-              value={searchTerm}
-              onChange={setSearchTerm}
-              onSelect={handleAutocompleteSelect}
-              onSearch={handleSearch}
-              placeholder="Enter property address or name..."
-              autoFocus
-            />
-          </div>
-
-          {/* Quick Search */}
-          <div className="quick-search">
-            <span>Quick Search:</span>
-            {quickLocations.map((loc) => (
-              <button
-                key={loc}
-                className="chip"
-                onClick={() => handleQuickLocation(loc)}
-              >
-                <IoLocationOutline />
-                {loc}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* ================= OR ================= */}
-        <div className="or-divider">
-          <span>OR</span>
-        </div>
-
-        {/* ================= ADVANCED FILTER ================= */}
-        <button className="advanced-btn" onClick={() => handleSearch()}>
-          <IoFilterOutline />
-          Apply Selected Filters
-        </button>
-
-        {/* ================= QUICK ACTIONS / FILTERS ================= */}
-        <section className="quick-card card">
-          <div className="card-heading">
-            <MdOutlineApartment />
-            <h2>Search Filters</h2>
-          </div>
-
-          <div className="quick-grid">
-            <div className="filter-box">
-              <label>Property Type</label>
-              <select
-                value={propertyType}
-                onChange={(e) => setPropertyType(e.target.value)}
-              >
-                <option value="All">All Types</option>
-                <option value="Residential">Residential</option>
-                <option value="Commercial">Commercial</option>
-                <option value="Industrial">Industrial</option>
-                <option value="Land">Land</option>
-              </select>
-            </div>
-
-            <div className="filter-box">
-              <label>City</label>
-              <select value={city} onChange={(e) => setCity(e.target.value)}>
-                <option value="All">All Cities</option>
-                <option value="Delhi">Delhi</option>
-                <option value="Noida">Noida</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Bangalore">Bangalore</option>
-                <option value="Chennai">Chennai</option>
-                <option value="Pune">Pune</option>
-              </select>
-            </div>
-
-            <div className="filter-box">
-              <label>Risk Level</label>
-              <select
-                value={riskLevel}
-                onChange={(e) => setRiskLevel(e.target.value)}
-              >
-                <option value="All">All Levels</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-                <option value="Critical">Critical</option>
-              </select>
-            </div>
-
-            <div className="filter-box">
-              <label>Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="All">All Statuses</option>
-                <option value="AVAILABLE">Available</option>
-                <option value="UNDER_REVIEW">Under Review</option>
-                <option value="SOLD">Sold</option>
-              </select>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= RECENT SEARCHES ================= */}
-        <section className="recent-card card">
-          <div className="card-heading">
-            <FiClock />
-            <h2>Recent Searches</h2>
-          </div>
-          <RecentSearchesTable
-            searches={recentSearches}
-            loading={recentSearchesLoading}
-            error={recentSearchesError}
-            showStatus={false}
-            clickable={true}
-            emptyMessage="No recent searches yet."
-            onDelete={removeSearch}
-            onClearAll={clearAll}
-          />
-        </section>
-
-        {/* ================= SAVED FILTERS ================= */}
-        <section className="saved-card card">
-          <div className="card-heading">
-            <FiHome />
-            <h2>Saved Filters</h2>
-          </div>
-          {/* TODO: replace with real data from api.getSavedFilters() once
-              backend endpoint exists. */}
-          <p className="empty-state">No saved filters yet.</p>
-        </section>
-      </div>
-    </Layout>
-  );
+  const navigate = useNavigate(); const [propertyType, setPropertyType] = useState("All"); const [city, setCity] = useState("All"); const [riskLevel, setRiskLevel] = useState("All"); const [status, setStatus] = useState("All"); const [filtersOpen, setFiltersOpen] = useState(true);
+  const [popular, setPopular] = useState([]); const [saved, setSaved] = useState([]); const [loadingPopular, setLoadingPopular] = useState(true); const [showSave, setShowSave] = useState(false); const [saveName, setSaveName] = useState(""); const [saveError, setSaveError] = useState(""); const [saving, setSaving] = useState(false);
+  const selectedFilters = [propertyType, city, riskLevel, status].filter((value) => value !== "All").length;
+  const loadSaved = () => api.getSavedSearches().then((items) => setSaved(Array.isArray(items) ? items : [])).catch(() => setSaved([]));
+  useEffect(() => { api.getPopularProperties().then((items) => setPopular(Array.isArray(items) ? items : [])).catch(() => setPopular([])).finally(() => setLoadingPopular(false)); loadSaved(); }, []);
+  const search = async (term = "") => { const params = new URLSearchParams(); const query = term.trim(); if (query) params.set("query", query); if (propertyType !== "All") params.set("type", propertyType); if (city !== "All") params.set("city", city); if (riskLevel !== "All") params.set("risk", riskLevel); if (status !== "All") params.set("status", status); api.saveSearchHistory(buildSearchHistoryPayload({ query: query || undefined, city: city !== "All" ? city : undefined, propertyType: propertyType !== "All" ? propertyType : undefined, risk: riskLevel !== "All" ? riskLevel : undefined, status: status !== "All" ? status : undefined })).catch(() => {}); navigate(`/property-results?${params}`); };
+  const selectSuggestion = (suggestion) => { api.saveSearchHistory({ ...buildSearchHistoryPayload({ query: suggestion.name || suggestion.address, city: suggestion.city, propertyType: suggestion.propertyType }), propertyId: suggestion.propertyId }).catch(() => {}); navigate(`/property/${suggestion.propertyId}`); };
+  const quickSearch = (location) => { api.saveSearchHistory(buildSearchHistoryPayload({ city: location })).catch(() => {}); navigate(`/property-results?city=${encodeURIComponent(location)}`); };
+  const resetFilters = () => { setPropertyType("All"); setCity("All"); setRiskLevel("All"); setStatus("All"); };
+  const saveCurrent = async () => { if (!selectedFilters) { setSaveError("Select at least one search criterion to save."); return; } if (!saveName.trim()) { setSaveError("Enter a name for this search."); return; } try { setSaving(true); setSaveError(""); await api.createSavedSearch({ name: saveName.trim(), propertyType: propertyType === "All" ? null : propertyType, city: city === "All" ? null : city, riskLevel: riskLevel === "All" ? null : riskLevel, status: status === "All" ? null : status }); await loadSaved(); setShowSave(false); setSaveName(""); } catch (error) { setSaveError(error.message || "Unable to save search."); } finally { setSaving(false); } };
+  const applySaved = (item) => { setPropertyType(item.propertyType || "All"); setCity(item.city || "All"); setRiskLevel(item.riskLevel || "All"); setStatus(item.status || "All"); setFiltersOpen(true); const params = new URLSearchParams(); if (item.propertyType) params.set("type", item.propertyType); if (item.city) params.set("city", item.city); if (item.riskLevel) params.set("risk", item.riskLevel); if (item.status) params.set("status", item.status); navigate(`/property-results?${params}`); };
+  return <Layout title="Property Search"><div className="property-search"><section className="discovery-hero"><div className="discovery-copy"><span>PROPERTY DISCOVERY</span><h1>Find the Right Property with Confidence</h1><p>Search properties by address, location, or use advanced filters to perform detailed due diligence.</p></div><div className="discovery-art" aria-hidden="true"><div className="discovery-map"><LuMapPin /></div><div className="discovery-building"><LuBuilding2 /></div><div className="discovery-magnify"><LuSearch /></div><i /><i /><i /></div></section>
+    <section className="primary-search"><SmartSearchAutocomplete onSelect={selectSuggestion} onSearch={search} placeholder="Search by address, property name or locality..." autoFocus showSubmitButton submitLabel="Search" /><div className="popular-locations"><span>Popular locations</span><div>{locations.map((location) => <button key={location} className="location-chip" onClick={() => quickSearch(location)}><LuMapPin />{location}</button>)}</div></div></section>
+    <section className="refine-search"><button className="refine-toggle" onClick={() => setFiltersOpen((value) => !value)}><span><LuSlidersHorizontal />Refine your search</span><span className="filter-count">{selectedFilters ? `${selectedFilters} filter${selectedFilters > 1 ? "s" : ""} selected` : "All filters"}<LuChevronDown className={filtersOpen ? "open" : ""} /></span></button>{filtersOpen && <div className="filter-content"><div className="filter-grid"><label><span>Property Type</span><select value={propertyType} onChange={(event) => setPropertyType(event.target.value)}><option value="All">All Types</option><option value="Residential">Residential</option><option value="Commercial">Commercial</option><option value="Industrial">Industrial</option><option value="Land">Land</option></select></label><label><span>City</span><select value={city} onChange={(event) => setCity(event.target.value)}><option value="All">All Cities</option>{locations.map((location) => <option value={location} key={location}>{location}</option>)}</select></label><label><span>Risk Level</span><select value={riskLevel} onChange={(event) => setRiskLevel(event.target.value)}><option value="All">All Levels</option><option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option><option value="Critical">Critical</option></select></label><label><span>Status</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="All">All Statuses</option><option value="AVAILABLE">Available</option><option value="UNDER_REVIEW">Under Review</option><option value="SOLD">Sold</option></select></label></div><div className="filter-actions"><button className="reset-filters" onClick={resetFilters}>Reset</button><button className="save-search-btn" disabled={!selectedFilters} onClick={() => { setSaveError(""); setShowSave(true); }}>Save Search</button><button className="apply-filters" onClick={() => search()}><LuSearch />Apply Filters</button></div></div>}</section>
+    <section className="popular-properties-card"><div className="section-title"><div><h2>Popular Properties</h2><p>Discover properties that are getting the most attention from users.</p></div><LuFileSearch /></div>{loadingPopular ? <p className="popular-empty">Loading popular properties...</p> : popular.length ? <div className="popular-grid">{popular.map((property) => <article className="popular-property" key={property.propertyId}>{property.imageUrl ? <img src={property.imageUrl} alt="" /> : <div className="popular-image-placeholder"><LuBuilding2 /></div>}<div className="popular-property-body"><h3>{property.propertyCode}</h3><p><LuMapPin />{[property.address, property.city].filter(Boolean).join(", ")}</p><div className="popular-meta"><span>{property.propertyType || "Property"}</span><span className={`popular-risk ${riskClass(property.riskLevel)}`}>{property.riskLevel || "Unrated"} risk</span></div><div className="popular-footer"><small>{property.viewCount ? `${property.viewCount} views in the last 30 days` : "Recently added"}</small><button onClick={() => navigate(`/property/${property.propertyId}`)}>View Property <LuChevronDown /></button></div></div></article>)}</div> : <p className="popular-empty">Popular properties will appear as users explore the platform.</p>}</section>
+    <section className="saved-searches-card"><div className="section-title"><div><h2>Saved Searches</h2><p>Save your frequently used filters and quickly reuse them later.</p></div><LuFileSearch /></div>{saved.length ? <div className="saved-search-list">{saved.map((item) => <div className="saved-search-row" key={item.id}><div><strong>{item.name}</strong><span>{[item.propertyType, item.city, item.riskLevel, item.status].filter(Boolean).join(" · ")}</span></div><button onClick={() => applySaved(item)}>Apply</button><button className="delete-saved" aria-label="Delete saved search" onClick={async () => { await api.deleteSavedSearch(item.id); setSaved((items) => items.filter((entry) => entry.id !== item.id)); }}><LuTrash2 /></button></div>)}</div> : <button className="create-saved-search" disabled={!selectedFilters} onClick={() => setShowSave(true)}>+ Save Current Search</button>}</section>
+  </div>{showSave && <div className="save-search-overlay" onClick={(event) => event.target === event.currentTarget && setShowSave(false)}><div className="save-search-modal"><button className="save-close" onClick={() => setShowSave(false)}><LuX /></button><h2>Save Search</h2><p>Save these filters to reuse them later.</p><input autoFocus placeholder="Search name" value={saveName} onChange={(event) => setSaveName(event.target.value)} />{saveError && <small className="save-error">{saveError}</small>}<div className="save-modal-actions"><button onClick={() => setShowSave(false)}>Cancel</button><button disabled={saving} onClick={saveCurrent}>{saving ? "Saving..." : "Save Search"}</button></div></div></div>}</Layout>;
 }
-
 export default PropertySearch;

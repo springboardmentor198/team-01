@@ -1,4 +1,5 @@
 package com.realestate.duediligence.entity;
+
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -14,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 @Entity
 @Table(name = "activity_logs")
 @Getter

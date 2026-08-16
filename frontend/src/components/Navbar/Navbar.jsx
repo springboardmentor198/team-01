@@ -2,6 +2,7 @@ import "./Navbar.css";
 
 import { CgProfile } from "react-icons/cg";
 import { IoChevronBack } from "react-icons/io5";
+import { FiBell } from "react-icons/fi";
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { api } from "../../services/api";
@@ -67,14 +68,14 @@ function Navbar({ title, showSearch = false }) {
           />
         )}
 
-        {/* <button
+        <button
           className="nav-btn"
           onClick={() => navigate("/notifications")}
           aria-label="Notifications"
         >
           <FiBell />
           <span className="notification-badge"></span>
-        </button> */}
+        </button>
 
         <button
           className="nav-btn profile-btn"

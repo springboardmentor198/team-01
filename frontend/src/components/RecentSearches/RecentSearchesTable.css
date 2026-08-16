@@ -201,6 +201,7 @@
   background: #fef2f2;
   border-color: #fca5a5;
 }
+.recent-searches-compact { position: relative; }.recent-searches-compact .recent-searches-clear-all { position: absolute; right: 0; top: -47px; border: 0; padding: 4px 0; background: transparent; }.compact-search-row { display: flex; align-items: center; gap: 11px; padding: 12px 2px; border-bottom: 1px solid #eef2f7; cursor: pointer; }.compact-search-row:hover { background: #f8fbff; }.compact-search-row:last-child { border-bottom: 0; }.compact-search-icon { width: 32px; height: 32px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 9px; color: #2563eb; background: #eff6ff; }.compact-search-icon svg { width: 15px; }.compact-search-row div { flex: 1; min-width: 0; }.compact-search-row strong, .compact-search-row span:not(.compact-search-icon) { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.compact-search-row strong { color: #1f2937; font-size: 13px; }.compact-search-row span:not(.compact-search-icon), .compact-search-row time { margin-top: 2px; color: #64748b; font-size: 11px; }.compact-search-row time { white-space: nowrap; }.compact-search-delete { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 7px; color: #94a3b8; background: transparent; cursor: pointer; }.compact-search-delete:hover { color: #dc2626; background: #fef2f2; }
 
 /* ================= SCROLLBAR ================= */
 

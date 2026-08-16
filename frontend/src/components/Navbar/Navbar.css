@@ -14,7 +14,8 @@
 
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 150;
+  flex-shrink: 0;
 }
 
 /* ================= LEFT ================= */

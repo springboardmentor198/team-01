@@ -55,9 +55,37 @@ public interface PropertyRepository extends JpaRepository<Property, Integer> {
             """)
     List<Property> findByCityIgnoreCase(@Param("city") String city);
 
+    List<Property> findByCityIgnoreCaseAndPropertyTypeIgnoreCase(
+            String city,
+            String propertyType
+    );
+
     List<Property> findByPropertyType(String propertyType);
     List<Property> findAllByOrderByLastUpdatedDesc(Pageable pageable);
     long countByStatusIgnoreCase(String status);
+    long countByStatus(String status);
+
+    @Query("SELECT COUNT(p) FROM Property p WHERE p.createdAt >= :since")
+    long countPropertiesSince(@Param("since") java.time.LocalDateTime since);
+
+    @Query("SELECT p FROM Property p WHERE " +
+            "(:status IS NULL OR p.status = :status) AND " +
+            "(:propertyType IS NULL OR p.propertyType = :propertyType) AND " +
+            "(:city IS NULL OR p.city = :city) AND " +
+            "(:ownerName IS NULL OR LOWER(p.ownerName) LIKE :ownerName) AND " +
+            "(CAST(:startDate AS timestamp) IS NULL OR p.createdAt >= :startDate) AND " +
+            "(CAST(:endDate AS timestamp) IS NULL OR p.createdAt <= :endDate)")
+    org.springframework.data.domain.Page<Property> findWithFilters(
+            @Param("status") String status,
+            @Param("propertyType") String propertyType,
+            @Param("city") String city,
+            @Param("ownerName") String ownerName,
+            @Param("startDate") java.time.LocalDateTime startDate,
+            @Param("endDate") java.time.LocalDateTime endDate,
+            org.springframework.data.domain.Pageable pageable);
+
+    @Query("SELECT p.createdAt, COUNT(p) FROM Property p WHERE p.createdAt >= :since GROUP BY p.createdAt ORDER BY p.createdAt ASC")
+    List<Object[]> findActivityCountGroupByDate(@Param("since") java.time.LocalDateTime since);
 
     @Query("""
 SELECT p FROM Property p

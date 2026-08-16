@@ -1,4 +1,5 @@
 package com.realestate.duediligence.dto;
+
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -9,9 +10,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ActivityLogResponse {
 
     private Integer id;
@@ -21,6 +22,10 @@ public class ActivityLogResponse {
     private String description;
 
     private String performedBy;
+
+    private Integer propertyId;
+
+    private String propertyCode;
 
     private LocalDateTime createdAt;
 }

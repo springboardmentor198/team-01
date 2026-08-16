@@ -42,20 +42,24 @@ public class NotificationController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String filter) {
+        try {
+            User user = requireUser(authHeader);
+            NotificationStatus status = "unread".equalsIgnoreCase(filter)
+                    ? NotificationStatus.UNREAD
+                    : null;
+            NotificationPriority priority = "critical".equalsIgnoreCase(filter)
+                    ? NotificationPriority.CRITICAL
+                    : null;
 
-        User user = requireUser(authHeader);
-        NotificationStatus status = "unread".equalsIgnoreCase(filter)
-                ? NotificationStatus.UNREAD
-                : null;
-        NotificationPriority priority = "critical".equalsIgnoreCase(filter)
-                ? NotificationPriority.CRITICAL
-                : null;
-
-        return ResponseEntity.ok(notificationService.getNotifications(
-                user.getUserId(),
-                status,
-                priority,
-                PageRequest.of(page, size)));
+            return ResponseEntity.ok(notificationService.getNotifications(
+                    user.getUserId(),
+                    status,
+                    priority,
+                    PageRequest.of(page, size)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @GetMapping("/unread")
