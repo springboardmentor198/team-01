@@ -62,8 +62,7 @@ function AuditLogs() {
 
       return matchesQuery && matchesAction;
     });
-  }, [logs, query, actionFilter]);
-
+  }, [logs, query, actionFilter]); 
   return (
     <Layout title="Audit Logs">
       <div className="audit-page">
