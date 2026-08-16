@@ -54,7 +54,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private AccountStatus status = AccountStatus.ACTIVE;
+    private AccountStatus status = AccountStatus.PENDING;
 
     @Column(name = "profile_completed", nullable = false)
     @Builder.Default
@@ -82,7 +82,7 @@ public class User {
 
         // Default values if not explicitly set
         if (status == null) {
-            status = AccountStatus.ACTIVE;
+            status = AccountStatus.PENDING;
         }
 
         if (profileCompleted == null) {

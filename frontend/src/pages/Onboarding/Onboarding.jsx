@@ -56,8 +56,9 @@ function Onboarding() {
 
       if (accountType === "BUYER") {
         localStorage.setItem("profileCompleted", "true");
+        localStorage.setItem("status", "PENDING");
         if (response.role) localStorage.setItem("role", response.role);
-        navigate("/dashboard", { replace: true });
+        navigate("/pending", { replace: true });
         return;
       }
 

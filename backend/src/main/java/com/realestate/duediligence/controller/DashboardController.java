@@ -67,7 +67,7 @@ public class DashboardController {
             );
 
         } catch (Exception e) {
-
+            e.printStackTrace();
             return ResponseEntity
                     .status(401)
                     .build();
@@ -114,7 +114,7 @@ public class DashboardController {
             );
 
         } catch (Exception exception) {
-
+            exception.printStackTrace();
             return ResponseEntity.ok(
                     List.of()
             );

@@ -41,7 +41,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
         if (accountType == Role.BUYER) {
             user.setProfileCompleted(true);
-            user.setStatus(AccountStatus.ACTIVE);
+            user.setStatus(AccountStatus.PENDING);
             User savedUser = userRepository.save(user);
             eventPublisher.publishEvent(new NotificationEvents.ProfileCompletedEvent(savedUser));
 

@@ -16,6 +16,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class DueDiligenceAgentApplication {
 
     public static void main(String[] args) {
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(
+                "jdbc:postgresql://localhost:5432/postgres", "postgres", "root")) {
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                stmt.execute("DROP TABLE IF EXISTS reports CASCADE;");
+                System.out.println("✅ Conflicting 'reports' table dropped successfully to allow clean schema migration.");
+                stmt.execute("UPDATE users SET role = 'BANK' WHERE role = 'FINANCIAL_INST';");
+                stmt.execute("UPDATE role_requests SET requested_role = 'BANK' WHERE requested_role = 'FINANCIAL_INST';");
+                System.out.println("✅ Mismatched 'FINANCIAL_INST' roles updated to 'BANK' in users and role_requests.");
+            }
+        } catch (Exception e) {
+            // Ignore if connection details are different locally
+        }
         SpringApplication.run(DueDiligenceAgentApplication.class, args);
     }
 

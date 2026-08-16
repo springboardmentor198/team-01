@@ -66,4 +66,15 @@ public interface ActivityLogRepository
             @Param("activityType") String activityType
     );
 
+    @Query("SELECT COUNT(a) FROM ActivityLog a WHERE a.activityType = :activityType AND a.createdAt >= :since")
+    long countActivitySince(@Param("activityType") String activityType, @Param("since") LocalDateTime since);
+
+    @Query("SELECT a.createdAt, COUNT(a) FROM ActivityLog a WHERE a.activityType = :activityType AND a.createdAt >= :since GROUP BY a.createdAt ORDER BY a.createdAt ASC")
+    List<Object[]> findActivityCountGroupByDate(@Param("activityType") String activityType, @Param("since") LocalDateTime since);
+
+    @Query("SELECT a.createdAt, COUNT(DISTINCT a.performedBy) FROM ActivityLog a WHERE a.createdAt >= :since GROUP BY a.createdAt ORDER BY a.createdAt ASC")
+    List<Object[]> findActiveUsersCountGroupByDate(@Param("since") LocalDateTime since);
+
+    @Query("SELECT a FROM ActivityLog a ORDER BY a.createdAt DESC")
+    List<ActivityLog> findRecentActivity(org.springframework.data.domain.Pageable pageable);
 }

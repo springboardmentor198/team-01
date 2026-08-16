@@ -202,3 +202,97 @@
 2026-08-16T17:39:14.761+05:30  INFO 25392 --- [due-diligence-agent] [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 3, active threads = 1, queued tasks = 0, completed tasks = 2]
 2026-08-16T18:05:09.540+05:30  WARN 25392 --- [due-diligence-agent] [HikariPool-3:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Thread starvation or clock leap detected (housekeeper delta=14m12s58ms884µs).
 2026-08-16T18:48:13.144+05:30  WARN 25392 --- [due-diligence-agent] [HikariPool-3:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Thread starvation or clock leap detected (housekeeper delta=38m33s499ms612µs200ns).
+2026-08-16T22:02:39.106+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Starting DueDiligenceAgentApplication using Java 21.0.11 with PID 3428 (C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend\target\classes started by SAMRIDHI in C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend)
+2026-08-16T22:02:39.119+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : The following 1 profile is active: "local"
+2026-08-16T22:02:39.410+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-08-16T22:02:39.412+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-08-16T22:02:47.780+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-16T22:02:50.288+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 2256 ms. Found 26 JPA repository interfaces.
+2026-08-16T22:02:58.370+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-08-16T22:02:58.477+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-16T22:02:58.486+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-16T22:02:58.816+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 19401 ms
+2026-08-16T22:03:02.640+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-08-16T22:03:03.742+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@629a35f5
+2026-08-16T22:03:03.750+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-08-16T22:03:03.865+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/real_estate_dd (PostgreSQL 17.10)
+2026-08-16T22:03:04.542+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.438s)
+2026-08-16T22:03:04.698+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-08-16T22:03:04.748+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-08-16T22:03:06.248+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-16T22:03:07.633+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-08-16T22:03:19.386+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-16T22:03:20.201+05:30  WARN 3428 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-16T22:03:20.427+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/real_estate_dd]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.10
+	Default catalog/schema: real_estate_dd/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-16T22:03:43.607+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-16T22:03:43.868+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-16T22:03:44.177+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-16T22:03:55.497+05:30  WARN 3428 --- [due-diligence-agent] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-16T22:03:56.524+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
+2026-08-16T22:03:59.674+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
+2026-08-16T22:03:59.946+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-08-16T22:03:59.946+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@4b401e7f]]
+2026-08-16T22:03:59.946+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-08-16T22:03:59.987+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-08-16T22:04:00.020+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Started DueDiligenceAgentApplication in 83.511 seconds (process running for 85.576)
+2026-08-16T22:05:00.168+05:30  INFO 3428 --- [due-diligence-agent] [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-08-16T22:05:46.186+05:30  INFO 3428 --- [due-diligence-agent] [http-nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-08-16T22:05:46.191+05:30  INFO 3428 --- [due-diligence-agent] [http-nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-08-16T22:05:46.284+05:30  INFO 3428 --- [due-diligence-agent] [http-nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 91 ms
+2026-08-16T22:05:48.489+05:30  WARN 3428 --- [due-diligence-agent] [http-nio-8081-exec-10] ration$PageModule$WarningLoggingModifier : Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2026-08-16T22:10:40.629+05:30  INFO 3428 --- [due-diligence-agent] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 5 class path changes (0 additions, 5 deletions, 0 modifications)
+2026-08-16T22:10:41.499+05:30  INFO 3428 --- [due-diligence-agent] [Thread-1] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-16T22:10:41.682+05:30  INFO 3428 --- [due-diligence-agent] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-08-16T22:10:41.781+05:30  INFO 3428 --- [due-diligence-agent] [Thread-1] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-08-16T22:10:41.790+05:30  INFO 3428 --- [due-diligence-agent] [Thread-1] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@4b401e7f]]
+2026-08-16T22:10:41.796+05:30  INFO 3428 --- [due-diligence-agent] [Thread-1] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-08-16T22:10:42.114+05:30  INFO 3428 --- [due-diligence-agent] [Thread-1] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-16T22:10:42.853+05:30  INFO 3428 --- [due-diligence-agent] [Thread-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-08-16T22:10:43.014+05:30  INFO 3428 --- [due-diligence-agent] [Thread-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-08-16T22:10:46.875+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : Starting DueDiligenceAgentApplication using Java 21.0.11 with PID 3428 (C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend\target\classes started by SAMRIDHI in C:\Users\SAMRIDHI\Desktop\Infosysspringboard\team-01\backend)
+2026-08-16T22:10:46.882+05:30  INFO 3428 --- [due-diligence-agent] [restartedMain] c.r.d.DueDiligenceAgentApplication       : The following 1 profile is active: "local"
+2026-08-16T22:10:48.278+05:30  WARN 3428 --- [due-diligence-agent] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.realestate.duediligence.DueDiligenceAgentApplication]
+2026-08-16T22:10:48.639+05:30 ERROR 3428 --- [due-diligence-agent] [restartedMain] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.realestate.duediligence.DueDiligenceAgentApplication]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:196) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:452) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:316) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:795) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:603) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.1.0.jar:4.1.0]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.1.0.jar:4.1.0]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.1.0.jar:4.1.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.1.0.jar:4.1.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.1.0.jar:4.1.0]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.1.0.jar:4.1.0]
+	at com.realestate.duediligence.DueDiligenceAgentApplication.main(DueDiligenceAgentApplication.java:31) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.1.0.jar:4.1.0]
+Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionException: Annotation-specified bean name 'adminDashboardController' for bean class [com.realestate.duediligence.controller.admin.AdminDashboardController] conflicts with existing, non-compatible bean definition of same name and class [com.realestate.duediligence.controller.AdminDashboardController]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.checkCandidate(ClassPathBeanDefinitionScanner.java:363) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.doScan(ClassPathBeanDefinitionScanner.java:290) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.annotation.ComponentScanAnnotationParser.parse(ComponentScanAnnotationParser.java:128) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:349) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:285) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:206) ~[spring-context-7.0.8.jar:7.0.8]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:174) ~[spring-context-7.0.8.jar:7.0.8]
+	... 16 common frames omitted
+

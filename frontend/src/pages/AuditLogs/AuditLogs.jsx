@@ -30,8 +30,7 @@ function AuditLogs() {
     setError(null);
 
     try {
-      // TODO: Replace propertyId when dynamic selection is added
-      const data = await api.getActivityLogs(1);
+      const data = await api.getAuditLogs();
 
       setLogs(Array.isArray(data) ? data : []);
     } catch (error) {

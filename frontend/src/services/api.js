@@ -375,7 +375,8 @@ export const api = {
       );
     }
 
-    return response.json();
+    const data = await response.json();
+    return Array.isArray(data) ? data : (data?.content || []);
   },
 
   approveAdminRoleRequest: async (id) => {
@@ -408,6 +409,61 @@ export const api = {
     if (!response.ok) {
       throw new Error(
         (await response.text()) || "Unable to reject role request",
+      );
+    }
+
+    return response.json();
+  },
+
+  getAdminProperties: async (params = {}) => {
+    const searchParams = new URLSearchParams(params);
+    const response = await fetch(
+      `${BASE_URL}/admin/properties?${searchParams.toString()}`,
+      {
+        headers: getHeaders(true),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Unable to load admin properties",
+      );
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : (data?.content || []);
+  },
+
+  approveAdminProperty: async (id) => {
+    const response = await fetch(
+      `${BASE_URL}/admin/properties/${id}/approve`,
+      {
+        method: "PATCH",
+        headers: getHeaders(true),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Unable to approve property",
+      );
+    }
+
+    return response.json();
+  },
+
+  rejectAdminProperty: async (id) => {
+    const response = await fetch(
+      `${BASE_URL}/admin/properties/${id}/reject`,
+      {
+        method: "PATCH",
+        headers: getHeaders(true),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Unable to reject property",
       );
     }
 
@@ -967,6 +1023,35 @@ getRiskSummary: async (propertyId) => {
     }
 
     return await response.blob();
+  },
+
+  getAdminUsers: async () => {
+    const response = await fetch(`${BASE_URL}/admin/users`, {
+      headers: getHeaders(true),
+    });
+
+    if (!response.ok) {
+      throw new Error((await response.text()) || "Failed to load users");
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : (data?.content || []);
+  },
+
+  updateAdminUserStatus: async (id, status) => {
+    const response = await fetch(`${BASE_URL}/admin/users/${id}/status`, {
+      method: "PATCH",
+      headers: getHeaders(true),
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Unable to update user status",
+      );
+    }
+
+    return response.json();
   },
 
   createSupportTicket: async ({ subject, description, priority }) => {

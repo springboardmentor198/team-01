@@ -138,7 +138,7 @@ export default function Dashboard() {
          ----------------------------------------------- */
 
       setDashboardData({
-        totalProperties: summary?.viewedProperties ?? 0,
+        totalProperties: summary?.totalProperties ?? 0,
 
         totalReports: summary?.totalReports ?? summary?.reportsGenerated ?? 0,
 
@@ -509,7 +509,7 @@ export default function Dashboard() {
                       margin={{
                         top: 15,
                         right: 10,
-                        left: -15,
+                        left: 5,
                         bottom: 0,
                       }}
                     >
