@@ -1053,4 +1053,54 @@ getRiskSummary: async (propertyId) => {
 
     return response.json();
   },
+
+  createSupportTicket: async ({ subject, description, priority }) => {
+    const response = await fetch(`${BASE_URL}/support/tickets`, { method: "POST", headers: getHeaders(true), body: JSON.stringify({ subject, description, priority }) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to submit support ticket");
+    return response.json();
+  },
+  getAdminSupportTickets: async ({ search, status, priority, page = 0, size = 20 } = {}) => {
+    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    if (search) params.set("search", search); if (status) params.set("status", status); if (priority) params.set("priority", priority);
+    const response = await fetch(`${BASE_URL}/admin/support/tickets?${params}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load support tickets");
+    return response.json();
+  },
+  getAdminSupportTicket: async (ticketId) => {
+    const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load support ticket"); return response.json();
+  },
+  updateSupportTicketStatus: async (ticketId, status) => {
+    const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}/status`, { method: "PATCH", headers: getHeaders(true), body: JSON.stringify({ status }) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to update ticket status"); return response.json();
+  },
+  replyToSupportTicket: async (ticketId, message) => {
+    const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}/reply`, { method: "POST", headers: getHeaders(true), body: JSON.stringify({ message }) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to send reply"); return response.json();
+  },
+  getAdminSystemHealth: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/health`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load system health");
+    return response.json();
+  },
+  getAdminSystemMetrics: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/metrics`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load system metrics");
+    return response.json();
+  },
+  getAdminApiPerformance: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/api-performance`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load API performance");
+    return response.json();
+  },
+  getAdminSystemLogs: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/logs`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load application logs");
+    return response.json();
+  },
+  getAdminCacheMetrics: async () => {
+    const response = await fetch(`${BASE_URL}/admin/system/cache`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load cache metrics");
+    return response.json();
+  },
 };

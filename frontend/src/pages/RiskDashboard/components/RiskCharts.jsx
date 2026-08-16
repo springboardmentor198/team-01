@@ -1,3 +1,6 @@
+// Small dependency-free SVG charts for the Risk Dashboard.
+// Kept intentionally simple (no Recharts/Chart.js) per project scope.
+
 const LEVEL_COLORS = {
   low: "#16A34A",
   medium: "#D97706",
@@ -55,15 +58,15 @@ export function ValuationTrendChart({ points = [], width = 480, height = 180 }) 
   const range = max - min || 1;
 
   const coords = points.map((val, i) => {
-    const x = padding.left + (i / (points.length - 1)) * chartWidth;
+    const x = points.length > 1
+      ? padding.left + (i / (points.length - 1)) * chartWidth
+      : padding.left + chartWidth / 2;
     const y = padding.top + chartHeight - ((val - min) / range) * chartHeight;
     return [x, y];
   });
 
   const linePath = coords.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x} ${y}`).join(" ");
   const areaPath = `${linePath} L ${coords[coords.length - 1][0]} ${padding.top + chartHeight} L ${coords[0][0]} ${padding.top + chartHeight} Z`;
-
-  const monthLabels = ["-5mo", "-4mo", "-3mo", "-2mo", "-1mo", "Prev", "Now"];
 
   return (
     <svg width="100%" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet">
@@ -91,7 +94,7 @@ export function ValuationTrendChart({ points = [], width = 480, height = 180 }) 
 
       {coords.map(([x], i) => (
         <text key={i} x={x} y={height - 6} textAnchor="middle" fontSize="10" fill="#9CA3AF">
-          {monthLabels[i] || ""}
+          Comp {i + 1}
         </text>
       ))}
     </svg>
@@ -106,17 +109,19 @@ export function ComparablePriceBars({ items = [], width = 480, height = 200 }) {
   const chartHeight = height - padding.top - padding.bottom;
   const barGap = 20;
   const barWidth = (chartWidth - barGap * (items.length - 1)) / items.length;
-  const maxPrice = Math.max(...items.map((i) => i.price));
+  const maxPrice = Math.max(...items.map((i) => Number(i.estimatedPrice) || 0));
 
   return (
     <svg width="100%" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet">
       {items.map((item, i) => {
-        const barHeight = (item.price / maxPrice) * chartHeight;
+        const price = Number(item.estimatedPrice) || 0;
+        const barHeight = maxPrice ? (price / maxPrice) * chartHeight : 0;
         const x = padding.left + i * (barWidth + barGap);
         const y = padding.top + chartHeight - barHeight;
+        const label = item.propertyCode || `#${item.propertyId}`;
 
         return (
-          <g key={item.id}>
+          <g key={item.propertyId}>
             <rect
               x={x}
               y={y}
@@ -133,25 +138,16 @@ export function ComparablePriceBars({ items = [], width = 480, height = 200 }) {
               fontWeight="600"
               fill="#374151"
             >
-              ₹{(item.price / 100000).toFixed(1)}L
+              ₹{(price / 100000).toFixed(1)}L
             </text>
             <text
               x={x + barWidth / 2}
-              y={height - 18}
+              y={height - 12}
               textAnchor="middle"
               fontSize="10"
               fill="#6B7280"
             >
-              {item.name.length > 14 ? item.name.slice(0, 13) + "…" : item.name}
-            </text>
-            <text
-              x={x + barWidth / 2}
-              y={height - 6}
-              textAnchor="middle"
-              fontSize="9"
-              fill="#9CA3AF"
-            >
-              {item.distanceKm} km
+              {label.length > 14 ? label.slice(0, 13) + "…" : label}
             </text>
           </g>
         );
