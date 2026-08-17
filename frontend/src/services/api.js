@@ -1067,9 +1067,82 @@ getRiskSummary: async (propertyId) => {
     return response.json();
   },
   getAdminDashboard: async () => {
-    const response = await fetch(`${BASE_URL}/admin/dashboard`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to load the admin dashboard");
-    return response.json();
+    const getAdminResource = async (path) => {
+      const response = await fetch(`${BASE_URL}${path}`, {
+        headers: getHeaders(true),
+      });
+      if (!response.ok) {
+        throw new Error(
+          (await response.text()) || "Unable to load the admin dashboard",
+        );
+      }
+      return response.json();
+    };
+
+    const activityForPeriod = async (period) => {
+      const [users, properties] = await Promise.all([
+        getAdminResource(`/admin/dashboard/activity?period=${period}&metric=USERS`),
+        getAdminResource(
+          `/admin/dashboard/activity?period=${period}&metric=PROPERTIES`,
+        ),
+      ]);
+      const byDate = new Map();
+      [...users, ...properties].forEach(({ date, count }, index) => {
+        const entry = byDate.get(date) || { label: date, users: 0, properties: 0 };
+        if (index < users.length) entry.users = Number(count) || 0;
+        else entry.properties = Number(count) || 0;
+        byDate.set(date, entry);
+      });
+      return [...byDate.values()];
+    };
+
+    const getPageTotal = async (path) => {
+      const page = await getAdminResource(path);
+      return Number(page.totalElements ?? page.content?.length ?? 0);
+    };
+
+    const [overview, activity, distribution, recentActivity, approved, pending, rejected, open, inProgress, resolved, closed] =
+      await Promise.all([
+        getAdminResource("/admin/dashboard/overview"),
+        Promise.all([activityForPeriod("7D"), activityForPeriod("30D"), activityForPeriod("3M")]),
+        getAdminResource("/admin/dashboard/user-distribution"),
+        getAdminResource("/admin/activity/recent"),
+        getPageTotal("/admin/role-requests?status=ACTIVE&size=1"),
+        getPageTotal("/admin/role-requests?status=PENDING&size=1"),
+        getPageTotal("/admin/role-requests?status=REJECTED&size=1"),
+        getPageTotal("/admin/support/tickets?status=OPEN&size=1"),
+        getPageTotal("/admin/support/tickets?status=IN_PROGRESS&size=1"),
+        getPageTotal("/admin/support/tickets?status=RESOLVED&size=1"),
+        getPageTotal("/admin/support/tickets?status=CLOSED&size=1"),
+      ]);
+
+    return {
+      stats: {
+        totalUsers: overview.totalUsers,
+        verifiedProfessionals: overview.verifiedProfessionals,
+        pendingApprovals: overview.pendingRoleRequests,
+        totalProperties: overview.totalProperties,
+        pendingProperties: overview.pendingProperties,
+      },
+      activity: {
+        last7Days: activity[0],
+        last30Days: activity[1],
+        last90Days: activity[2],
+      },
+      verification: { approved, pending, rejected },
+      professionals: [
+        { id: "agents", label: "Property Agents", count: distribution.agent },
+        { id: "legal", label: "Legal Professionals", count: distribution.legalReviewer },
+        { id: "financial", label: "Financial Institutions", count: distribution.bank },
+      ],
+      support: { open, inProgress, resolved: resolved + closed },
+      recentActivity: recentActivity.map((activityItem) => ({
+        id: activityItem.id,
+        title: activityItem.activityType || "Platform activity",
+        description: activityItem.description,
+        createdAt: activityItem.createdAt,
+      })),
+    };
   },
   getAdminWorkspace: async (pageKey) => {
     const response = await fetch(`${BASE_URL}/admin/dashboard/workspace/${pageKey}`, { headers: getHeaders(true) });

@@ -6,6 +6,7 @@ import {
   LuCircleX,
   LuChevronDown,
   LuCheck,
+  LuBuilding2,
 } from "react-icons/lu";
 
 import Layout from "../../components/Layout/Layout";
@@ -18,7 +19,6 @@ import PlatformActivityChart from "./PlatformActivityChart";
 import VerificationSummary from "./VerificationSummary";
 import RecentActivity from "./RecentActivity";
 import ProfessionalDistribution from "./ProfessionalDistribution";
-import RecentPropertyApprovals from "./RecentPropertyApprovals";
 import SupportOverview from "./SupportOverview";
 import SystemMetrics from "./SystemMetrics";
 
@@ -34,14 +34,6 @@ const statusOptions = [
   { value: "ACTIVE", label: "Approved" },
   { value: "REJECTED", label: "Rejected" },
 ];
-
-import {
-  LuUsers,
-  LuBadgeCheck,
-  LuClipboardList,
-  LuUserCheck,
-  LuHeadphones,
-} from "react-icons/lu";
 
 const roleOptions = [
   { value: "", label: "All roles" },
@@ -118,6 +110,7 @@ function AdminDashboard() {
   const [tab, setTab] = useState("verifications");
   const [pendingProperties, setPendingProperties] = useState([]);
   const [propertiesLoading, setPropertiesLoading] = useState(true);
+  const [dashboard, setDashboard] = useState(null);
 
   const loadRequests = useCallback(async () => {
     setLoading(true);
@@ -213,16 +206,6 @@ function AdminDashboard() {
     }
   };
 
-  const displayStats = dashboardStats.map((stat) => {
-    if (stat.id === "pending-approvals") {
-      const pendingCount =
-        requests.filter((r) => r.status === "PENDING").length +
-        pendingProperties.length;
-      return { ...stat, value: String(pendingCount) };
-    }
-    return stat;
-  });
-
   useEffect(() => {
     let active = true;
     Promise.all([
@@ -270,21 +253,45 @@ function AdminDashboard() {
           "orange",
         ],
         [
-          "active-users",
-          "Active Users",
-          dashboard.stats.activeUsers,
-          LuUserCheck,
+          "total-properties",
+          "Total Properties",
+          dashboard.stats.totalProperties,
+          LuBuilding2,
           "blue",
         ],
         [
-          "open-tickets",
-          "Open Tickets",
-          dashboard.stats.openTickets,
-          LuHeadphones,
+          "pending-properties",
+          "Pending Properties",
+          dashboard.stats.pendingProperties,
+          LuClipboardList,
           "red",
         ],
       ]
     : [];
+
+  const displayStats = stats.map(([id, title, value, icon, iconClass]) => {
+    if (id === "pending-approvals") {
+      const pendingCount =
+        requests.filter((r) => r.status === "PENDING").length +
+        pendingProperties.length;
+
+      return {
+        id,
+        title,
+        value: String(pendingCount),
+        icon,
+        iconClass,
+      };
+    }
+
+    return {
+      id,
+      title,
+      value,
+      icon,
+      iconClass,
+    };
+  });
 
   return (
     <Layout title="Admin Dashboard" variant="admin">
@@ -307,7 +314,7 @@ function AdminDashboard() {
               className="admin-stats-grid"
               aria-label="Platform statistics"
             >
-              {displayStats.map((stat) => (
+              {displayStats.map(({ id, title, value, icon, iconClass }) => (
                 <AdminStatCard
                   key={id}
                   title={title}

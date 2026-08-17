@@ -1,5 +1,6 @@
-# Copy this file to application-local.properties
-# Replace the values below with your own credentials.
+# This file is optional. Copy it to application-local.properties only if you use
+# Spring's local profile; it is ignored by Git. Prefer environment variables
+# documented in backend/.env.example for team-wide setup.
 
 spring.mail.username=your-email@gmail.com
 spring.mail.password=your-16-character-google-app-password
