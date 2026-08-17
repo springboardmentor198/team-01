@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import AuthorizationGate from "./components/Auth/AuthorizationGate";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
 import PropertySearch from "./pages/PropertySearch/PropertySearch";
@@ -45,6 +46,7 @@ function App() {
       <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
+      <Route element={<AuthorizationGate />}>
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/buyer/dashboard" element={<Dashboard />} />
       <Route path="/agent/dashboard" element={<RoleDashboard role="AGENT" />} />
@@ -88,6 +90,7 @@ function App() {
       <Route path="/audit-logs" element={<AuditLogs />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/admin" element={<Admin />} />
+      </Route>
     </Routes>
   );
 }

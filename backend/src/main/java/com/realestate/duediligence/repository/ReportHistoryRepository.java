@@ -11,4 +11,6 @@ import com.realestate.duediligence.entity.ReportHistory;
 public interface ReportHistoryRepository extends JpaRepository<ReportHistory, Long> {
 
     List<ReportHistory> findByReportIdOrderByPerformedAtDesc(Long reportId);
+
+    long countByAction(String action);
 }

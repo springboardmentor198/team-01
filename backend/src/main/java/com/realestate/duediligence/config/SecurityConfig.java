@@ -18,17 +18,20 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.realestate.duediligence.security.JwtAuthenticationFilter;
+import com.realestate.duediligence.security.AccountAccessFilter;
 
 @Configuration
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AccountAccessFilter accountAccessFilter;
     private final List<String> allowedOrigins;
 
     public SecurityConfig(
-            JwtAuthenticationFilter jwtAuthenticationFilter,
+            JwtAuthenticationFilter jwtAuthenticationFilter, AccountAccessFilter accountAccessFilter,
             @Value("${app.cors.allowed-origins:http://localhost:5173}") List<String> allowedOrigins) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.accountAccessFilter = accountAccessFilter;
         this.allowedOrigins = allowedOrigins;
     }
 
@@ -72,6 +75,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(accountAccessFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

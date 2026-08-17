@@ -9,7 +9,8 @@ import { api } from "../../services/api";
 function Layout({ title, showSearch = false, variant, children }) {
   const navigate = useNavigate();
   const [isSupportDrawerOpen, setIsSupportDrawerOpen] = useState(false);
-  const isAdmin = variant === "admin" || api.getCurrentUser()?.role === "ADMIN";
+  // The authenticated profile is authoritative; a page cannot opt a non-admin into admin chrome.
+  const isAdmin = api.getCurrentUser()?.role === "ADMIN";
 
   useEffect(() => {
     const checkUserStatus = async () => {

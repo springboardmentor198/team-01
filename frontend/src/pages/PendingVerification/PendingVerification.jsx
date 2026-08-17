@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LuClock3, LuHouse } from "react-icons/lu";
 import { api } from "../../services/api";
 
 function PendingVerification() {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState(api.getCurrentUser());
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
     if (!api.isAuthenticated()) {
@@ -14,11 +16,9 @@ function PendingVerification() {
 
     const checkStatus = async () => {
       try {
-        const profile = await api.getUserProfile();
-        if (profile.status === "ACTIVE") {
-          localStorage.setItem("status", profile.status);
-          localStorage.setItem("role", profile.role);
-          localStorage.setItem("profileCompleted", String(profile.profileCompleted));
+        const currentProfile = await api.refreshCurrentUser();
+        setProfile(currentProfile);
+        if (currentProfile.status === "ACTIVE") {
 
           const dashboardPaths = {
             BUYER: "/buyer/dashboard",
@@ -26,7 +26,7 @@ function PendingVerification() {
             LEGAL_REVIEWER: "/legal/dashboard",
             BANK: "/bank/dashboard",
           };
-          navigate(dashboardPaths[profile.role] || "/dashboard", { replace: true });
+          navigate(dashboardPaths[currentProfile.role] || "/dashboard", { replace: true });
         }
       } catch (err) {
         // Ignore errors during polling
@@ -37,8 +37,8 @@ function PendingVerification() {
     checkStatus();
 
     // Poll every 3 seconds
-    const interval = setInterval(checkStatus, 3000);
-    return () => clearInterval(interval);
+    window.checkApprovalStatus = checkStatus;
+    return () => { delete window.checkApprovalStatus; };
   }, [navigate]);
 
   return (
@@ -48,15 +48,16 @@ function PendingVerification() {
           <LuClock3 size={30} />
         </span>
         <span className="pending-eyebrow">Verification status</span>
-        <h1>Verification Submitted</h1>
+        <h1>{profile?.status === "REJECTED" ? "Application Rejected" : "Account Pending Verification"}</h1>
         <p>
-          Your request has been sent to the administrator. Please wait until
-          your account is verified.
+          {profile?.status === "REJECTED" ? "Your registration was not approved. Please contact support for more information." : "Your registration is currently being reviewed by the DueDiligence administration team."}
         </p>
-        <button type="button" onClick={() => navigate("/dashboard")}>
-          <LuHouse size={18} />
-          Back to Home
+        <p><strong>Role:</strong> {(profile?.role || "").replaceAll("_", " ")}</p>
+        <p><strong>Status:</strong> {profile?.status || "PENDING"}</p>
+        <button type="button" disabled={checking} onClick={async () => { setChecking(true); try { await window.checkApprovalStatus?.(); } finally { setChecking(false); } }}>
+          <LuHouse size={18} /> {checking ? "Checking…" : "Refresh Status"}
         </button>
+        <button type="button" onClick={() => { api.logout(); navigate("/login", { replace: true }); }}>Logout</button>
       </section>
     </main>
   );

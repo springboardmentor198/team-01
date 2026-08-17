@@ -4,7 +4,6 @@ import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { api } from "../../services/api";
 import logo from "../../assets/images/logo.png";
 import "./Register.css";
-import { useGoogleLogin } from "@react-oauth/google";
 
 function getPasswordStrength(pwd) {
   if (!pwd) return 0;
@@ -33,6 +32,7 @@ function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [role, setRole] = useState("BUYER");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +50,6 @@ function Register() {
   const passwordsDifferent =
     confirmPassword.length > 0 && password !== confirmPassword;
 
-  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,8 +65,8 @@ function Register() {
     setLoading(true);
 
     try {
-      await api.register(fullName, email, password, phoneNumber);
-      setSuccess("Account created successfully! Redirecting to login...");
+      await api.register(fullName, email, password, phoneNumber, role);
+      setSuccess("Account created. Please sign in to view its verification status.");
       setTimeout(() => {
         navigate("/login");
       }, 1500);
@@ -78,59 +77,6 @@ function Register() {
     }
   };
   
-  const getPostLoginPath = ({ profileCompleted, role, status }) => {
-    if (role === "ADMIN") {
-      return "/admin/dashboard";
-    }
-
-    if (status === "PENDING") {
-      return "/pending";
-    }
-
-    if (profileCompleted === false) {
-      return "/onboarding";
-    }
-
-    if (profileCompleted === true) {
-      const dashboardPaths = {
-        BUYER: "/buyer/dashboard",
-        AGENT: "/agent/dashboard",
-        LEGAL_REVIEWER: "/legal/dashboard",
-        BANK: "/bank/dashboard",
-      };
-
-      return dashboardPaths[role] || "/dashboard";
-    }
-
-    return "/dashboard";
-  };
-
-    const googleLogin = useGoogleLogin({
-      flow: "auth-code",
-  
-      onSuccess: async (tokenResponse) => {
-        setError("");
-        setGoogleLoading(true);
-  
-        try {
-          const authentication =
-            await api.loginWithGoogle(tokenResponse);
-  
-          navigate(getPostLoginPath(authentication), {
-            replace: true,
-          });
-        } catch (err) {
-          setError(err.message || "Google sign-in failed");
-        } finally {
-          setGoogleLoading(false);
-        }
-      },
-  
-      onError: () => {
-        setError("Google sign-in failed");
-      },
-    });
-
 
   return (
     <AuthLayout>
@@ -203,6 +149,16 @@ function Register() {
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 required
               />
+            </div>
+
+            <div className="auth-field">
+              <label htmlFor="role">How do you want to use DueDiligence?</label>
+              <select id="role" className="auth-input" value={role} onChange={(e) => setRole(e.target.value)} required>
+                <option value="BUYER">Buyer</option>
+                <option value="AGENT">Real Estate Agent</option>
+                <option value="LEGAL_REVIEWER">Legal Advisor</option>
+                <option value="BANK">Financial Institution</option>
+              </select>
             </div>
 
             <div className="auth-field">
@@ -390,50 +346,6 @@ function Register() {
           </button>
 
         </form>
-
-        <div className="auth-divider">
-          <span>OR</span>
-        </div>
-
-                <div className="google-login-wrapper">
-
-          <button
-            className="google-btn"
-            type="button"
-            onClick={() => googleLogin()}
-            disabled={googleLoading}
-          >
-
-            <svg viewBox="0 0 48 48">
-              <path
-                fill="#FFC107"
-                d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.5 29.6 4.5 24 4.5 12.7 4.5 3.5 13.7 3.5 25S12.7 45.5 24 45.5 44.5 36.3 44.5 25c0-1.5-.2-2.9-.4-4.5z"
-              />
-
-              <path
-                fill="#FF3D00"
-                d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 7 29.6 5 24 5c-7.6 0-14.1 4.3-17.4 10.6z"
-              />
-
-              <path
-                fill="#4CAF50"
-                d="M24 45.5c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 36.5 27 37.5 24 37.5c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.8 41.1 16.4 45.5 24 45.5z"
-              />
-
-              <path
-                fill="#1976D2"
-                d="M43.6 20.5H42V20H24v8h11.3c-.9 2.5-2.5 4.6-4.6 6l6.6 5.4C40.9 36.3 44.5 31.1 44.5 25c0-1.5-.2-2.9-.4-4.5z"
-              />
-            </svg>
-
-            {googleLoading
-              ? "Signing in..."
-              : "Continue with Google"}
-
-          </button>
-
-        </div>
-
 
         <p className="auth-footer">
           Already have an account?{" "}

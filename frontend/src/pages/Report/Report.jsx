@@ -43,8 +43,8 @@ function ReportLanding() {
   </div>;
 }
 
-export default function Report() {
+export default function Report({ variant }) {
   const { propertyId } = useParams();
-  if (!propertyId) return <Layout title="Reports"><ReportLanding /></Layout>;
-  return <Layout title="Due Diligence Report"><ReportPage propertyId={propertyId} /></Layout>;
+  if (!propertyId) return <Layout title="Reports" variant={variant}><ReportLanding /></Layout>;
+  return <Layout title="Due Diligence Report" variant={variant}><ReportPage propertyId={propertyId} /></Layout>;
 }

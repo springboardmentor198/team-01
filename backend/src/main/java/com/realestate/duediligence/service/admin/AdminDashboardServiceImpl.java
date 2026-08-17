@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,9 @@ import com.realestate.duediligence.enums.Role;
 import com.realestate.duediligence.repository.ActivityLogRepository;
 import com.realestate.duediligence.repository.PropertyRepository;
 import com.realestate.duediligence.repository.RoleRequestRepository;
+import com.realestate.duediligence.repository.ReportHistoryRepository;
 import com.realestate.duediligence.repository.UserRepository;
+import com.realestate.duediligence.repository.admin.SecurityEventRepository;
 import com.realestate.duediligence.repository.admin.TransactionRepository;
 
 @Service
@@ -35,18 +39,24 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
     private final PropertyRepository propertyRepository;
     private final ActivityLogRepository activityLogRepository;
     private final TransactionRepository transactionRepository;
+    private final SecurityEventRepository securityEventRepository;
+    private final ReportHistoryRepository reportHistoryRepository;
 
     public AdminDashboardServiceImpl(
             UserRepository userRepository,
             RoleRequestRepository roleRequestRepository,
             PropertyRepository propertyRepository,
             ActivityLogRepository activityLogRepository,
-            TransactionRepository transactionRepository) {
+            TransactionRepository transactionRepository,
+            SecurityEventRepository securityEventRepository,
+            ReportHistoryRepository reportHistoryRepository) {
         this.userRepository = userRepository;
         this.roleRequestRepository = roleRequestRepository;
         this.propertyRepository = propertyRepository;
         this.activityLogRepository = activityLogRepository;
         this.transactionRepository = transactionRepository;
+        this.securityEventRepository = securityEventRepository;
+        this.reportHistoryRepository = reportHistoryRepository;
     }
 
     @Override
@@ -197,8 +207,8 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
     public List<com.realestate.duediligence.dto.ActivityLogResponse> getRecentActivity(String adminEmail) {
         requireAdmin(adminEmail);
         
-        List<com.realestate.duediligence.entity.ActivityLog> logs = activityLogRepository.findRecentActivity(org.springframework.data.domain.PageRequest.of(0, 10));
-        return logs.stream().map(log -> com.realestate.duediligence.dto.ActivityLogResponse.builder()
+        var pageable = org.springframework.data.domain.PageRequest.of(0, 50);
+        var logs = activityLogRepository.findRecentActivity(pageable).stream().map(log -> com.realestate.duediligence.dto.ActivityLogResponse.builder()
                 .id(log.getActivityId())
                 .activityType(log.getActivityType())
                 .description(log.getDescription())
@@ -207,6 +217,29 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                 .propertyCode(log.getProperty() != null ? log.getProperty().getPropertyCode() : null)
                 .createdAt(log.getCreatedAt())
                 .build()
-        ).toList();
+        );
+        var securityEvents = securityEventRepository.findAll(pageable).stream().map(event -> com.realestate.duediligence.dto.ActivityLogResponse.builder()
+                .id(1_000_000 + event.getEventId())
+                .activityType(event.getEventType())
+                .description(event.getAction())
+                .performedBy(event.getUser() != null ? event.getUser().getName() : null)
+                .createdAt(event.getCreatedAt())
+                .build()
+        );
+        var reportEvents = reportHistoryRepository.findAll(pageable).stream().map(history -> com.realestate.duediligence.dto.ActivityLogResponse.builder()
+                .id(2_000_000 + Math.toIntExact(history.getId()))
+                .activityType("REPORT_" + history.getAction())
+                .description("Report " + history.getAction().toLowerCase().replace('_', ' '))
+                .performedBy(history.getPerformedBy())
+                .propertyId(history.getReport().getPropertyId())
+                .createdAt(history.getPerformedAt())
+                .build()
+        );
+        return Stream.of(logs, securityEvents, reportEvents)
+                .flatMap(stream -> stream)
+                .sorted(Comparator.comparing(com.realestate.duediligence.dto.ActivityLogResponse::getCreatedAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(50)
+                .toList();
     }
 }

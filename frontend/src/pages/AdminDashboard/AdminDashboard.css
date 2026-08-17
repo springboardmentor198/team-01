@@ -799,7 +799,14 @@
 .admin-recent-activity {
   display: flex;
   flex-direction: column;
+  max-height: 390px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-gutter: stable;
 }
+
+.admin-recent-activity::-webkit-scrollbar { width: 6px; }
+.admin-recent-activity::-webkit-scrollbar-thumb { border-radius: 999px; background: #cbd5e1; }
 
 .admin-activity-item {
   display: flex;

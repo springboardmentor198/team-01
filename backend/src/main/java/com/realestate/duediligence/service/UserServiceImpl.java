@@ -29,12 +29,15 @@ import com.realestate.duediligence.dto.RegisterRequest;
 import com.realestate.duediligence.dto.ResetPasswordRequest;
 import com.realestate.duediligence.entity.PasswordResetToken;
 import com.realestate.duediligence.entity.User;
+import com.realestate.duediligence.entity.RoleRequest;
+import com.realestate.duediligence.enums.AccountStatus;
 import com.realestate.duediligence.enums.Role;
 import com.realestate.duediligence.event.NotificationEvents;
 import com.realestate.duediligence.exception.BadRequestException;
 import com.realestate.duediligence.exception.ConflictException;
 import com.realestate.duediligence.repository.PasswordResetTokenRepository;
 import com.realestate.duediligence.repository.UserRepository;
+import com.realestate.duediligence.repository.RoleRequestRepository;
 import com.realestate.duediligence.util.JwtService;
 
 @Service
@@ -45,6 +48,7 @@ public class UserServiceImpl implements UserService {
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private JwtService jwtService;
     @Autowired private ApplicationEventPublisher eventPublisher;
+    @Autowired private RoleRequestRepository roleRequestRepository;
 
     @Value("${google.client.id}") private String googleClientId;
     @Value("${google.client.secret}") private String googleClientSecret;
@@ -57,13 +61,29 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new ConflictException("Email already exists");
         }
+        if (request.getRole() == null || request.getRole() == Role.ADMIN) {
+            throw new BadRequestException("A non-admin account role is required");
+        }
         User user = User.builder()
                 .name(request.getName()).email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .avatarUrl(request.getAvatarUrl()).role(Role.BUYER)
+                .avatarUrl(request.getAvatarUrl()).role(request.getRole())
                 .phoneNumber(request.getPhoneNumber()).createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now()).build();
+                .updatedAt(LocalDateTime.now()).status(AccountStatus.PENDING)
+                .profileCompleted(true).build();
         User saved = userRepository.save(user);
+        roleRequestRepository.save(RoleRequest.builder()
+                .user(saved).requestedRole(saved.getRole())
+                .companyName("Not provided at registration")
+                .companyEmail(saved.getEmail())
+                .licenseNumber("Not provided")
+                .yearsOfExperience(0)
+                .documentName("Not provided")
+                .documentPath("Not provided")
+                .documentMimeType("application/octet-stream")
+                .documentSize(0L)
+                .status(AccountStatus.PENDING)
+                .build());
         eventPublisher.publishEvent(new NotificationEvents.UserRegisteredEvent(saved));
         return saved;
     }
@@ -168,11 +188,10 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Failed to fetch Google user profile");
         }
         String email = (String) profile.get("email");
-        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.save(User.builder()
-                .name((String) profile.getOrDefault("name", email.substring(0, email.indexOf('@'))))
-                .email(email).passwordHash(passwordEncoder.encode(UUID.randomUUID().toString()))
-                .avatarUrl((String) profile.get("picture")).role(Role.BUYER)
-                .createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build()));
+        // OAuth login authenticates an existing account only. Creating one here would
+        // bypass the required role selection and the server-controlled approval flow.
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException("No account found with this Google account. Please register and select a role first."));
         return jwtService.generateToken(user.getEmail());
     }
 

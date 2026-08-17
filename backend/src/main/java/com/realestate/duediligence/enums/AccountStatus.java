@@ -3,5 +3,6 @@ package com.realestate.duediligence.enums;
 public enum AccountStatus {
     ACTIVE,
     PENDING,
-    REJECTED
+    REJECTED,
+    SUSPENDED
 }
