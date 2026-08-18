@@ -30,6 +30,7 @@ import UploadDocuments from "./pages/UploadDocuments/UploadDocuments";
 import Admin from "./pages/Admin/Admin";
 import VerifyOtp from "./pages/VerifyOtp/VerifyOtp";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import AgentWorkspace from "./pages/AgentWorkspace/AgentWorkspace";
 
 function App() {
   return (
@@ -50,6 +51,12 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/buyer/dashboard" element={<Dashboard />} />
       <Route path="/agent/dashboard" element={<RoleDashboard role="AGENT" />} />
+      <Route path="/agent/properties" element={<AgentWorkspace page="properties" />} />
+      <Route path="/agent/documents" element={<AgentWorkspace page="documents" />} />
+      <Route path="/agent/due-diligence" element={<AgentWorkspace page="due-diligence" />} />
+      <Route path="/agent/buyer-requests" element={<AgentWorkspace page="buyer-requests" />} />
+      <Route path="/agent/transactions" element={<AgentWorkspace page="transactions" />} />
+      <Route path="/agent/tasks" element={<AgentWorkspace page="tasks" />} />
       <Route path="/legal/dashboard" element={<RoleDashboard role="LEGAL_REVIEWER" />} />
       <Route path="/bank/dashboard" element={<RoleDashboard role="BANK" />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />

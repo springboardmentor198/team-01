@@ -32,6 +32,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             Pageable pageable);
 
     long countByStatus(String status);
+    long countByAgent_UserIdAndStatus(Integer agentId, String status);
+    List<Transaction> findByAgent_UserIdOrderByCreatedAtDesc(Integer agentId);
 
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.createdAt >= :since")
     long countTransactionsSince(@Param("since") LocalDateTime since);

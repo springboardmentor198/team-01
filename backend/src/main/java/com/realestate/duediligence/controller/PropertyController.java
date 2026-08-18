@@ -43,7 +43,7 @@ public class PropertyController {
 
     @GetMapping
     public ResponseEntity<List<Property>> getAllProperties() {
-        return ResponseEntity.ok(propertyService.getAll());
+        return ResponseEntity.ok(propertyRepository.findByStatus("APPROVED"));
     }
 
     @GetMapping("/popular")

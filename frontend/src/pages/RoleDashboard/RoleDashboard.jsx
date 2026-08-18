@@ -21,6 +21,7 @@ import Layout from "../../components/Layout/Layout";
 import { api } from "../../services/api";
 import "../Dashboard/Dashboard.css";
 import "./RoleDashboard.css";
+import AgentWorkspace from "../AgentWorkspace/AgentWorkspace";
 const emptyAgentData = {
   totalProperties: 0,
   pendingDocuments: 0,
@@ -617,9 +618,12 @@ function RoleDashboard({ role }) {
     BANK: "Financial Institution Dashboard",
   };
 
+  if (role === "AGENT") {
+    return <AgentWorkspace />;
+  }
+
   return (
     <Layout title={titles[role] || "Dashboard"}>
-      {role === "AGENT" && <AgentDashboard />}
       {role === "LEGAL_REVIEWER" && <LegalReviewerDashboard />}
       {role === "BANK" && <BankDashboard />}
     </Layout>

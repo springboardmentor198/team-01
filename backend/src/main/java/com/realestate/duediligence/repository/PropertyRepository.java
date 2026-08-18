@@ -14,6 +14,10 @@ import com.realestate.duediligence.entity.Property;
 public interface PropertyRepository extends JpaRepository<Property, Integer> {
 
     List<Property> findByCity(String city);
+    List<Property> findByStatus(String status);
+    List<Property> findByStatusIn(List<String> statuses);
+    List<Property> findByManagedBy_UserIdOrderByUpdatedAtDesc(Integer userId);
+    long countByManagedBy_UserIdAndStatus(Integer userId, String status);
 
     /**
      * Ranked, paginated global keyword search.
@@ -23,14 +27,15 @@ public interface PropertyRepository extends JpaRepository<Property, Integer> {
      */
     @Query("""
             SELECT p FROM Property p
-            WHERE LOWER(TRIM(p.propertyCode)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            WHERE (LOWER(TRIM(p.propertyCode)) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR LOWER(COALESCE(TRIM(p.parcelId), '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR LOWER(TRIM(p.address)) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR LOWER(COALESCE(TRIM(p.city), '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR LOWER(COALESCE(TRIM(p.country), '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR LOWER(COALESCE(TRIM(p.propertyType), '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR LOWER(COALESCE(TRIM(p.landUse), '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
-               OR LOWER(COALESCE(TRIM(p.ownerName), '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+               OR LOWER(COALESCE(TRIM(p.ownerName), '')) LIKE LOWER(CONCAT('%', :keyword, '%')))
+              AND p.status = 'APPROVED'
             ORDER BY
                 CASE
                     WHEN LOWER(TRIM(p.propertyCode)) = LOWER(:kw) THEN 0
@@ -90,14 +95,15 @@ public interface PropertyRepository extends JpaRepository<Property, Integer> {
     @Query("""
 SELECT p FROM Property p
 WHERE
-    LOWER(p.propertyCode) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    (LOWER(p.propertyCode) LIKE LOWER(CONCAT('%', :keyword, '%'))
     OR LOWER(COALESCE(p.parcelId, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
     OR LOWER(p.address) LIKE LOWER(CONCAT('%', :keyword, '%'))
     OR LOWER(p.city) LIKE LOWER(CONCAT('%', :keyword, '%'))
     OR LOWER(p.country) LIKE LOWER(CONCAT('%', :keyword, '%'))
     OR LOWER(p.propertyType) LIKE LOWER(CONCAT('%', :keyword, '%'))
     OR LOWER(p.landUse) LIKE LOWER(CONCAT('%', :keyword, '%'))
-    OR LOWER(COALESCE(p.ownerName, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    OR LOWER(COALESCE(p.ownerName, '')) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    AND p.status = 'APPROVED'
 ORDER BY p.lastUpdated DESC
 """)
 List<Property> searchProperties(@Param("keyword") String keyword);

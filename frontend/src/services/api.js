@@ -1127,6 +1127,52 @@ export const api = {
     return profile;
   },
 
+  getAgentDashboard: async () => {
+    const response = await fetch(`${BASE_URL}/agent/dashboard`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load agent dashboard");
+    return response.json();
+  },
+  getAgentProperties: async () => {
+    const response = await fetch(`${BASE_URL}/agent/properties`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load your properties");
+    return response.json();
+  },
+  createAgentProperty: async (property) => {
+    const response = await fetch(`${BASE_URL}/agent/properties`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(property) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to create property");
+    return response.json();
+  },
+  submitAgentProperty: async (id) => {
+    const response = await fetch(`${BASE_URL}/agent/properties/${id}/submit`, { method: "POST", headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to submit property");
+    return response.json();
+  },
+  getAgentDocuments: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/agent/properties/${propertyId}/documents`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load documents");
+    return response.json();
+  },
+  createAgentDocument: async (propertyId, document) => {
+    const response = await fetch(`${BASE_URL}/agent/properties/${propertyId}/documents`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(document) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to save document");
+    return response.json();
+  },
+  getAgentTransactions: async () => {
+    const response = await fetch(`${BASE_URL}/agent/transactions`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load transactions");
+    return response.json();
+  },
+  getAgentBuyerRequests: async () => {
+    const response = await fetch(`${BASE_URL}/agent/buyer-requests`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load buyer requests");
+    return response.json();
+  },
+  getAgentDocuments: async () => {
+    const response = await fetch(`${BASE_URL}/agent/documents`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load documents");
+    return response.json();
+  },
+
   getAdminUserSecurityEvents: async (userId) => {
     const response = await fetch(
       `${BASE_URL}/admin/security/events?userId=${userId}&size=10`,

@@ -10,6 +10,7 @@ import com.realestate.duediligence.entity.Property;
 import com.realestate.duediligence.entity.PropertyFollow;
 import com.realestate.duediligence.entity.User;
 import com.realestate.duediligence.enums.FollowReason;
+import com.realestate.duediligence.enums.Role;
 import com.realestate.duediligence.event.NotificationEvents;
 import com.realestate.duediligence.exception.ResourceNotFoundException;
 import com.realestate.duediligence.repository.AgentFollowRepository;
@@ -68,8 +69,10 @@ public class PropertyEngagementServiceImpl implements PropertyEngagementService 
     public void contactAgent(String buyerEmail, Integer propertyId, Integer agentId, String message) {
         User buyer = requireUser(buyerEmail);
         Property property = requireProperty(propertyId);
-        User agent = userRepository.findById(agentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Agent not found"));
+        if (buyer.getRole() != Role.BUYER || !"APPROVED".equals(property.getStatus()) || property.getManagedBy() == null) {
+            throw new IllegalStateException("Interest can only be submitted by a buyer for an approved managed property");
+        }
+        User agent = property.getManagedBy();
 
         followProperty(buyer, property, FollowReason.CONTACTED);
         followAgent(buyer, agent);
