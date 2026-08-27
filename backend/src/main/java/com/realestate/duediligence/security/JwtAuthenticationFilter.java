@@ -55,6 +55,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
+            if (!userDetails.isAccountNonLocked() || !userDetails.isEnabled()) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Account is suspended");
+                return;
+            }
+
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
                             userDetails,

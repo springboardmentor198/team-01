@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,6 +20,7 @@ import com.realestate.duediligence.repository.ActivityLogRepository;
 import com.realestate.duediligence.repository.PropertyRepository;
 import com.realestate.duediligence.repository.UserRepository;
 import com.realestate.duediligence.repository.admin.SecurityEventRepository;
+import com.realestate.duediligence.event.NotificationEvents;
 
 @Service
 @Transactional
@@ -28,16 +30,19 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
     private final SecurityEventRepository securityEventRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AdminPropertyServiceImpl(
             PropertyRepository propertyRepository,
             UserRepository userRepository,
             ActivityLogRepository activityLogRepository,
-            SecurityEventRepository securityEventRepository) {
+            SecurityEventRepository securityEventRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.propertyRepository = propertyRepository;
         this.userRepository = userRepository;
         this.activityLogRepository = activityLogRepository;
         this.securityEventRepository = securityEventRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -79,9 +84,12 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
         Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Property not found: " + propertyId));
 
+        requirePendingVerification(property);
+        String previousStatus = property.getStatus();
         property.setStatus("APPROVED");
         property.setLastUpdated(LocalDateTime.now());
         Property saved = propertyRepository.save(property);
+        eventPublisher.publishEvent(new NotificationEvents.PropertyUpdatedEvent(saved, admin.getUserId(), previousStatus, saved.getStatus()));
 
         // Record ActivityLog
         activityLogRepository.save(ActivityLog.builder()
@@ -111,6 +119,7 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
         Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Property not found: " + propertyId));
 
+        requirePendingVerification(property);
         property.setStatus("REJECTED");
         property.setLastUpdated(LocalDateTime.now());
         Property saved = propertyRepository.save(property);
@@ -184,6 +193,12 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
         }
 
         return user;
+    }
+
+    private void requirePendingVerification(Property property) {
+        if (!"PENDING_VERIFICATION".equals(property.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only pending-verification properties can be decided");
+        }
     }
 
     private AdminPropertyResponse toResponse(Property property) {

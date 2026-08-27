@@ -61,6 +61,10 @@ public class AdminUserServiceImpl implements AdminUserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
 
+        if (admin.getUserId().equals(userId) && status == AccountStatus.SUSPENDED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Administrators cannot suspend their own account");
+        }
+
         AccountStatus oldStatus = user.getStatus();
         user.setStatus(status);
         User savedUser = userRepository.save(user);

@@ -12,6 +12,7 @@ import com.realestate.duediligence.entity.Document;
 public interface DocumentRepository extends JpaRepository<Document, Integer> {
 
     List<Document> findByProperty_PropertyId(Integer propertyId);
+    long countByProperty_PropertyId(Integer propertyId);
     List<Document> findAllByOrderByUploadedAtDesc(Pageable pageable);
 
 }

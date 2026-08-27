@@ -47,13 +47,11 @@ const sections = [
         label: "Property Approvals",
         path: "/admin/property-approvals",
         icon: HiOutlineOfficeBuilding,
-        badge: "8",
       },
       {
         label: "Advisor Verifications",
         path: "/admin/advisor-verifications",
         icon: FiClipboard,
-        badge: "5",
       },
     ],
   },
@@ -165,19 +163,18 @@ const sections = [
 
 function AdminSidebar() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [pendingRoleRequests, setPendingRoleRequests] = useState(0);
+  const [badges, setBadges] = useState({});
 
   useEffect(() => {
-    const loadPendingRoleRequests = async () => {
+    const loadBadges = async () => {
       try {
-        const requests = await api.getAdminRoleRequests({ status: "PENDING" });
-        setPendingRoleRequests(Array.isArray(requests) ? requests.length : 0);
+        setBadges(await api.getAdminSidebarCounts());
       } catch {
-        setPendingRoleRequests(0);
+        setBadges({});
       }
     };
-    loadPendingRoleRequests();
-    const intervalId = window.setInterval(loadPendingRoleRequests, 30000);
+    loadBadges();
+    const intervalId = window.setInterval(loadBadges, 30000);
     return () => window.clearInterval(intervalId);
   }, []);
 
@@ -231,7 +228,7 @@ function AdminSidebar() {
                 {section.items.map((item) => (
                   <AdminNavItem
                     key={item.label}
-                    item={{ ...item, badge: item.label === "Role Requests" && pendingRoleRequests ? pendingRoleRequests : item.badge }}
+                    item={{ ...item, badge: badges[item.label] }}
                     onLogout={() => setShowLogoutModal(true)}
                   />
                 ))}

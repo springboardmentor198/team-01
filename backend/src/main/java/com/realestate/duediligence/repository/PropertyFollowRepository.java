@@ -16,6 +16,7 @@ public interface PropertyFollowRepository extends JpaRepository<PropertyFollow, 
     List<PropertyFollow> findByProperty_PropertyId(Integer propertyId);
 
     List<PropertyFollow> findByUser_UserId(Integer userId);
+    List<PropertyFollow> findByProperty_ManagedBy_UserIdAndFollowReason(Integer agentId, com.realestate.duediligence.enums.FollowReason followReason);
 
     void deleteByUser_UserIdAndProperty_PropertyId(Integer userId, Integer propertyId);
 }

@@ -54,52 +54,18 @@ public class AdminRoleRequestServiceImpl implements AdminRoleRequestService {
         requireAdmin(adminEmail);
         String searchParam = (search != null && !search.trim().isEmpty()) ? "%" + search.trim().toLowerCase() + "%" : null;
 
-        if (requestedRole == Role.BUYER) {
-            Page<User> users = userRepository.findWithFilters(Role.BUYER, status, searchParam, null, null, pageable);
-            return users.map(this::toResponseFromUser);
-        }
-
         if (requestedRole != null) {
             Page<RoleRequest> requests = roleRequestRepository.findWithFilters(status, requestedRole, searchParam, pageable);
             return requests.map(this::toResponse);
         }
 
-        // If requestedRole is null, fetch both and combine them
-        Page<RoleRequest> requests = roleRequestRepository.findWithFilters(status, null, searchParam, pageable);
-        Page<User> buyers = userRepository.findWithFilters(Role.BUYER, status, searchParam, null, null, pageable);
-
-        List<AdminRoleRequestResponse> combinedList = new java.util.ArrayList<>();
-        for (RoleRequest rr : requests.getContent()) {
-            combinedList.add(toResponse(rr));
-        }
-        for (User u : buyers.getContent()) {
-            combinedList.add(toResponseFromUser(u));
-        }
-
-        combinedList.sort((a, b) -> {
-            if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
-            if (a.getCreatedAt() == null) return 1;
-            if (b.getCreatedAt() == null) return -1;
-            return b.getCreatedAt().compareTo(a.getCreatedAt());
-        });
-
-        long totalElements = requests.getTotalElements() + buyers.getTotalElements();
-        return new org.springframework.data.domain.PageImpl<>(combinedList, pageable, totalElements);
+        return roleRequestRepository.findWithFilters(status, null, searchParam, pageable).map(this::toResponse);
     }
 
     @Override
     @Transactional(readOnly = true)
     public AdminRoleRequestResponse getRoleRequestById(String adminEmail, Integer requestId) {
         requireAdmin(adminEmail);
-        if (requestId < 0) {
-            Integer userId = -requestId;
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "User not found: " + userId
-                    ));
-            return toResponseFromUser(user);
-        }
         return toResponse(getRoleRequest(requestId));
     }
 
@@ -107,42 +73,11 @@ public class AdminRoleRequestServiceImpl implements AdminRoleRequestService {
     public AdminRoleRequestResponse approveRoleRequest(String adminEmail, Integer requestId, String ipAddress) {
         User admin = requireAdmin(adminEmail);
 
-        if (requestId < 0) {
-            Integer userId = -requestId;
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "User not found: " + userId
-                    ));
-
-            user.setStatus(AccountStatus.ACTIVE);
-            user.setProfileCompleted(true);
-            User savedUser = userRepository.save(user);
-
-            // Record audit security event
-            SecurityEvent event = SecurityEvent.builder()
-                    .user(admin)
-                    .eventType("ROLE_REQUEST_APPROVED")
-                    .ipAddress(ipAddress)
-                    .action("Approved BUYER status for user " + user.getEmail())
-                    .status("SUCCESS")
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            securityEventRepository.save(event);
-
-            eventPublisher.publishEvent(new NotificationEvents.RoleRequestDecisionEvent(
-                    user,
-                    true,
-                    "BUYER"));
-
-            return toResponseFromUser(savedUser);
-        }
-
         RoleRequest roleRequest = getRoleRequest(requestId);
         requirePending(roleRequest);
 
         Role requestedRole = roleRequest.getRequestedRole();
-        if (requestedRole != Role.AGENT && requestedRole != Role.LEGAL_REVIEWER && requestedRole != Role.BANK) {
+        if (requestedRole == Role.ADMIN) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Invalid requested professional role: " + requestedRole
@@ -183,41 +118,11 @@ public class AdminRoleRequestServiceImpl implements AdminRoleRequestService {
     public AdminRoleRequestResponse rejectRoleRequest(String adminEmail, Integer requestId, String remarks, String ipAddress) {
         User admin = requireAdmin(adminEmail);
 
-        if (requestId < 0) {
-            Integer userId = -requestId;
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "User not found: " + userId
-                    ));
-
-            user.setStatus(AccountStatus.REJECTED);
-            user.setProfileCompleted(false);
-            User savedUser = userRepository.save(user);
-
-            // Record audit security event
-            SecurityEvent event = SecurityEvent.builder()
-                    .user(admin)
-                    .eventType("ROLE_REQUEST_REJECTED")
-                    .ipAddress(ipAddress)
-                    .action("Rejected BUYER status for user " + user.getEmail() + ". Remarks: " + remarks)
-                    .status("SUCCESS")
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            securityEventRepository.save(event);
-
-            eventPublisher.publishEvent(new NotificationEvents.RoleRequestDecisionEvent(
-                    user,
-                    false,
-                    "BUYER"));
-
-            return toResponseFromUser(savedUser);
-        }
-
         RoleRequest roleRequest = getRoleRequest(requestId);
         requirePending(roleRequest);
 
         User user = roleRequest.getUser();
+        user.setStatus(AccountStatus.REJECTED);
         user.setProfileCompleted(false);
 
         roleRequest.setStatus(AccountStatus.REJECTED);
@@ -304,25 +209,4 @@ public class AdminRoleRequestServiceImpl implements AdminRoleRequestService {
                 .build();
     }
 
-    private AdminRoleRequestResponse toResponseFromUser(User user) {
-        return AdminRoleRequestResponse.builder()
-                .requestId(-user.getUserId())
-                .userId(user.getUserId())
-                .userName(user.getName())
-                .email(user.getEmail())
-                .requestedRole(Role.BUYER)
-                .companyName("N/A")
-                .companyEmail("N/A")
-                .licenseNumber("N/A")
-                .yearsOfExperience(0)
-                .documentName("N/A")
-                .documentPath("N/A")
-                .documentMimeType("N/A")
-                .documentSize(0L)
-                .status(user.getStatus())
-                .remarks("")
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
-    }
 }

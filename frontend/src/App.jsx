@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import AuthorizationGate from "./components/Auth/AuthorizationGate";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
 import PropertySearch from "./pages/PropertySearch/PropertySearch";
@@ -29,6 +30,7 @@ import UploadDocuments from "./pages/UploadDocuments/UploadDocuments";
 import Admin from "./pages/Admin/Admin";
 import VerifyOtp from "./pages/VerifyOtp/VerifyOtp";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import AgentWorkspace from "./pages/AgentWorkspace/AgentWorkspace";
 
 function App() {
   return (
@@ -45,9 +47,16 @@ function App() {
       <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
+      <Route element={<AuthorizationGate />}>
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/buyer/dashboard" element={<Dashboard />} />
       <Route path="/agent/dashboard" element={<RoleDashboard role="AGENT" />} />
+      <Route path="/agent/properties" element={<AgentWorkspace page="properties" />} />
+      <Route path="/agent/documents" element={<AgentWorkspace page="documents" />} />
+      <Route path="/agent/due-diligence" element={<AgentWorkspace page="due-diligence" />} />
+      <Route path="/agent/buyer-requests" element={<AgentWorkspace page="buyer-requests" />} />
+      <Route path="/agent/transactions" element={<AgentWorkspace page="transactions" />} />
+      <Route path="/agent/tasks" element={<AgentWorkspace page="tasks" />} />
       <Route path="/legal/dashboard" element={<RoleDashboard role="LEGAL_REVIEWER" />} />
       <Route path="/bank/dashboard" element={<RoleDashboard role="BANK" />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -88,6 +97,7 @@ function App() {
       <Route path="/audit-logs" element={<AuditLogs />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/admin" element={<Admin />} />
+      </Route>
     </Routes>
   );
 }

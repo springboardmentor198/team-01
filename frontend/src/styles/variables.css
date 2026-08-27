@@ -1,32 +1,72 @@
 :root {
-
-  /* ---------- Colors ---------- */
+  /* ---------- Existing ---------- */
 
   --sidebar-bg: #172544;
-  --sidebar-hover: #24375E;
-  --primary-blue: #1E2B4D;
+  --sidebar-hover: #24375e;
+  --primary-blue: #1e2b4d;
+  --background: #f5f7fb;
+  --card-bg: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border: #e5e7eb;
 
-  --background: #F5F7FB;
-  --card-bg: #FFFFFF;
-
-  --text-primary: #1F2937;
-  --text-secondary: #6B7280;
-
-  --border: #E5E7EB;
-
-  --success: #22C55E;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-
-  /* ---------- Sizes ---------- */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
 
   --sidebar-width: 215px;
   --navbar-height: 72px;
-
   --radius: 14px;
 
-  /* ---------- Shadow ---------- */
+  --shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
 
-  --shadow: 0 4px 18px rgba(0,0,0,.08);
+  /* ---------- Theme Helpers ---------- */
 
+  --surface: #ffffff;
+  --surface-soft: #fbfcfe;
+  --surface-muted: #f6f8fc;
+
+  --text-dark: #0f172a;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+
+  --border-soft: #eef2f7;
+
+  --primary: #2563eb;
+  --primary-soft: #eff6ff;
+}
+
+[data-theme="dark"] {
+  --sidebar-bg: #080f1c;
+  --sidebar-hover: #18243a;
+  --primary-blue: #151f33;
+
+  --background: #0b111b;
+  --card-bg: #111a26;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+
+  --border: #263244;
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+
+  /* ---------- Theme Helpers ---------- */
+
+  --surface: #111a26;
+  --surface-soft: #162131;
+  --surface-muted: #0f1826;
+
+  --text-dark: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+
+  --border-soft: #263244;
+
+  --primary: #60a5fa;
+  --primary-soft: #172554;
 }

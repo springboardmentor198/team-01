@@ -91,6 +91,18 @@ public class NotificationEventListener {
 
         notificationService.notifyPropertyFollowers(propertyId, event.actorUserId(), base);
 
+        if ("APPROVED".equalsIgnoreCase(event.newStatus())) {
+            notificationService.notifyRole(Role.BUYER, NotificationCommand.builder()
+                    .senderId(event.actorUserId())
+                    .propertyId(propertyId)
+                    .title("New property available")
+                    .message(propertyName + " has been approved and is now available to view.")
+                    .type(NotificationType.PROPERTY_UPDATED)
+                    .priority(NotificationPriority.MEDIUM)
+                    .actionUrl("/property/" + propertyId)
+                    .build());
+        }
+
         if (event.previousStatus() != null
                 && event.newStatus() != null
                 && !event.previousStatus().equalsIgnoreCase(event.newStatus())) {

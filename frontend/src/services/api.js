@@ -50,6 +50,33 @@ const getHeaders = (includeAuth = true) => {
   return headers;
 };
 
+const getAdminJson = async (path, errorMessage) => {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    headers: getHeaders(true),
+  });
+
+  if (!response.ok) {
+    throw new Error((await response.text()) || errorMessage);
+  }
+
+  return response.json();
+};
+
+const toAdminPage = (data) => {
+  const rows = Array.isArray(data) ? data : data?.content || [];
+  return {
+    rows: Array.isArray(rows) ? rows : [],
+    totalElements: Number(data?.totalElements ?? rows.length),
+  };
+};
+
+const toWorkspaceRows = (rows, mapRow) => rows.map(mapRow);
+const sumActivity = (points) =>
+  (Array.isArray(points) ? points : []).reduce(
+    (total, point) => total + (Number(point.count) || 0),
+    0,
+  );
+
 export const getPropertyOwnerName = (property) => {
   if (!property) return "N/A";
 
@@ -209,11 +236,9 @@ export const api = {
     fullName,
     email,
     password,
-    phoneNumberOrRole,
-    legacyPhoneNumber,
+    phoneNumber,
+    role,
   ) => {
-    const phoneNumber = legacyPhoneNumber ?? phoneNumberOrRole;
-
     const response = await fetch(`${BASE_URL}/auth/register`, {
       method: "POST",
       headers: getHeaders(false),
@@ -222,6 +247,7 @@ export const api = {
         email: email,
         password: password,
         phoneNumber: phoneNumber,
+        role,
       }),
     });
 
@@ -376,7 +402,7 @@ export const api = {
     }
 
     const data = await response.json();
-    return Array.isArray(data) ? data : (data?.content || []);
+    return Array.isArray(data) ? data : data?.content || [];
   },
 
   approveAdminRoleRequest: async (id) => {
@@ -431,40 +457,30 @@ export const api = {
     }
 
     const data = await response.json();
-    return Array.isArray(data) ? data : (data?.content || []);
+    return Array.isArray(data) ? data : data?.content || [];
   },
 
   approveAdminProperty: async (id) => {
-    const response = await fetch(
-      `${BASE_URL}/admin/properties/${id}/approve`,
-      {
-        method: "PATCH",
-        headers: getHeaders(true),
-      },
-    );
+    const response = await fetch(`${BASE_URL}/admin/properties/${id}/approve`, {
+      method: "PATCH",
+      headers: getHeaders(true),
+    });
 
     if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Unable to approve property",
-      );
+      throw new Error((await response.text()) || "Unable to approve property");
     }
 
     return response.json();
   },
 
   rejectAdminProperty: async (id) => {
-    const response = await fetch(
-      `${BASE_URL}/admin/properties/${id}/reject`,
-      {
-        method: "PATCH",
-        headers: getHeaders(true),
-      },
-    );
+    const response = await fetch(`${BASE_URL}/admin/properties/${id}/reject`, {
+      method: "PATCH",
+      headers: getHeaders(true),
+    });
 
     if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Unable to reject property",
-      );
+      throw new Error((await response.text()) || "Unable to reject property");
     }
 
     return response.json();
@@ -752,20 +768,20 @@ export const api = {
       );
     return response.json();
   },
-getRiskSummary: async (propertyId) => {
-  const response = await fetch(`${BASE_URL}/risk/${propertyId}`, {
-    method: "GET",
-    headers: getHeaders(true),
-  });
+  getRiskSummary: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/risk/${propertyId}`, {
+      method: "GET",
+      headers: getHeaders(true),
+    });
 
-  if (!response.ok) {
-    throw new Error(
-      (await response.text()) || "Failed to load risk assessment"
-    );
-  }
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Failed to load risk assessment",
+      );
+    }
 
-  return response.json();
-},
+    return response.json();
+  },
   getDocuments: async (propertyId) => {
     const response = await fetch(`${BASE_URL}/documents/${propertyId}`, {
       headers: getHeaders(true),
@@ -844,23 +860,45 @@ getRiskSummary: async (propertyId) => {
     return await response.json();
   },
   getPopularProperties: async (limit = 6) => {
-    const response = await fetch(`${BASE_URL}/properties/popular?limit=${limit}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Failed to load popular properties");
+    const response = await fetch(
+      `${BASE_URL}/properties/popular?limit=${limit}`,
+      { headers: getHeaders(true) },
+    );
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load popular properties",
+      );
     return response.json();
   },
   getSavedSearches: async () => {
-    const response = await fetch(`${BASE_URL}/saved-searches`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Failed to load saved searches");
+    const response = await fetch(`${BASE_URL}/saved-searches`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load saved searches",
+      );
     return response.json();
   },
   createSavedSearch: async (payload) => {
-    const response = await fetch(`${BASE_URL}/saved-searches`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(payload) });
-    if (!response.ok) throw new Error((await response.text()) || "Failed to save search");
+    const response = await fetch(`${BASE_URL}/saved-searches`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok)
+      throw new Error((await response.text()) || "Failed to save search");
     return response.json();
   },
   deleteSavedSearch: async (id) => {
-    const response = await fetch(`${BASE_URL}/saved-searches/${id}`, { method: "DELETE", headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Failed to delete saved search");
+    const response = await fetch(`${BASE_URL}/saved-searches/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to delete saved search",
+      );
   },
   getProfileDashboard: async () => {
     const response = await fetch(`${BASE_URL}/users/profile/dashboard`, {
@@ -868,7 +906,9 @@ getRiskSummary: async (propertyId) => {
       headers: getHeaders(true),
     });
     if (!response.ok) {
-      throw new Error((await response.text()) || "Failed to load profile dashboard");
+      throw new Error(
+        (await response.text()) || "Failed to load profile dashboard",
+      );
     }
     return response.json();
   },
@@ -887,30 +927,50 @@ getRiskSummary: async (propertyId) => {
   },
 
   getRiskAssessment: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/risk/${propertyId}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Failed to load risk assessment");
+    const response = await fetch(`${BASE_URL}/risk/${propertyId}`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load risk assessment",
+      );
     return response.json();
   },
 
   getComparableProperties: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/comparison/${propertyId}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Failed to load comparable properties");
+    const response = await fetch(`${BASE_URL}/comparison/${propertyId}`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load comparable properties",
+      );
     return response.json();
   },
 
   getPropertyValuation: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/valuation/${propertyId}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Failed to load property valuation");
+    const response = await fetch(`${BASE_URL}/valuation/${propertyId}`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Failed to load property valuation",
+      );
     return response.json();
   },
 
   recordPropertyView: async (propertyId) => {
-    const response = await fetch(`${BASE_URL}/activity-log/${propertyId}/view`, {
-      method: "POST",
-      headers: getHeaders(true),
-    });
+    const response = await fetch(
+      `${BASE_URL}/activity-log/${propertyId}/view`,
+      {
+        method: "POST",
+        headers: getHeaders(true),
+      },
+    );
     if (!response.ok)
-      throw new Error((await response.text()) || "Failed to record property view");
+      throw new Error(
+        (await response.text()) || "Failed to record property view",
+      );
   },
 
   updateUserProfile: async (profileData) => {
@@ -1035,7 +1095,7 @@ getRiskSummary: async (propertyId) => {
     }
 
     const data = await response.json();
-    return Array.isArray(data) ? data : (data?.content || []);
+    return Array.isArray(data) ? data : data?.content || [];
   },
 
   updateAdminUserStatus: async (id, status) => {
@@ -1054,16 +1114,113 @@ getRiskSummary: async (propertyId) => {
     return response.json();
   },
 
-  createSupportTicket: async ({ subject, description, priority }) => {
-    const response = await fetch(`${BASE_URL}/support/tickets`, { method: "POST", headers: getHeaders(true), body: JSON.stringify({ subject, description, priority }) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to submit support ticket");
+  refreshCurrentUser: async () => {
+    const profile = await api.getUserProfile();
+    if (profile.name) localStorage.setItem("fullName", profile.name);
+    if (profile.email) localStorage.setItem("email", profile.email);
+    if (profile.userId) localStorage.setItem("userId", String(profile.userId));
+    if (profile.role) localStorage.setItem("role", profile.role);
+    if (profile.status) localStorage.setItem("status", profile.status);
+    if (typeof profile.profileCompleted === "boolean") {
+      localStorage.setItem("profileCompleted", String(profile.profileCompleted));
+    }
+    return profile;
+  },
+
+  getAgentDashboard: async () => {
+    const response = await fetch(`${BASE_URL}/agent/dashboard`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load agent dashboard");
     return response.json();
   },
-  getAdminSupportTickets: async ({ search, status, priority, page = 0, size = 20 } = {}) => {
-    const params = new URLSearchParams({ page: String(page), size: String(size) });
-    if (search) params.set("search", search); if (status) params.set("status", status); if (priority) params.set("priority", priority);
-    const response = await fetch(`${BASE_URL}/admin/support/tickets?${params}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to load support tickets");
+  getAgentProperties: async () => {
+    const response = await fetch(`${BASE_URL}/agent/properties`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load your properties");
+    return response.json();
+  },
+  createAgentProperty: async (property) => {
+    const response = await fetch(`${BASE_URL}/agent/properties`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(property) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to create property");
+    return response.json();
+  },
+  submitAgentProperty: async (id) => {
+    const response = await fetch(`${BASE_URL}/agent/properties/${id}/submit`, { method: "POST", headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to submit property");
+    return response.json();
+  },
+  getAgentDocuments: async (propertyId) => {
+    const response = await fetch(`${BASE_URL}/agent/properties/${propertyId}/documents`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load documents");
+    return response.json();
+  },
+  createAgentDocument: async (propertyId, document) => {
+    const response = await fetch(`${BASE_URL}/agent/properties/${propertyId}/documents`, { method: "POST", headers: getHeaders(true), body: JSON.stringify(document) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to save document");
+    return response.json();
+  },
+  getAgentTransactions: async () => {
+    const response = await fetch(`${BASE_URL}/agent/transactions`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load transactions");
+    return response.json();
+  },
+  getAgentBuyerRequests: async () => {
+    const response = await fetch(`${BASE_URL}/agent/buyer-requests`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load buyer requests");
+    return response.json();
+  },
+  getAgentDocuments: async () => {
+    const response = await fetch(`${BASE_URL}/agent/documents`, { headers: getHeaders(true) });
+    if (!response.ok) throw new Error((await response.text()) || "Unable to load documents");
+    return response.json();
+  },
+
+  getAdminUserSecurityEvents: async (userId) => {
+    const response = await fetch(
+      `${BASE_URL}/admin/security/events?userId=${userId}&size=10`,
+      { headers: getHeaders(true) },
+    );
+
+    if (!response.ok) {
+      throw new Error((await response.text()) || "Unable to load user activity");
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : data?.content || [];
+  },
+
+  createSupportTicket: async ({ subject, description, priority }) => {
+    const response = await fetch(`${BASE_URL}/support/tickets`, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify({ subject, description, priority }),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Unable to submit support ticket",
+      );
+    return response.json();
+  },
+  getAdminSupportTickets: async ({
+    search,
+    status,
+    priority,
+    page = 0,
+    size = 20,
+  } = {}) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+    if (search) params.set("search", search);
+    if (status) params.set("status", status);
+    if (priority) params.set("priority", priority);
+    const response = await fetch(
+      `${BASE_URL}/admin/support/tickets?${params}`,
+      { headers: getHeaders(true) },
+    );
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Unable to load support tickets",
+      );
     return response.json();
   },
   getAdminDashboard: async () => {
@@ -1081,17 +1238,24 @@ getRiskSummary: async (propertyId) => {
 
     const activityForPeriod = async (period) => {
       const [users, properties] = await Promise.all([
-        getAdminResource(`/admin/dashboard/activity?period=${period}&metric=USERS`),
+        getAdminResource(
+          `/admin/dashboard/activity?period=${period}&metric=USERS`,
+        ),
         getAdminResource(
           `/admin/dashboard/activity?period=${period}&metric=PROPERTIES`,
         ),
       ]);
       const byDate = new Map();
-      [...users, ...properties].forEach(({ date, count }, index) => {
-        const entry = byDate.get(date) || { label: date, users: 0, properties: 0 };
+      [...users, ...properties].forEach(({ label, date, count }, index) => {
+        const activityDate = label || date;
+        const entry = byDate.get(activityDate) || {
+          label: activityDate,
+          users: 0,
+          properties: 0,
+        };
         if (index < users.length) entry.users = Number(count) || 0;
         else entry.properties = Number(count) || 0;
-        byDate.set(date, entry);
+        byDate.set(activityDate, entry);
       });
       return [...byDate.values()];
     };
@@ -1101,20 +1265,35 @@ getRiskSummary: async (propertyId) => {
       return Number(page.totalElements ?? page.content?.length ?? 0);
     };
 
-    const [overview, activity, distribution, recentActivity, approved, pending, rejected, open, inProgress, resolved, closed] =
-      await Promise.all([
-        getAdminResource("/admin/dashboard/overview"),
-        Promise.all([activityForPeriod("7D"), activityForPeriod("30D"), activityForPeriod("3M")]),
-        getAdminResource("/admin/dashboard/user-distribution"),
-        getAdminResource("/admin/activity/recent"),
-        getPageTotal("/admin/role-requests?status=ACTIVE&size=1"),
-        getPageTotal("/admin/role-requests?status=PENDING&size=1"),
-        getPageTotal("/admin/role-requests?status=REJECTED&size=1"),
-        getPageTotal("/admin/support/tickets?status=OPEN&size=1"),
-        getPageTotal("/admin/support/tickets?status=IN_PROGRESS&size=1"),
-        getPageTotal("/admin/support/tickets?status=RESOLVED&size=1"),
-        getPageTotal("/admin/support/tickets?status=CLOSED&size=1"),
-      ]);
+    const [
+      overview,
+      activity,
+      distribution,
+      recentActivity,
+      approved,
+      pending,
+      rejected,
+      open,
+      inProgress,
+      resolved,
+      closed,
+    ] = await Promise.all([
+      getAdminResource("/admin/dashboard/overview"),
+      Promise.all([
+        activityForPeriod("7D"),
+        activityForPeriod("30D"),
+        activityForPeriod("3M"),
+      ]),
+      getAdminResource("/admin/dashboard/user-distribution"),
+      getAdminResource("/admin/activity/recent"),
+      getPageTotal("/admin/role-requests?status=ACTIVE&size=1"),
+      getPageTotal("/admin/role-requests?status=PENDING&size=1"),
+      getPageTotal("/admin/role-requests?status=REJECTED&size=1"),
+      getPageTotal("/admin/support/tickets?status=OPEN&size=1"),
+      getPageTotal("/admin/support/tickets?status=IN_PROGRESS&size=1"),
+      getPageTotal("/admin/support/tickets?status=RESOLVED&size=1"),
+      getPageTotal("/admin/support/tickets?status=CLOSED&size=1"),
+    ]);
 
     return {
       stats: {
@@ -1132,8 +1311,16 @@ getRiskSummary: async (propertyId) => {
       verification: { approved, pending, rejected },
       professionals: [
         { id: "agents", label: "Property Agents", count: distribution.agent },
-        { id: "legal", label: "Legal Professionals", count: distribution.legalReviewer },
-        { id: "financial", label: "Financial Institutions", count: distribution.bank },
+        {
+          id: "legal",
+          label: "Legal Professionals",
+          count: distribution.legalReviewer,
+        },
+        {
+          id: "financial",
+          label: "Financial Institutions",
+          count: distribution.bank,
+        },
       ],
       support: { open, inProgress, resolved: resolved + closed },
       recentActivity: recentActivity.map((activityItem) => ({
@@ -1144,46 +1331,306 @@ getRiskSummary: async (propertyId) => {
       })),
     };
   },
+  getAdminSidebarCounts: async () => {
+    const [overview, verificationSummary] = await Promise.all([
+      getAdminJson("/admin/dashboard/overview", "Unable to load admin overview"),
+      getAdminJson(
+        "/admin/verifications/summary",
+        "Unable to load verification summary",
+      ),
+    ]);
+
+    return {
+      "Role Requests": Number(overview?.pendingRoleRequests) || 0,
+      "Property Approvals": Number(overview?.pendingProperties) || 0,
+      "Advisor Verifications":
+        Number(verificationSummary?.pendingVerifications) || 0,
+    };
+  },
   getAdminWorkspace: async (pageKey) => {
-    const response = await fetch(`${BASE_URL}/admin/dashboard/workspace/${pageKey}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to load admin page data");
-    return response.json();
+    const getPage = async (path, errorMessage) =>
+      toAdminPage(await getAdminJson(path, errorMessage));
+
+    const getUsersByRole = async (role) =>
+      getPage(`/admin/users?role=${role}`, "Unable to load users");
+
+    const propertyRow = (property) => ({
+      id: property.propertyId,
+      name: property.propertyCode || property.address,
+      owner: property.ownerName,
+      location: [property.address, property.city].filter(Boolean).join(", "),
+      type: property.propertyType,
+      amount: property.estimatedPrice,
+      date: property.createdAt,
+      status: property.status,
+    });
+    const userRow = (user) => ({
+      id: user.userId,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      detail: user.phoneNumber,
+      date: user.createdAt,
+      status: user.status,
+    });
+
+    switch (pageKey) {
+      case "properties": {
+        const page = await getPage("/admin/properties", "Unable to load admin properties");
+        return { rows: toWorkspaceRows(page.rows, propertyRow), stats: [] };
+      }
+
+      case "property-approvals": {
+        const page = await getPage(
+          "/admin/properties?status=PENDING",
+          "Unable to load pending property approvals",
+        );
+        return {
+          rows: toWorkspaceRows(page.rows, propertyRow),
+          stats: [{ label: "Pending Approvals", value: page.totalElements }],
+        };
+      }
+
+      case "users": {
+        const page = await getPage("/admin/users", "Unable to load users");
+        return { rows: toWorkspaceRows(page.rows, userRow), stats: [] };
+      }
+
+      case "agents": {
+        const page = await getUsersByRole("AGENT");
+        return { rows: toWorkspaceRows(page.rows, userRow), stats: [] };
+      }
+
+      case "legal-advisors": {
+        const page = await getUsersByRole("LEGAL_REVIEWER");
+        return { rows: toWorkspaceRows(page.rows, userRow), stats: [] };
+      }
+
+      case "financial-institutions": {
+        const page = await getUsersByRole("BANK");
+        return { rows: toWorkspaceRows(page.rows, userRow), stats: [] };
+      }
+
+      case "advisor-verifications": {
+        const page = await getPage(
+          "/admin/verifications",
+          "Unable to load verification records",
+        );
+        return {
+          rows: toWorkspaceRows(page.rows, (verification) => ({
+            id: verification.verificationId,
+            name: verification.verifierName || verification.propertyTitle,
+            role: verification.type,
+            detail: verification.remarks,
+            date: verification.verifiedAt,
+            status: verification.status,
+          })),
+          stats: [],
+        };
+      }
+
+      case "transactions": {
+        const page = await getPage(
+          "/admin/transactions",
+          "Unable to load transactions",
+        );
+        return {
+          rows: toWorkspaceRows(page.rows, (transaction) => ({
+            id: transaction.transactionId,
+            name: transaction.propertyTitle,
+            owner: transaction.buyerName,
+            amount: transaction.amount,
+            type: transaction.agentName,
+            date: transaction.createdAt,
+            status: transaction.status,
+          })),
+          stats: [],
+        };
+      }
+
+      case "enquiries": {
+        const page = await getPage(
+          "/admin/support/tickets",
+          "Unable to load support enquiries",
+        );
+        return {
+          rows: toWorkspaceRows(page.rows, (ticket) => ({
+            id: ticket.ticketId,
+            name: ticket.subject,
+            owner: ticket.userName,
+            type: ticket.priority,
+            amount: ticket.description,
+            date: ticket.createdAt,
+            status: ticket.status,
+          })),
+          stats: [],
+        };
+      }
+
+      case "security-center": {
+        const [events, summary] = await Promise.all([
+          getPage("/admin/security/events", "Unable to load security events"),
+          getAdminJson("/admin/security/summary", "Unable to load security summary"),
+        ]);
+        return {
+          rows: toWorkspaceRows(events.rows, (event) => ({
+            id: event.eventId,
+            name: event.userName || event.userEmail,
+            role: event.ipAddress,
+            type: event.eventType,
+            detail: event.action,
+            date: event.createdAt,
+            status: event.status,
+          })),
+          stats: Object.entries(summary || {}).map(([label, value]) => ({
+            label,
+            value,
+          })),
+        };
+      }
+
+      case "activity-analytics": {
+        const recentActivity = await getAdminJson(
+          "/admin/activity/recent",
+          "Unable to load recent platform activity",
+        );
+        const analytics = await Promise.allSettled([
+          getAdminJson("/admin/analytics/user-growth?period=30D", "Unable to load user growth"),
+          getAdminJson("/admin/analytics/property-growth?period=30D", "Unable to load property growth"),
+          getAdminJson("/admin/analytics/transactions?period=30D", "Unable to load transaction activity"),
+          getAdminJson("/admin/analytics/active-users?period=30D", "Unable to load active user activity"),
+        ]);
+        const labels = ["User Growth", "Property Growth", "Transactions", "Active Users"];
+        return {
+          rows: toWorkspaceRows(toAdminPage(recentActivity).rows, (activity) => ({
+            id: activity.id,
+            name: activity.description || activity.activityType,
+            owner: activity.performedBy,
+            type: activity.activityType,
+            date: activity.createdAt,
+          })),
+          stats: analytics.flatMap((result, index) =>
+            result.status === "fulfilled"
+              ? [{ label: labels[index], value: sumActivity(result.value) }]
+              : [],
+          ),
+        };
+      }
+
+      case "reports": {
+        const [page, summary] = await Promise.all([
+          getPage("/admin/reports", "Unable to load generated reports"),
+          getAdminJson("/admin/reports/summary", "Unable to load report summary"),
+        ]);
+        return {
+          rows: toWorkspaceRows(page.rows, (report) => ({
+            id: report.reportId,
+            name: `Report #${report.reportId}`,
+            type: "Due Diligence",
+            owner: report.createdBy,
+            date: report.createdAt,
+            status: report.status,
+          })),
+          stats: [
+            { label: "Total Reports", value: summary.totalReports },
+            { label: "Total Downloads", value: summary.totalDownloads },
+            { label: "PDF Downloads", value: summary.pdfDownloads },
+            { label: "Excel Downloads", value: summary.excelDownloads },
+          ],
+        };
+      }
+
+      default:
+        throw new Error(`Admin workspace API is not configured for: ${pageKey}`);
+    }
   },
   getAdminSupportTicket: async (ticketId) => {
-    const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to load support ticket"); return response.json();
+    const response = await fetch(
+      `${BASE_URL}/admin/support/tickets/${ticketId}`,
+      { headers: getHeaders(true) },
+    );
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Unable to load support ticket",
+      );
+    return response.json();
   },
   updateSupportTicketStatus: async (ticketId, status) => {
-    const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}/status`, { method: "PATCH", headers: getHeaders(true), body: JSON.stringify({ status }) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to update ticket status"); return response.json();
+    const response = await fetch(
+      `${BASE_URL}/admin/support/tickets/${ticketId}/status`,
+      {
+        method: "PATCH",
+        headers: getHeaders(true),
+        body: JSON.stringify({ status }),
+      },
+    );
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Unable to update ticket status",
+      );
+    return response.json();
   },
   replyToSupportTicket: async (ticketId, message) => {
-    const response = await fetch(`${BASE_URL}/admin/support/tickets/${ticketId}/reply`, { method: "POST", headers: getHeaders(true), body: JSON.stringify({ message }) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to send reply"); return response.json();
+    const response = await fetch(
+      `${BASE_URL}/admin/support/tickets/${ticketId}/reply`,
+      {
+        method: "POST",
+        headers: getHeaders(true),
+        body: JSON.stringify({ message }),
+      },
+    );
+    if (!response.ok)
+      throw new Error((await response.text()) || "Unable to send reply");
+    return response.json();
   },
   getAdminSystemHealth: async () => {
-    const response = await fetch(`${BASE_URL}/admin/system/health`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to load system health");
+    const response = await fetch(`${BASE_URL}/admin/system/health`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Unable to load system health",
+      );
     return response.json();
   },
   getAdminSystemMetrics: async () => {
-    const response = await fetch(`${BASE_URL}/admin/system/metrics`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to load system metrics");
+    const response = await fetch(`${BASE_URL}/admin/system/metrics`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Unable to load system metrics",
+      );
     return response.json();
   },
   getAdminApiPerformance: async () => {
-    const response = await fetch(`${BASE_URL}/admin/system/api-performance`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to load API performance");
+    const response = await fetch(`${BASE_URL}/admin/system/api-performance`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Unable to load API performance",
+      );
     return response.json();
   },
   getAdminSystemLogs: async () => {
-    const response = await fetch(`${BASE_URL}/admin/system/logs`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to load application logs");
+    const response = await fetch(`${BASE_URL}/admin/system/logs`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Unable to load application logs",
+      );
     return response.json();
   },
   getAdminCacheMetrics: async () => {
-    const response = await fetch(`${BASE_URL}/admin/system/cache`, { headers: getHeaders(true) });
-    if (!response.ok) throw new Error((await response.text()) || "Unable to load cache metrics");
+    const response = await fetch(`${BASE_URL}/admin/system/cache`, {
+      headers: getHeaders(true),
+    });
+    if (!response.ok)
+      throw new Error(
+        (await response.text()) || "Unable to load cache metrics",
+      );
     return response.json();
   },
 };

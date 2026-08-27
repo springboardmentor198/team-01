@@ -138,7 +138,7 @@ export default function Dashboard() {
          ----------------------------------------------- */
 
       setDashboardData({
-        totalProperties: summary?.totalProperties ?? 0,
+        totalProperties: summary?.viewedProperties ?? 0,
 
         totalReports: summary?.totalReports ?? summary?.reportsGenerated ?? 0,
 
@@ -290,7 +290,7 @@ export default function Dashboard() {
 
   const stats = [
     {
-      label: "Total Properties",
+      label: "Properties Viewed",
       value: dashboardData.totalProperties,
       icon: LuBuilding2,
       color: "#2563EB",
@@ -306,7 +306,7 @@ export default function Dashboard() {
     },
 
     {
-      label: "High Risk Properties",
+      label: "High-Risk Viewed",
       value: dashboardData.highRiskCount,
       icon: LuTriangleAlert,
       color: "#DC2626",
@@ -314,7 +314,7 @@ export default function Dashboard() {
     },
 
     {
-      label: "Pending Reviews",
+      label: "Viewed Under Review",
       value: dashboardData.pendingReviews,
       icon: LuClock,
       color: "#D97706",

@@ -64,12 +64,12 @@ function getMenuItemsForRole(role) {
   if (role === "AGENT") {
     return [
       dashboardItem,
-      { name: "Properties", path: "/agent/properties", icon: <FiSearch /> },
+      { name: "My Properties", path: "/agent/properties", icon: <FiSearch /> },
+      { name: "Buyer Requests", path: "/agent/buyer-requests", icon: <FiUser /> },
       { name: "Documents", path: "/agent/documents", icon: <FiFileText /> },
-      { name: "Permits", path: "/agent/permits", icon: <FiCheckSquare /> },
-      { name: "Ownership", path: "/agent/ownership", icon: <FiUser /> },
-      { name: "Risk Summary", path: "/agent/risk-summary", icon: <FiShield /> },
-      { name: "Activity Timeline", path: "/agent/activity", icon: <FiClock /> },
+      { name: "Due Diligence", path: "/agent/due-diligence", icon: <FiCheckSquare /> },
+      { name: "Transactions", path: "/agent/transactions", icon: <FiDollarSign /> },
+      { name: "Tasks", path: "/agent/tasks", icon: <FiClipboard /> },
       notificationsItem,
       profileItem,
     ];

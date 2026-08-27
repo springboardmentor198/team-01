@@ -133,7 +133,7 @@ function AdminDashboard() {
   const loadPendingProperties = useCallback(async () => {
     setPropertiesLoading(true);
     try {
-      const response = await api.getAdminProperties({ status: "UNDER_REVIEW" });
+      const response = await api.getAdminProperties({ status: "PENDING_VERIFICATION" });
       setPendingProperties(response);
     } catch (err) {
       console.warn("Failed to load pending properties:", err);

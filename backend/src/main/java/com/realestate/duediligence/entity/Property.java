@@ -55,6 +55,10 @@ public class Property {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+    @ManyToOne
+    @JoinColumn(name = "managed_by_user_id")
+    private User managedBy;
+
     @Column(name = "owner_name")
     private String ownerName;
 

@@ -14,6 +14,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     List<Report> findByPropertyIdOrderByCreatedAtDesc(Integer propertyId);
 
+    long countByCreatedBy(String createdBy);
+
     @Query("""
             SELECT COUNT(DISTINCT r.propertyId)
             FROM Report r
